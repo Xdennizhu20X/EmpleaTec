@@ -1,0 +1,62 @@
+<div class="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-blue-100 to-purple-100 custom-background">
+  <!-- Header -->
+  <header class="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-10">
+    <div class="flex items-center space-x-2">
+      <svg class="w-8 h-8 text-blue-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V8z" clip-rule="evenodd"></path>
+      </svg>
+      <span class="text-2xl font-sans font-semibold text-blue-700">EmpleaTec</span>
+    </div>
+    <nav class="space-x-4">
+      <a routerLink="/nosotros" class="px-4 py-2 rounded-full bg-white/30 backdrop-filter backdrop-blur-lg shadow-md text-blue-800 hover:bg-white/50 transition-all duration-300">Nosotros</a>
+      <a routerLink="/como-funciona" class="px-4 py-2 rounded-full bg-white/30 backdrop-filter backdrop-blur-lg shadow-md text-blue-800 hover:bg-white/50 transition-all duration-300">Cómo Funciona</a>
+      <a routerLink="/contacto" class="px-4 py-2 rounded-full bg-white/30 backdrop-filter backdrop-blur-lg shadow-md text-blue-800 hover:bg-white/50 transition-all duration-300">Contacto</a>
+    </nav>
+  </header>
+
+  <!-- Main Content Container -->
+  <div class="relative z-0 max-w-4xl w-full mx-auto my-auto p-8 bg-white/20 backdrop-filter backdrop-blur-lg rounded-2xl shadow-xl flex flex-col items-center text-center space-y-6">
+    <!-- Title -->
+    <h1 class="text-5xl font-extrabold tracking-tight text-gray-800">
+      Conecta con Profesionales
+      <br>
+      <span class="text-blue-700">de Oficios Tradicionales</span>
+    </h1>
+
+    <!-- Subtitle/Description -->
+    <p class="text-lg text-blue-800/70 leading-relaxed max-w-2xl">
+      La plataforma que une a trabajadores expertos con clientes que necesitan servicios de calidad en carpintería, plomería, electricidad y más.
+    </p>
+
+    <!-- Role Selection Section -->
+    <div class="flex flex-col md:flex-row gap-x-8 gap-y-6 justify-center items-start w-full pt-4">
+      <!-- Card 1: Cliente -->
+      <div class="flex flex-col items-center p-8 bg-white rounded-xl shadow-lg w-full md:w-1/2 max-w-sm">
+        <svg class="w-16 h-16 text-blue-600 mb-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+        </svg>
+        <h3 class="font-semibold text-xl text-blue-800 mb-2">Soy Cliente</h3>
+        <p class="text-sm text-blue-700/70 text-center mb-6">
+          Encuentra al profesional ideal para tus proyectos del hogar o negocio.
+        </p>
+        <button routerLink="/register-client" class="px-6 py-3 rounded-full bg-blue-700 text-white font-medium hover:bg-blue-800 transition-colors duration-300 shadow-md">
+          Registrarse como Cliente
+        </button>
+      </div>
+
+      <!-- Card 2: Trabajador -->
+      <div class="flex flex-col items-center p-8 bg-white rounded-xl shadow-lg w-full md:w-1/2 max-w-sm">
+        <svg class="w-16 h-16 text-blue-600 mb-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7a1 1 0 011.414-1.414L9 14.586V3a1 1 0 112 0v11.586l4.293-4.293a1 1 0 011.414 0z" clip-rule="evenodd" fill-rule="evenodd"></path>
+        </svg>
+        <h3 class="font-semibold text-xl text-blue-800 mb-2">Soy Trabajador</h3>
+        <p class="text-sm text-blue-700/70 text-center mb-6">
+          Ofrece tus servicios, encuentra nuevos clientes y haz crecer tu negocio.
+        </p>
+        <button routerLink="/register-worker" class="px-6 py-3 rounded-full bg-blue-700 text-white font-medium hover:bg-blue-800 transition-colors duration-300 shadow-md">
+          Registrarse como Trabajador
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
