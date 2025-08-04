@@ -153,7 +153,7 @@ export class WorkerRegisterComponent implements OnInit {
         await setDoc(userRef, userProfile);
 
         alert('¡Registro exitoso!');
-        this.router.navigate(['/login-worker']);
+        this.router.navigate(['/dashboard-worker']);
       }
     } catch (error: any) {
       console.error('Error detallado durante el registro:', error);

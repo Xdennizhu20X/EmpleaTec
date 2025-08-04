@@ -1,2 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 @import "tailwindcss";
+body {
+  background-image: radial-gradient(at top left, #E0F2F7, #D1C4E9);
+  font-family: 'Inter', sans-serif;
+}

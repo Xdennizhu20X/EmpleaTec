@@ -29,7 +29,7 @@ export class ClientLoginComponent implements OnInit {
       try {
         await this.authService.signIn(email, password);
         alert('Inicio de sesión exitoso!');
-        this.router.navigate(['/dashboard']); // Navigate to a dashboard or home page
+        this.router.navigate(['/dashboard-worker']); // Navigate to a dashboard or home page
       } catch (error: any) {
         alert('Error al iniciar sesión: ' + error.message);
       }

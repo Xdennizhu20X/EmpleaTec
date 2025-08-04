@@ -4,6 +4,7 @@ import { ClientLoginComponent } from './features/auth/pages/client-login/client-
 import { ClientRegisterComponent } from './features/auth/pages/client-register/client-register';
 import { WorkerLoginComponent } from './features/auth/pages/worker-login/worker-login';
 import { WorkerRegisterComponent } from './features/auth/pages/worker-register/worker-register';
+import { Dashboard } from './features/dashboard/pages/dashboard/dashboard';
 
 export const routes: Routes = [
   {
@@ -25,5 +26,9 @@ export const routes: Routes = [
   {
     path: 'register-worker',
     component: WorkerRegisterComponent
+  },
+  {
+    path: 'dashboard-worker',
+    component: Dashboard
   }
 ];
