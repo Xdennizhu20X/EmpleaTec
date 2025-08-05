@@ -37,5 +37,9 @@ export const routes: Routes = [
   {
     path: 'worker-explorer',
     loadComponent: () => import('./features/explorer/pages/worker-explorer/worker-explorer').then(m => m.WorkerExplorerComponent)
+  },
+  {
+    path: 'messages',
+    loadComponent: () => import('./features/messages/pages/messages-screen/messages-screen').then(m => m.MessagesScreen)
   }
 ];
