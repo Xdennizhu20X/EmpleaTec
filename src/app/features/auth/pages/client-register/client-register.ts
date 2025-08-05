@@ -62,7 +62,7 @@ export class ClientRegisterComponent implements OnInit {
         }
 
         alert('Registro exitoso!');
-        this.router.navigate(['/dashboard-worker']); // Navigate to login page after registration
+        this.router.navigate(['/dashboard-client']); // Navigate to client dashboard page after registration
       } catch (error: any) {
         alert('Error al registrar: ' + error.message);
       }

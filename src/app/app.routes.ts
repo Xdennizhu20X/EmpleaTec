@@ -4,7 +4,6 @@ import { ClientLoginComponent } from './features/auth/pages/client-login/client-
 import { ClientRegisterComponent } from './features/auth/pages/client-register/client-register';
 import { WorkerLoginComponent } from './features/auth/pages/worker-login/worker-login';
 import { WorkerRegisterComponent } from './features/auth/pages/worker-register/worker-register';
-import { Dashboard } from './features/dashboard/pages/dashboard/dashboard';
 
 export const routes: Routes = [
   {
@@ -29,6 +28,14 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard-worker',
-    component: Dashboard
+    loadComponent: () => import('./features/dashboard/pages/dashboard-worker/dashboard').then(m => m.DashboardWorker)
+  },
+  {
+    path: 'dashboard-client',
+    loadComponent: () => import('./features/dashboard/pages/dashboard-client/dashboard-client').then(m => m.DashboardClient)
+  },
+  {
+    path: 'worker-explorer',
+    loadComponent: () => import('./features/explorer/pages/worker-explorer/worker-explorer').then(m => m.WorkerExplorerComponent)
   }
 ];

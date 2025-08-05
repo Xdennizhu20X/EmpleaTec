@@ -1,0 +1,35 @@
+
+@keyframes slideOutLeft {
+  from {
+    transform: translateX(0) rotate(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-150%) rotate(-20deg);
+    opacity: 0;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0) rotate(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(150%) rotate(20deg);
+    opacity: 0;
+  }
+}
+
+.card-container.animate-like .worker-card {
+  animation: slideOutRight 0.5s forwards ease-in-out;
+}
+
+.card-container.animate-dislike .worker-card {
+  animation: slideOutLeft 0.5s forwards ease-in-out;
+}
+
+.worker-card {
+  // This ensures the card returns to its position smoothly when not animating out
+  transition: transform 0.3s ease-out;
+}

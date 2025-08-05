@@ -1,0 +1,164 @@
+<div class="min-h-screen w-full bg-gradient-to-br from-blue-50 to-blue-100 font-sans flex flex-col">
+  <!-- Header -->
+  <header class="flex-shrink-0 bg-white/30 backdrop-blur-lg z-10">
+    <div class="container mx-auto flex items-center justify-between h-16 px-4">
+      <button (click)="goBack()" class="p-2 rounded-full hover:bg-white/50 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-800" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <div class="flex items-center space-x-2 text-xl font-bold text-blue-900">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M12 2L1 9l4 12h14l4-12L12 2zm0 2.236L17.916 9H6.084L12 4.236zM4.928 11h14.144l-2.352 7H7.28L4.928 11z" />
+        </svg>
+        <span>EmpleaTec</span>
+      </div>
+      <div class="w-16 text-center font-semibold text-blue-800">
+        <span *ngIf="workers.length > 0">{{ currentIndex + 1 }}/{{ totalWorkers }}</span>
+        <span *ngIf="workers.length === 0">0/0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Category Filter -->
+  <div class="flex-shrink-0 py-4">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-4 md:grid-cols-8 gap-2">
+        <button *ngFor="let category of categories" (click)="selectCategory(category.id)"
+          class="flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200 space-y-1 text-center"
+          [ngClass]="{'bg-blue-500 text-white shadow-lg scale-105': selectedCategory === category.id, 'bg-white/40 hover:bg-white/70': selectedCategory !== category.id}">
+          <span class="text-xl">{{ category.icon }}</span>
+          <span class="text-xs font-semibold truncate">{{ category.name }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content: Tinder-like card and instructions -->
+  <main class="flex-grow flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <div class="w-full max-w-sm mb-4">
+      <div *ngIf="workers.length > 0 && currentIndex < totalWorkers"
+        class="relative h-[600px] select-none card-container"
+        [ngClass]="{'animate-like': animationState === 'like', 'animate-dislike': animationState === 'dislike'}"
+        (mousedown)="onDragStart($event)" (touchstart)="onDragStart($event)" (mousemove)="onDragMove($event)"
+        (touchmove)="onDragMove($event)" (mouseup)="onDragEnd()" (touchend)="onDragEnd()" (mouseleave)="onDragEnd()">
+
+        <div
+          class="absolute inset-0 bg-white/50 backdrop-blur-lg rounded-2xl shadow-lg flex flex-col overflow-hidden cursor-pointer worker-card"
+          [ngStyle]="getCardStyle()" (click)="viewProfile()">
+
+          <!-- Image and Overlay -->
+          <div class="relative h-3/5 w-full">
+            <img [src]="workers[currentIndex].avatar" [alt]="workers[currentIndex].name"
+              class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+            <div class="absolute top-4 right-4 flex flex-col items-end gap-2">
+              <span *ngIf="workers[currentIndex].isVerified"
+                class="flex items-center gap-1 bg-blue-500/80 text-white text-xs font-bold px-2 py-1 rounded-full backdrop-blur-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm3.733 8.088a.75.75 0 001.06-1.06l-3.5-3.5a.75.75 0 00-1.06 0l-1.5 1.5a.75.75 0 101.06 1.06l.97-.97 3.03 3.03z"
+                    clip-rule="evenodd" />
+                </svg>
+                Verificado
+              </span>
+              <span *ngIf="workers[currentIndex].isOnline"
+                class="flex items-center gap-1.5 bg-green-500/80 text-white text-xs font-bold px-2 py-1 rounded-full backdrop-blur-sm">
+                <span class="h-2 w-2 rounded-full bg-white"></span>
+                En línea
+              </span>
+            </div>
+          </div>
+
+          <div class="mt-2 left-4 text-white text-center ">
+            <h2 class="text-3xl font-bold text-blue-900">{{ workers[currentIndex].name }}, {{ workers[currentIndex].age }}</h2>
+            <p class="text-lg font-medium text-blue-700">{{ workers[currentIndex].specialty }}</p>
+          </div>
+
+          <!-- Info Section -->
+          <div class="p-4 flex flex-col flex-grow">
+
+            <div class="flex items-center justify-between text-sm mb-3">
+              <div class="flex items-center gap-1 font-bold text-yellow-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path
+                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <span>{{ workers[currentIndex].rating }}</span>
+              </div>
+              <div class="font-semibold text-xl text-blue-800">
+                ${{ workers[currentIndex].price }}/día
+              </div>
+              <div class="flex items-center gap-1 text-sm text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                    clip-rule="evenodd" />
+                </svg>
+                <span>{{ workers[currentIndex].distance }}</span>
+              </div>
+            </div>
+            <div class="flex-grow flex items-center justify-center">
+              <p class="text-center text-gray-700 italic text-md">"{{ workers[currentIndex].tagline }}"</p>
+            </div>
+            <div class="flex items-center justify-around mt-3">
+              <button (click)="triggerAction('dislike'); $event.stopPropagation()"
+                class="w-14 h-14 rounded-full bg-white/80 backdrop-blur-lg shadow-xl flex items-center justify-center text-red-500 hover:scale-110 transition-transform duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              <button (click)="triggerAction('like'); $event.stopPropagation()"
+                class="w-14 h-14 rounded-full bg-white/80 backdrop-blur-lg shadow-xl flex items-center justify-center text-green-500 hover:scale-110 transition-transform duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd"
+                    d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                    clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Swipe Feedback Overlay -->
+          <div class="absolute inset-0 rounded-2xl pointer-events-none" [ngStyle]="getOverlayStyle()"></div>
+        </div>
+      </div>
+
+      <!-- No more workers message -->
+      <div *ngIf="workers.length > 0 && currentIndex >= totalWorkers"
+        class="text-center text-blue-800 bg-white/60 backdrop-blur-md p-8 rounded-2xl shadow-lg">
+        <h3 class="text-2xl font-bold">¡Eso es todo por ahora!</h3>
+        <p class="mt-2">Has visto todos los perfiles disponibles. Vuelve más tarde.</p>
+      </div>
+
+      <!-- Loading/No workers message -->
+      <div *ngIf="workers.length === 0"
+        class="text-center text-blue-800 bg-white/60 backdrop-blur-md p-8 rounded-2xl shadow-lg">
+        <h3 class="text-2xl font-bold">Buscando...</h3>
+        <p class="mt-2">No hay trabajadores disponibles en esta categoría.</p>
+      </div>
+    </div>
+
+    <!-- Instructions Panel -->
+    <div class="w-full max-w-sm p-4 rounded-2xl bg-white/60 backdrop-blur-md shadow-lg text-center space-y-3">
+      <p class="text-sm text-blue-600 font-medium">Desliza o usa los botones para explorar</p>
+      <div class="flex items-center justify-center space-x-4 sm:space-x-6 text-xs text-blue-800 font-semibold">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-red-400"></span>
+          <span class="hidden sm:inline">Desliza izquierda para pasar</span>
+          <span class="sm:hidden">← Pasar</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-green-400"></span>
+          <span class="hidden sm:inline">Desliza derecha para guardar</span>
+          <span class="sm:hidden">Guardar →</span>
+        </div>
+      </div>
+      <p class="text-xs text-blue-400">Toca la tarjeta para ver el perfil completo</p>
+    </div>
+
+  </main>
+</div>

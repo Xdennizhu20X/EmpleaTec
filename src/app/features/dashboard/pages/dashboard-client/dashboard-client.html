@@ -1,0 +1,134 @@
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 text-gray-800 font-sans">
+  <!-- Sidebar -->
+  <aside class="fixed inset-y-0 left-0 w-64 bg-white/50 backdrop-blur-lg p-6 space-y-8 shadow-lg z-20 transform transition-transform duration-300 ease-in-out">
+    <!-- Logo -->
+    <div class="flex items-center space-x-3 text-2xl font-bold text-blue-900">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2L1 9l4 12h14l4-12L12 2zm0 2.236L17.916 9H6.084L12 4.236zM4.928 11h14.144l-2.352 7H7.28L4.928 11z"/>
+      </svg>
+      <span>EmpleaTec</span>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="space-y-3">
+      <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Acciones rápidas</h3>
+      <button class="w-full flex items-center space-x-3 px-4 py-2.5 text-left text-blue-800 bg-blue-100/50 rounded-lg hover:bg-blue-200/70 transition-colors duration-200">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m-7-7h14"/></svg>
+        <span>Publicar Trabajo</span>
+      </button>
+      <a routerLink="/worker-explorer" class="w-full flex items-center space-x-3 px-4 py-2.5 text-left text-gray-700 hover:bg-gray-200/50 rounded-lg transition-colors duration-200">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"/></svg>
+        <span>Explorar Trabajadores</span>
+      </a>
+      <a href="#" class="w-full flex items-center space-x-3 px-4 py-2.5 text-left text-gray-700 hover:bg-gray-200/50 rounded-lg transition-colors duration-200">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span>Mensajes</span>
+      </a>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="space-y-3">
+      <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Categorías</h3>
+      <ul class="space-y-1">
+        <li *ngFor="let category of categories">
+          <a href="#" 
+             (click)="setActiveCategory(category.id); $event.preventDefault()"
+             class="flex justify-between items-center px-4 py-2 rounded-lg transition-colors duration-200"
+             [ngClass]="{'bg-blue-500 text-white shadow-md': activeCategory === category.id, 'text-gray-700 hover:bg-gray-200/50': activeCategory !== category.id}">
+            <span class="font-medium">{{ category.name }}</span>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full"
+                  [ngClass]="{'bg-white/20': activeCategory === category.id, 'bg-gray-200': activeCategory !== category.id}">
+              {{ category.count }}
+            </span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="ml-64">
+    <!-- Header -->
+    <header class="sticky top-0 bg-white/30 backdrop-blur-lg z-10">
+      <div class="flex items-center justify-between h-20 px-8">
+        <!-- Search Bar (Desktop) -->
+        <div class="hidden md:flex items-center w-full max-w-md">
+          <div class="relative w-full">
+            <input type="search" placeholder="Buscar profesionales, servicios..." class="w-full pl-12 pr-4 py-2.5 bg-white/50 border border-gray-200/80 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"/></svg>
+          </div>
+        </div>
+        
+        <!-- Header Icons -->
+        <div class="flex items-center space-x-5 ml-auto">
+          <button class="p-2 rounded-full text-gray-600 hover:bg-gray-200/50 hover:text-blue-600 transition-colors duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </button>
+          <button class="p-2 rounded-full text-gray-600 hover:bg-gray-200/50 hover:text-blue-600 transition-colors duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </button>
+          <div class="relative">
+            <img src="https://randomuser.me/api/portraits/men/86.jpg" alt="User Profile" class="h-10 w-10 rounded-full border-2 border-transparent hover:border-blue-500 cursor-pointer transition-all duration-200">
+          </div>
+          <button class="p-2 rounded-full text-gray-600 hover:bg-gray-200/50 hover:text-red-600 transition-colors duration-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="p-8">
+      <!-- Welcome Card -->
+      <div class="bg-white/50 backdrop-blur-lg rounded-2xl shadow-sm p-8 mb-8 flex justify-between items-center">
+        <div>
+          <h1 class="text-3xl font-bold text-blue-900">Bienvenido de nuevo, Gabriel!</h1>
+          <p class="text-gray-600 mt-1">Aquí tienes un resumen de tu actividad reciente.</p>
+        </div>
+        <div class="text-center">
+          <p class="text-4xl font-bold text-blue-600">5</p>
+          <p class="text-sm font-medium text-gray-500">Proyectos Activos</p>
+        </div>
+      </div>
+
+      <!-- Featured Workers Section -->
+      <div>
+        <h2 class="text-2xl font-bold text-blue-900 mb-6">Profesionales Destacados</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- Worker Card -->
+          <div *ngFor="let worker of featuredWorkers" class="bg-white rounded-2xl shadow-lg overflow-hidden group transform hover:scale-105 transition-transform duration-300 ease-in-out cursor-pointer">
+            <div class="relative h-40">
+              <img [src]="worker.coverImage" alt="Cover Image" class="w-full h-full object-cover">
+              <img [src]="worker.avatar" alt="Avatar" class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 h-24 w-24 rounded-full border-4 border-white shadow-md">
+              <span *ngIf="worker.isOnline" class="absolute top-4 right-4 h-3 w-3 rounded-full bg-green-500 border-2 border-white" title="Online"></span>
+            </div>
+            <div class="pt-16 pb-6 px-6 text-center">
+              <div class="flex items-center justify-center gap-2">
+                <h3 class="text-xl font-bold text-gray-800">{{ worker.name }}</h3>
+                <svg *ngIf="worker.isVerified" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor" title="Verificado">
+                  <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm3.733 8.088a.75.75 0 001.06-1.06l-3.5-3.5a.75.75 0 00-1.06 0l-1.5 1.5a.75.75 0 101.06 1.06l.97-.97 3.03 3.03z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <p class="text-sm text-gray-500 font-medium">{{ worker.specialty }}</p>
+              <div class="flex justify-center items-center gap-4 my-4">
+                <div class="flex items-center gap-1 text-yellow-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                  <span class="font-bold">{{ worker.rating }}</span>
+                  <span class="text-sm text-gray-400">({{ worker.reviewCount }})</span>
+                </div>
+                <div class="flex items-center gap-1 text-gray-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /></svg>
+                  <span class="text-sm">{{ worker.location }}</span>
+                </div>
+              </div>
+              <p class="text-lg font-semibold text-blue-600 mb-4">${{ worker.price }}/día</p>
+              <button class="w-full bg-blue-500 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">
+                Contactar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
