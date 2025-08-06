@@ -1,0 +1,91 @@
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 font-sans text-gray-800">
+  <!-- Header -->
+  <header class="sticky top-0 z-20 bg-white/50 backdrop-blur-lg">
+    <div class="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
+      <button (click)="onBack()" class="flex items-center gap-2 rounded-full p-2 text-gray-600 transition-colors duration-200 hover:bg-gray-200/50 hover:text-blue-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+      </button>
+      <h1 class="text-xl font-bold text-blue-900">Explorar Trabajos</h1>
+      <button (click)="showFilters.set(!showFilters())" class="rounded-full p-2 text-gray-600 transition-colors duration-200 hover:bg-gray-200/50 hover:text-blue-600 lg:hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8v-2m0 2a2 2 0 100 4m0-4a2 2 0 110 4m0-4h.01M6 12h.01M18 8h.01M18 18h.01" /></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Page Content -->
+  <main class="container mx-auto max-w-7xl p-4 sm:p-6">
+    <div class="grid lg:grid-cols-4 gap-8">
+      <!-- Filters Sidebar -->
+      <aside [ngClass]="{'block': showFilters(), 'hidden': !showFilters()}" class="lg:block lg:col-span-1 space-y-6">
+        <div class="p-6 rounded-2xl bg-white/50 backdrop-blur-lg shadow-sm">
+          <h3 class="font-semibold text-blue-900 mb-4">Buscar</h3>
+          <div class="relative">
+            <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="Buscar por título..." class="w-full rounded-full border-2 border-white/80 bg-white/50 py-2 pl-10 pr-4 text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          </div>
+        </div>
+        <div class="p-6 rounded-2xl bg-white/50 backdrop-blur-lg shadow-sm">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-semibold text-blue-900">Filtros</h3>
+            <button (click)="clearFilters()" class="text-sm text-blue-600 hover:underline">Limpiar</button>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <label class="text-sm font-medium text-gray-700">Ordenar por</label>
+              <!-- (change)="handleFilterChange('sortBy', $event.target.value)" -->
+              <select  class="w-full mt-1 px-4 py-2.5 bg-white/50 border border-gray-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="recent">Más recientes</option>
+                <option value="budget">Mayor presupuesto</option>
+                <option value="distance">Más cercanos</option>
+                <option value="urgent">Más urgentes</option>
+              </select>
+            </div>
+            <div class="flex items-center justify-between">
+              <label class="text-sm font-medium text-gray-700">Solo urgentes</label>
+              <!-- [checked]="filters().urgentOnly" (change)="handleFilterChange('urgentOnly', $event.target.checked)" -->
+              <input type="checkbox"  class="h-4 w-4 rounded text-blue-600 focus:ring-blue-500">
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Jobs List -->
+      <div class="lg:col-span-3 space-y-6">
+        <div *ngFor="let job of filteredJobs()" (click)="selectedJob.set(job)" class="cursor-pointer rounded-2xl bg-white/50 p-6 shadow-md backdrop-blur-lg transition-all duration-300 hover:scale-[1.01] hover:bg-white/70">
+          <div class="flex flex-col sm:flex-row gap-6">
+            <img [src]="job.images[0]" alt="" class="h-32 w-full sm:w-48 rounded-lg object-cover flex-shrink-0">
+            <div class="flex-grow">
+              <div class="flex justify-between items-start">
+                <h4 class="text-lg font-bold text-blue-900">{{ job.title }}</h4>
+                <span class="text-lg font-bold text-blue-700">${{ job.budget.min | number }} - ${{ job.budget.max | number }}</span>
+              </div>
+              <p class="text-sm text-gray-600 mt-2 line-clamp-2">{{ job.description }}</p>
+              <div class="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-700">
+                <span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>{{ job.location }}</span>
+                <span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>Posted {{ formatTimeAgo(job.postedDate) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="filteredJobs().length === 0" class="text-center py-16">
+          <h3 class="text-lg font-semibold text-blue-800">No hay trabajos disponibles</h3>
+          <p class="text-gray-600">Intenta ajustar tus filtros o revisa más tarde.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Job Details Modal -->
+  <div *ngIf="selectedJob() as job" (click)="selectedJob.set(null)" class="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div (click)="$event.stopPropagation()" class="relative max-w-2xl w-full bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto p-8">
+      <button (click)="selectedJob.set(null)" class="absolute top-4 right-4 rounded-full p-2 hover:bg-gray-200/50"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
+      <h2 class="text-2xl font-bold text-blue-900 mb-4">{{ job.title }}</h2>
+      <p class="text-gray-700 mb-6">{{ job.description }}</p>
+      <div class="mb-6">
+        <h4 class="font-semibold text-blue-900 mb-2">Requisitos</h4>
+        <p class="text-gray-700">{{ job.requirements }}</p>
+      </div>
+      <button (click)="handleApply(job.id)" class="w-full py-3 rounded-lg font-bold text-white bg-blue-500 hover:bg-blue-600 transition-colors">Postularme</button>
+    </div>
+  </div>
+</div>

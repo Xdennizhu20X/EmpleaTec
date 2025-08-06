@@ -30,6 +30,10 @@ export const routes: Routes = [
     path: 'create-job',
     loadComponent: () => import('./features/jobs/pages/create-job/create-job').then(m => m.CreateJobComponent)
   },
+    {
+    path: 'jobs-explorer',
+    loadComponent: () => import('./features/jobs/pages/jobs-explorer/jobs-explorer').then(m => m.JobsExplorerComponent)
+  },
   {
     path: 'dashboard-worker',
     loadComponent: () => import('./features/dashboard/pages/dashboard-worker/dashboard').then(m => m.DashboardWorker)

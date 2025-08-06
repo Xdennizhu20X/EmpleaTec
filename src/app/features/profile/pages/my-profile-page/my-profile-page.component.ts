@@ -4,18 +4,43 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 // --- INTERFACES Y TIPOS ---
-type ProjectStatus = 'completed' | 'in_progress' | 'open';
-
-export interface Project {
+interface PortfolioItem {
   id: string;
   title: string;
-  status: ProjectStatus;
-  budget: number;
   image: string;
-  date: Date;
+  description: string;
+  date: string;
+  client: string;
 }
 
-export interface UserProfile {
+interface Review {
+  id: string;
+  reviewerName: string;
+  reviewerAvatar: string;
+  rating: number;
+  comment: string;
+  projectTitle: string;
+  createdAt: Date;
+}
+
+interface Project {
+  id: string;
+  title: string;
+  image: string;
+  status: 'completed' | 'in-progress' | 'pending';
+  budget: number;
+  date: string | Date;
+}
+
+interface ClientStats {
+  projectsPublished: number;
+  projectsCompleted: number;
+  projectsInProgress: number;
+  totalSpent: number;
+  averageRating: number;
+}
+
+interface UserProfile {
   userType: 'client' | 'worker';
   name: string;
   email: string;
@@ -23,19 +48,18 @@ export interface UserProfile {
   location: string;
   bio: string;
   profileImage: string;
+  coverImage: string;
   memberSince: Date;
   hourlyRate?: number;
   yearsExperience?: number;
   specialties?: string[];
   completedJobs?: number;
   rating?: number;
+  portfolio?: PortfolioItem[];
+  reviews?: Review[];
 }
 
-export interface Specialty {
-  id: string;
-  name: string;
-  icon: string;
-}
+type TabType = 'projects' | 'profile' | 'settings' | 'portfolio' | 'reviews' | 'about';
 
 @Component({
   selector: 'app-my-profile-page',
@@ -46,73 +70,92 @@ export interface Specialty {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MyProfilePageComponent {
-  private userType: 'client' | 'worker' = 'client';
   private router = inject(Router);
 
   // --- DATOS DEL COMPONENTE ---
   readonly user = signal<UserProfile>({
-    userType: this.userType,
-    name: 'Gabriela Mistral',
-    email: 'gabi.mistral@email.com',
-    phone: '55 1234 5678',
-    location: 'Ciudad de México, MX',
-    bio: 'Busco profesionales para proyectos de renovación y mantenimiento del hogar. Valoro la comunicación y la calidad del trabajo.',
-    profileImage: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop',
-    memberSince: new Date(2022, 5, 15),
-    // Datos de trabajador (si aplica)
-    hourlyRate: 500,
-    yearsExperience: 8,
-    specialties: ['carpinteria', 'electricidad', 'pintura'],
-    completedJobs: 42,
+    userType: 'worker',
+    name: 'Carlos Mendoza',
+    email: 'carlos.mendoza@email.com',
+    phone: '55 8765 4321',
+    location: 'Polanco, CDMX',
+    bio: 'Carpintero profesional con más de 12 años de experiencia en proyectos residenciales y comerciales. Especializado en cocinas integrales, muebles a medida y restauración de madera.',
+    profileImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+    coverImage: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=300&fit=crop',
+    memberSince: new Date(2018, 3, 20),
+    hourlyRate: 450,
+    yearsExperience: 12,
+    specialties: ['carpinteria', 'ebanisteria', 'restauracion'],
+    completedJobs: 156,
     rating: 4.9,
+    portfolio: [
+      { 
+        id: '1', 
+        title: 'Cocina moderna minimalista', 
+        image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop', 
+        description: 'Diseño e instalación completa de cocina integral con acabados de lujo', 
+        date: 'Marzo 2024', 
+        client: 'Ana Rodríguez' 
+      }
+    ],
+    reviews: [
+      { 
+        id: '1', 
+        reviewerName: 'Ana Rodríguez', 
+        reviewerAvatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b5c8?w=100&h=100&fit=crop&crop=face', 
+        rating: 5, 
+        comment: 'Excelente trabajo! Carlos superó todas mis expectativas con la cocina.', 
+        projectTitle: 'Cocina moderna minimalista', 
+        createdAt: new Date(Date.now() - 604800000) 
+      }
+    ]
   });
 
   readonly isEditing = signal(false);
-  readonly editData = signal<Partial<UserProfile>>(this.user());
-  readonly activeTab = signal(this.user().userType === 'client' ? 'projects' : 'profile');
+  readonly editData = signal<Partial<UserProfile>>({});
+  readonly activeTab = signal<TabType>('profile');
   readonly editButtonText = computed(() => this.isEditing() ? 'Guardar' : 'Editar');
 
-  readonly clientStats = {
+  // Datos para la pestaña de proyectos (si es cliente)
+  readonly clientStats: ClientStats = {
     projectsPublished: 12,
     projectsCompleted: 8,
-    projectsInProgress: 2,
+    projectsInProgress: 3,
     totalSpent: 125000,
-    averageRating: 4.8,
-    workersHired: 15,
+    averageRating: 4.7
   };
 
   readonly recentProjects: Project[] = [
-    { id: '1', title: 'Renovación de cocina integral', status: 'completed', budget: 25000, date: new Date(Date.now() - 86400000 * 20), image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=300&h=200&fit=crop' },
-    { id: '2', title: 'Instalación sistema eléctrico', status: 'in_progress', budget: 40000, date: new Date(Date.now() - 86400000 * 10), image: 'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=300&h=200&fit=crop' },
-    { id: '3', title: 'Pintura interior departamento', status: 'open', budget: 12000, date: new Date(Date.now() - 86400000 * 2), image: 'https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=300&h=200&fit=crop' }
+    {
+      id: '1',
+      title: 'Remodelación de cocina',
+      image: 'https://images.unsplash.com/photo-1556911220-bff31c812dba?w=400&h=300&fit=crop',
+      status: 'completed',
+      budget: 45000,
+      date: new Date(2024, 2, 15)
+    },
+    {
+      id: '2',
+      title: 'Construcción de terraza',
+      image: 'https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=400&h=300&fit=crop',
+      status: 'in-progress',
+      budget: 65000,
+      date: new Date(2024, 3, 1)
+    }
   ];
 
-  readonly specialtyOptions: Specialty[] = [
-    { id: 'carpinteria', name: 'Carpintería', icon: '🪵' },
-    { id: 'plomeria', name: 'Plomería', icon: '🔧' },
-    { id: 'electricidad', name: 'Electricidad', icon: '⚡️' },
-    { id: 'pintura', name: 'Pintura', icon: '🎨' },
-    { id: 'albanileria', name: 'Albañilería', icon: '🧱' },
-    { id: 'jardineria', name: 'Jardinería', icon: '🌿' },
-    { id: 'limpieza', name: 'Limpieza', icon: '🧼' },
-    { id: 'soldadura', name: 'Soldadura', icon: '🔥' },
-    { id: 'refrigeracion', name: 'Refrigeración', icon: '❄️' },
-    { id: 'tapiceria', name: 'Tapicería', icon: '🛋️' },
-    { id: 'vidrieria', name: 'Vidriería', icon: '🪟' },
-    { id: 'cerrajeria', name: 'Cerrajería', icon: '🔑' }
+  // Opciones de especialidades para el formulario de edición
+  readonly specialtyOptions = [
+    { id: 'carpinteria', name: 'Carpintería', icon: '🪚' },
+    { id: 'ebanisteria', name: 'Ebanistería', icon: '🪑' },
+    { id: 'restauracion', name: 'Restauración', icon: '🔨' },
+    { id: 'muebles', name: 'Muebles a medida', icon: '🛋️' },
+    { id: 'cocinas', name: 'Cocinas integrales', icon: '🍳' }
   ];
 
   // --- MÉTODOS DE ACCIÓN ---
-    onBack(): void {
-    this.router.navigate(['/dashboard-client']);
-  }
-  onLogout(): void { console.log('Cerrar sesión'); }
-  onNavigate(screen: string, data?: any): void { console.log(`Navegar a ${screen}`, data); }
-
-  handleSave(): void {
-    this.user.update(currentUser => ({ ...currentUser, ...this.editData() }));
-    this.isEditing.set(false);
-    console.log('Usuario actualizado:', this.user());
+  onBack(): void {
+    this.router.navigate(['/dashboard-worker']);
   }
 
   toggleEdit(): void {
@@ -122,42 +165,61 @@ export class MyProfilePageComponent {
     this.isEditing.update(value => !value);
   }
 
-  setActiveTab(tab: 'projects' | 'profile' | 'settings'): void {
+  handleSave(): void {
+    this.user.update(current => ({ ...current, ...this.editData() }));
+    this.isEditing.set(false);
+  }
+
+  setActiveTab(tab: TabType): void {
     this.activeTab.set(tab);
   }
 
-  updateEditData(field: keyof UserProfile, value: any): void {
-    this.editData.update(data => ({ ...data, [field]: value }));
+  // --- MÉTODOS AUXILIARES ---
+  updateEditData<K extends keyof UserProfile>(key: K, value: UserProfile[K]): void {
+    this.editData.update(current => ({ ...current, [key]: value }));
   }
 
   toggleSpecialty(specialtyId: string): void {
-    this.editData.update(data => {
-      const specialties = data.specialties || [];
-      const newSpecialties = specialties.includes(specialtyId)
-        ? specialties.filter(id => id !== specialtyId)
-        : [...specialties, specialtyId];
-      return { ...data, specialties: newSpecialties };
-    });
+    const currentSpecialties = this.editData().specialties || [];
+    const newSpecialties = currentSpecialties.includes(specialtyId)
+      ? currentSpecialties.filter(id => id !== specialtyId)
+      : [...currentSpecialties, specialtyId];
+    
+    this.updateEditData('specialties', newSpecialties);
   }
 
-  // --- MÉTODOS DE FORMATO Y UTILIDAD ---
-  formatDate(date: Date): string {
-    return formatDate(date, 'd MMM, y', 'es-MX');
+  getSpecialtyName(specialtyId: string): string {
+    const specialty = this.specialtyOptions.find(s => s.id === specialtyId);
+    return specialty ? specialty.name : '';
   }
 
-  getProjectStatusInfo(status: ProjectStatus) {
-    switch (status) {
-      case 'open': return { text: 'Abierto', color: 'bg-blue-100 text-blue-800' };
-      case 'in_progress': return { text: 'En Progreso', color: 'bg-yellow-100 text-yellow-800' };
-      case 'completed': return { text: 'Completado', color: 'bg-green-100 text-green-800' };
+  getSpecialtyIcon(specialtyId: string): string {
+    const specialty = this.specialtyOptions.find(s => s.id === specialtyId);
+    return specialty ? specialty.icon : '';
+  }
+
+  getProjectStatusInfo(status: string): { text: string; color: string } {
+    const statusMap: Record<string, { text: string; color: string }> = {
+      'completed': { text: 'Completado', color: 'bg-green-100 text-green-800' },
+      'in-progress': { text: 'En progreso', color: 'bg-yellow-100 text-yellow-800' },
+      'pending': { text: 'Pendiente', color: 'bg-blue-100 text-blue-800' }
+    };
+    return statusMap[status] || { text: 'Desconocido', color: 'bg-gray-100 text-gray-800' };
+  }
+
+  formatDate(date: Date | string): string {
+    if (typeof date === 'string') {
+      return date;
     }
+    return formatDate(date, 'dd/MM/yyyy', 'en-US');
   }
 
-  getSpecialtyName(specId: string): string {
-    return this.specialtyOptions.find(s => s.id === specId)?.name || specId;
+  onLogout(): void {
+    this.router.navigate(['/login']);
   }
 
-  getSpecialtyIcon(specId: string): string {
-    return this.specialtyOptions.find(s => s.id === specId)?.icon || '';
+  onNavigate(destination: string, data?: any): void {
+    console.log(`Navegando a ${destination}`, data);
+    // Implementación real de navegación aquí
   }
 }

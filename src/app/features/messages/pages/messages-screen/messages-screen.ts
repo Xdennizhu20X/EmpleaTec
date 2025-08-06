@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -16,91 +16,75 @@ export class MessagesScreen implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  searchQuery = '';
-  user: User | null = null;
-  recentChats: Chat[] = [];
-  filteredChats: Chat[] = [];
-  totalUnreadMessages = 0;
+  searchQuery = signal('');
+  currentUser: User | null = null;
+  
+  private allChats = signal<Chat[]>([]);
+  
+  readonly filteredChats = computed(() => {
+    const query = this.searchQuery().toLowerCase();
+    if (!query) {
+      return this.allChats();
+    }
+    return this.allChats().filter(chat =>
+      this.getParticipant(chat)?.name.toLowerCase().includes(query) ||
+      chat.projectTitle.toLowerCase().includes(query)
+    );
+  });
+
+  readonly totalUnreadMessages = computed(() => {
+    return this.allChats().reduce((total, chat) => total + chat.unreadCount, 0);
+  });
+
+  readonly onlineCount = computed(() => {
+    return this.allChats().filter(chat => this.getParticipant(chat)?.isOnline).length;
+  });
 
   ngOnInit(): void {
-    this.user = {
+    // Simulación de obtener el usuario actual
+    this.currentUser = {
       id: 'current_user_id',
       name: 'Current User',
-      avatar: 'path/to/user/avatar.jpg'
+      avatar: 'path/to/user/avatar.jpg',
+      userType: 'client',
+      isOnline: true
     };
 
     this.loadRecentChats();
-    this.filteredChats = this.recentChats;
-    this.calculateTotalUnread();
   }
 
   loadRecentChats(): void {
-    this.recentChats = [
+    const mockChats: Chat[] = [
       {
         id: '1',
-        participant: {
-          id: '1',
-          name: 'Carlos Mendoza',
-          avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-          userType: 'worker',
-          specialty: 'Carpintería',
-          isOnline: true
-        },
-        lastMessage: {
-          text: '¡Perfecto! Puedo empezar el proyecto la próxima semana. Te envío el presupuesto detallado.',
-          timestamp: new Date(Date.now() - 300000),
-          senderId: '1',
-          isRead: true
-        },
+        participants: [
+          this.currentUser!,
+          { id: '1', name: 'Carlos Mendoza', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face', userType: 'worker', specialty: 'Carpintería', isOnline: true }
+        ],
+        lastMessage: { text: '¡Perfecto! Puedo empezar el proyecto la próxima semana. Te envío el presupuesto detallado.', timestamp: new Date(Date.now() - 300000), senderId: '1' },
         unreadCount: 0,
-        projectTitle: 'Renovación de cocina integral'
+        projectTitle: 'Renovación de cocina integral',
+        createdAt: new Date(Date.now() - 86400000 * 2),
+        updatedAt: new Date(Date.now() - 300000)
       },
       {
         id: '2',
-        participant: {
-          id: '2',
-          name: 'Ana Rodríguez',
-          avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b5c8?w=150&h=150&fit=crop&crop=face',
-          userType: 'client',
-          isOnline: false
-        },
-        lastMessage: {
-          text: 'Hola! Me interesa tu propuesta para el proyecto de plomería. ¿Podrías darme más detalles?',
-          timestamp: new Date(Date.now() - 3600000),
-          senderId: '2',
-          isRead: false
-        },
+        participants: [
+          this.currentUser!,
+          { id: '2', name: 'Ana Rodríguez', avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b5c8?w=150&h=150&fit=crop&crop=face', userType: 'client', isOnline: false }
+        ],
+        lastMessage: { text: 'Hola! Me interesa tu propuesta para el proyecto de plomería. ¿Podrías darme más detalles?', timestamp: new Date(Date.now() - 3600000), senderId: '2' },
         unreadCount: 2,
-        projectTitle: 'Reparación de fuga en baño'
-      },
-      {
-        id: '3',
-        participant: {
-          id: '3',
-          name: 'María López',
-          avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-          userType: 'worker',
-          specialty: 'Pintura',
-          isOnline: true
-        },
-        lastMessage: {
-          text: 'Muchas gracias por elegirme para el proyecto. El trabajo quedó excelente ',
-          timestamp: new Date(Date.now() - 86400000),
-          senderId: '3',
-          isRead: true
-        },
-        unreadCount: 0,
-        projectTitle: 'Pintura interior de departamento'
+        projectTitle: 'Reparación de fuga en baño',
+        createdAt: new Date(Date.now() - 86400000 * 3),
+        updatedAt: new Date(Date.now() - 3600000)
       },
     ];
+    this.allChats.set(mockChats);
   }
 
-  filterChats(): void {
-    const query = this.searchQuery.toLowerCase();
-    this.filteredChats = this.recentChats.filter(chat =>
-      chat.participant.name.toLowerCase().includes(query) ||
-      chat.projectTitle.toLowerCase().includes(query)
-    );
+  getParticipant(chat: Chat): User | undefined {
+    return chat.participants.find(p => p.id !== this.currentUser?.id);
   }
 
   formatTimeAgo(date: Date): string {
@@ -114,10 +98,6 @@ export class MessagesScreen implements OnInit {
     return date.toLocaleDateString('es-MX');
   }
 
-  calculateTotalUnread(): void {
-    this.totalUnreadMessages = this.recentChats.reduce((total, chat) => total + chat.unreadCount, 0);
-  }
-
   handleChatClick(chat: Chat): void {
     this.router.navigate(['/chat', chat.id]);
   }
@@ -127,11 +107,8 @@ export class MessagesScreen implements OnInit {
   }
 
   onLogout(): void {
-    this.authService.signOut();
-    this.router.navigate(['/login']);
-  }
-
-  get onlineCount(): number {
-    return this.recentChats.filter(chat => chat.participant.isOnline).length;
+    // this.authService.signOut();
+    // this.router.navigate(['/login']);
+    console.log('Logout');
   }
 }
