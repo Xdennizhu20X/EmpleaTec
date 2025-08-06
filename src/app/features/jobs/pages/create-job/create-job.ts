@@ -3,6 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Category, Job, UrgencyLevel } from '../../models/job.model';
 import { Router } from '@angular/router';
+import { Firestore, addDoc, collection, serverTimestamp } from '@angular/fire/firestore';
+import { AuthService } from '../../../../core/services/auth.service';
+import { firstValueFrom } from 'rxjs';
+import { CloudinaryService } from '../../../../core/services/cloudinary.service';
 
 @Component({
   selector: 'app-create-job',
@@ -15,7 +19,14 @@ import { Router } from '@angular/router';
 export class CreateJobComponent {
   currentStep = signal(1);
   isSubmitting = signal(false);
+  isUploadingImages = signal(false);
+  uploadProgress = signal<number | null>(null);
   private router = inject(Router);
+  private firestore = inject(Firestore);
+  private authService = inject(AuthService);
+  private cloudinaryService = inject(CloudinaryService);
+  isDragging = signal(false);
+  uploadError = signal<string | null>(null);
 
   formData = signal<Job>({
     title: '',
@@ -29,6 +40,8 @@ export class CreateJobComponent {
   });
 
   errors = signal<Record<string, string>>({});
+  selectedFiles = signal<File[]>([]);
+  previewUrls = signal<string[]>([]);
 
   readonly categories: Category[] = [
     { id: 'carpinteria', name: 'Carpintería', icon: '🪵' },
@@ -46,6 +59,140 @@ export class CreateJobComponent {
     { id: 'normal', name: 'Normal', description: 'Puedo esperar 1-2 semanas', color: 'bg-blue-100 text-blue-800 border-blue-200' },
     { id: 'flexible', name: 'Flexible', description: 'No tengo prisa, cuando esté disponible', color: 'bg-green-100 text-green-800 border-green-200' },
   ];
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(true);
+  }
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+  }
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+    
+    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+      this.handleFiles(event.dataTransfer.files);
+    }
+  }
+
+  
+
+  // --- Manejo de imágenes ---
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const files = Array.from(input.files);
+      
+      // Validar cantidad de imágenes (ejemplo: máximo 5)
+      if (this.selectedFiles().length + files.length > 5) {
+        this.errors.update(err => ({...err, images: 'Máximo 5 imágenes permitidas'}));
+        return;
+      }
+      
+      // Validar tipos de archivo y tamaño
+      const validFiles = files.filter(file => {
+        const isValidType = ['image/jpeg', 'image/png', 'image/gif'].includes(file.type);
+        const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB
+        
+        if (!isValidType) {
+          this.errors.update(err => ({...err, images: 'Solo se permiten imágenes JPEG, PNG o GIF'}));
+        } else if (!isValidSize) {
+          this.errors.update(err => ({...err, images: 'Las imágenes no deben superar los 5MB'}));
+        }
+        
+        return isValidType && isValidSize;
+      });
+      
+      if (validFiles.length === 0) return;
+      
+      this.selectedFiles.update(prev => [...prev, ...validFiles]);
+      this.generatePreviews(validFiles);
+      this.errors.update(err => ({...err, images: ''}));
+    }
+  }
+  
+
+  private generatePreviews(files: File[]): void {
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        if (e.target?.result) {
+          this.previewUrls.update(prev => [...prev, e.target!.result as string]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  private handleFiles(files: FileList): void {
+    const fileArray = Array.from(files);
+    
+    // Validaciones
+    if (this.selectedFiles().length + fileArray.length > 5) {
+      this.uploadError.set('Máximo 5 imágenes permitidas');
+      return;
+    }
+
+    const validFiles = fileArray.filter(file => {
+      const isValidType = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type);
+      const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB
+      
+      if (!isValidType) {
+        this.uploadError.set('Solo se permiten imágenes JPEG, PNG, GIF o WebP');
+      } else if (!isValidSize) {
+        this.uploadError.set('Cada imagen no debe superar los 5MB');
+      }
+      
+      return isValidType && isValidSize;
+    });
+
+    if (validFiles.length === 0) return;
+    
+    this.selectedFiles.update(prev => [...prev, ...validFiles]);
+    this.generatePreviews(validFiles);
+    this.uploadError.set(null);
+  }
+
+  removeImage(index: number): void {
+    this.selectedFiles.update(prev => prev.filter((_, i) => i !== index));
+    this.previewUrls.update(prev => prev.filter((_, i) => i !== index));
+  }
+
+  async uploadImages(): Promise<string[]> {
+    if (this.selectedFiles().length === 0) return [];
+    
+    this.isUploadingImages.set(true);
+    this.uploadProgress.set(0);
+    
+    try {
+      const uploadedUrls: string[] = [];
+      const totalFiles = this.selectedFiles().length;
+      let completedFiles = 0;
+      
+      // Subir imágenes una por una para mejor manejo de errores
+      for (const file of this.selectedFiles()) {
+        try {
+          const result = await this.cloudinaryService.uploadImage(file, 'job_images');
+          uploadedUrls.push(result.secure_url);
+          completedFiles++;
+          this.uploadProgress.set(Math.round((completedFiles / totalFiles) * 100));
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          // Continuar con las siguientes imágenes aunque falle una
+        }
+      }
+      
+      return uploadedUrls;
+    } finally {
+      this.isUploadingImages.set(false);
+      this.uploadProgress.set(null);
+    }
+  }
 
   // --- Lógica de Pasos ---
   nextStep(): void {
@@ -115,18 +262,45 @@ export class CreateJobComponent {
   }
 
   // --- Envío ---
-  handleSubmit(): void {
-    if (!this.validateStep(this.currentStep())) return;
+  async handleSubmit(): Promise<void> {
+    if (!this.validateStep(4)) return;
 
     this.isSubmitting.set(true);
-    console.log('Enviando datos:', this.formData());
 
-    setTimeout(() => {
+    try {
+      // 1. Subir imágenes primero
+      const imageUrls = await this.uploadImages();
+      
+      // 2. Obtener información del usuario
+      const userProfile = await firstValueFrom(this.authService.getUserProfile());
+      if (!userProfile) {
+        alert('Error: Debes iniciar sesión para poder publicar un proyecto.');
+        this.isSubmitting.set(false);
+        this.router.navigate(['/login-client']);
+        return;
+      }
+
+      // 3. Crear el objeto del trabajo con las URLs de las imágenes
+      const jobData = {
+        ...this.formData(),
+        images: imageUrls,
+        clientId: userProfile.uid,
+        clientName: userProfile.displayName,
+        createdAt: serverTimestamp(),
+        status: 'open',
+      };
+
+      // 4. Guardar en Firestore
+      const docRef = await addDoc(collection(this.firestore, 'jobs'), jobData);
+      console.log('Proyecto publicado con éxito. ID:', docRef.id);
+      
       this.isSubmitting.set(false);
-      console.log('Proyecto publicado con éxito');
-      // Aquí se navegaría a otra pantalla, por ejemplo:
-      // this.router.navigate(['/dashboard']);
-    }, 2000);
+      this.router.navigate(['/dashboard-client']);
+    } catch (error) {
+      console.error('Error al publicar el proyecto:', error);
+      alert('Ocurrió un error al publicar el proyecto. Por favor, inténtalo de nuevo.');
+      this.isSubmitting.set(false);
+    }
   }
 
   // --- Métodos de Utilidad para la Plantilla ---
