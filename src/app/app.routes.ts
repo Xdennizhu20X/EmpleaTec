@@ -49,5 +49,9 @@ export const routes: Routes = [
   {
     path: 'chat/:id',
     loadComponent: () => import('./features/messages/pages/chat-screen/chat-screen').then(m => m.ChatScreen)
+  },
+  {
+    path: 'notifications',
+    loadComponent: () => import('./features/notifications/pages/notifications-page/notifications-page').then(m => m.NotificationsPageComponent)
   }
 ];

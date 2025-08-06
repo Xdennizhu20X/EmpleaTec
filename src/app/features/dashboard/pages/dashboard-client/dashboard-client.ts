@@ -12,14 +12,16 @@ import { Category, WorkerCard } from '../../models/dashboard';
   styleUrls: ['./dashboard-client.scss']
 })
 export class DashboardClient {
+  isSidebarOpen = false;
   categories: Category[] = [
     { id: 'todos', name: 'Todos', count: 156 },
-    { id: 'carpinteria', name: 'Carpintería', count: 42 },
-    { id: 'plomeria', name: 'Plomería', count: 38 },
-    { id: 'electricidad', name: 'Electricidad', count: 29 },
-    { id: 'albanileria', name: 'Albañilería', count: 21 },
-    { id: 'jardineria', name: 'Jardinería', count: 15 },
-    { id: 'pintura', name: 'Pintura', count: 11 },
+    { id: 'carpinteria', name: '🔨 Carpintería', count: 42 },
+    { id: 'plomeria', name: '🔧 Plomería', count: 38 },
+    { id: 'electricidad', name: '⚡ Electricidad', count: 29 },
+    { id: 'albanileria', name: '🧱 Albañilería', count: 21 },
+    { id: 'jardineria', name: '🌳 Jardinería', count: 15 },
+    { id: 'pintura', name: '🎨 Pintura', count: 14 },
+    { id: 'limpieza', name: '🧹 Limpieza', count: 11 },
   ];
 
   featuredWorkers: WorkerCard[] = [
@@ -32,7 +34,7 @@ export class DashboardClient {
       location: 'Ciudad de México',
       price: 450,
       avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-      coverImage: 'https://images.unsplash.com/photo-1581092918056-0c7c13e53b1f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
+      coverImage: 'https://st4.depositphotos.com/26587216/28257/i/450/depositphotos_282571902-stock-photo-clouds-soft-pastel-colored-skies.jpg',
       isVerified: true,
       isOnline: true,
     },
@@ -45,7 +47,7 @@ export class DashboardClient {
       location: 'Guadalajara, Jalisco',
       price: 480,
       avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
-      coverImage: 'https://images.unsplash.com/photo-1533750349088-249c262d6244?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
+      coverImage: 'https://media.istockphoto.com/id/1269463595/photo/watercolor-background-with-abstract-retro-sky-texture-in-pastel-colors.jpg?s=612x612&w=0&k=20&c=IU5VyrbFJ0WfGO-bsUPkG-GkuGA3yFcEqjv20038t8A=',
       isVerified: true,
       isOnline: false,
     },
@@ -58,7 +60,7 @@ export class DashboardClient {
       location: 'Monterrey, Nuevo León',
       price: 550,
       avatar: 'https://randomuser.me/api/portraits/men/36.jpg',
-      coverImage: 'https://images.unsplash.com/photo-1617578948993-f9a56e7fee32?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
+      coverImage: 'https://st4.depositphotos.com/26587216/28257/i/450/depositphotos_282571902-stock-photo-clouds-soft-pastel-colored-skies.jpg',
       isVerified: true,
       isOnline: true,
     },
@@ -68,5 +70,9 @@ export class DashboardClient {
 
   setActiveCategory(categoryId: string) {
     this.activeCategory = categoryId;
+  }
+
+  toggleSidebar() {
+    this.isSidebarOpen = !this.isSidebarOpen;
   }
 }

@@ -1,0 +1,25 @@
+.backdrop-blur-lg {
+  backdrop-filter: blur(16px);
+}
+
+.bg-white\/70 {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+.bg-white\/60 {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+.bg-white\/80:hover {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Ocultar la barra de scroll */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
