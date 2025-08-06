@@ -22,12 +22,13 @@ export class DashboardWorker implements OnInit {
   isSidebarOpen = false;
   specialties: Specialty[] = [
     { id: 'todos', name: 'Todos los Trabajos', jobCount: 89 },
-    { id: 'carpinteria', name: 'Carpintería', jobCount: 25 },
-    { id: 'plomeria', name: 'Plomería', jobCount: 18 },
-    { id: 'electricidad', name: 'Electricidad', jobCount: 15 },
-    { id: 'albanileria', name: 'Albañilería', jobCount: 12 },
-    { id: 'pintura', name: 'Pintura', jobCount: 10 },
-    { id: 'jardineria', name: 'Jardinería', jobCount: 9 },
+    { id: 'carpinteria', name: '🔨 Carpintería', jobCount: 25 },
+    { id: 'plomeria', name: '🔧 Plomería', jobCount: 18 },
+    { id: 'electricidad', name: '⚡ Electricidad', jobCount: 15 },
+    { id: 'albanileria', name: '🧱 Albañilería', jobCount: 12 },
+    { id: 'pintura', name: '🎨 Pintura', jobCount: 10 },
+    { id: 'jardineria', name: '🌳 Jardinería', jobCount: 9 },
+    { id: 'limpieza', name: '🧹 Limpieza', jobCount: 6 },
   ];
 
   jobOffers$!: Observable<Job[]>;
