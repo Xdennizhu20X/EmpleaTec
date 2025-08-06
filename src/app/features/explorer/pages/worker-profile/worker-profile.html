@@ -1,0 +1,120 @@
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 font-sans text-gray-800">
+  <!-- Header -->
+  <header class="sticky top-0 z-20 bg-white/50 backdrop-blur-lg">
+    <div class="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
+      <button (click)="onBack()" class="flex items-center gap-2 rounded-full p-2 text-gray-600 transition-colors duration-200 hover:bg-gray-200/50 hover:text-blue-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+      </button>
+      <div class="flex items-center space-x-2">
+        <button (click)="toggleFavorite()" class="rounded-full p-2 text-gray-600 transition-colors duration-200 hover:bg-red-100/50 hover:text-red-500">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" [class.fill-current]="isFavorited()" [class.text-red-500]="isFavorited()"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.5l1.318-1.182a4.5 4.5 0 116.364 6.364L12 20.273l-7.682-7.682a4.5 4.5 0 010-6.364z" /></svg>
+        </button>
+        <button class="rounded-full p-2 text-gray-600 transition-colors duration-200 hover:bg-gray-200/50 hover:text-blue-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" /></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto max-w-6xl p-4 sm:p-6">
+    <!-- Profile Header Card -->
+    <div class="mb-8 rounded-2xl bg-white/50 backdrop-blur-lg shadow-sm overflow-hidden">
+      <div class="relative h-48 md:h-56">
+        <img [src]="worker().coverImage" alt="Imagen de portada" class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+      </div>
+      <div class="p-6">
+        <div class="relative flex flex-col sm:flex-row">
+          <div class="-mt-24 sm:-mt-28 flex-shrink-0">
+            <img [src]="worker().avatar" [alt]="worker().name" class="h-32 w-32 rounded-full border-4 border-white bg-white shadow-lg">
+            <div *ngIf="worker().isVerified" class="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-full bg-green-500 border-4 border-white">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976A3.066 3.066 0 003.455 6.267a3.066 3.066 0 012.812-2.812zM10 15.5a.5.5 0 00.5-.5V10a.5.5 0 00-1 0v5a.5.5 0 00.5.5zM10 8a.5.5 0 00.5-.5V7a.5.5 0 00-1 0v.5a.5.5 0 00.5.5z" clip-rule="evenodd" /></svg>
+            </div>
+          </div>
+          <div class="mt-4 sm:mt-0 sm:ml-6 flex-grow">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-start">
+              <div>
+                <h1 class="text-3xl font-bold text-blue-900">{{ worker().name }}</h1>
+                <p class="text-lg font-medium text-blue-700">{{ worker().specialty }}</p>
+                <div class="mt-2 flex flex-wrap gap-2">
+                  <span *ngFor="let spec of worker().specialties" class="px-2 py-1 text-xs font-medium text-blue-800 bg-blue-100 rounded-full">{{ getSpecialtyName(spec) }}</span>
+                </div>
+              </div>
+              <div class="mt-4 sm:mt-0 flex flex-shrink-0 space-x-2">
+                <button (click)="handleContactWorker()" class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 text-white font-bold bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm1.5 0a.5.5 0 00-.5.5v1.293l7.293 7.293a1 1 0 001.414 0L17 6.793V5.5a.5.5 0 00-.5-.5h-13z" /></svg>
+                  Contactar
+                </button>
+              </div>
+            </div>
+            <div class="mt-4 pt-4 border-t border-gray-200/80 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+              <div><div class="font-bold text-blue-900">{{ worker().rating }} ★</div><div class="text-sm text-gray-600">({{ worker().reviewCount }} reseñas)</div></div>
+              <div><div class="font-bold text-blue-900">{{ worker().completedJobs }}</div><div class="text-sm text-gray-600">Trabajos</div></div>
+              <div><div class="font-bold text-blue-900">{{ worker().yearsExperience }}</div><div class="text-sm text-gray-600">Años Exp.</div></div>
+              <div><div class="font-bold text-blue-900">{{ worker().price }}</div><div class="text-sm text-gray-600">Tarifa</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="mb-6">
+      <div class="border-b border-gray-200/80">
+        <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+          <button (click)="selectedTab.set('portfolio')" [ngClass]="selectedTab() === 'portfolio' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+            Portafolio
+          </button>
+          <button (click)="selectedTab.set('about')" [ngClass]="selectedTab() === 'about' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+            Acerca de
+          </button>
+          <button (click)="selectedTab.set('reviews')" [ngClass]="selectedTab() === 'reviews' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+            Reseñas ({{ worker().reviewCount }})
+          </button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div [ngSwitch]="selectedTab()">
+      <!-- Portafolio -->
+      <div *ngSwitchCase="'portfolio'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div *ngFor="let item of worker().portfolio" class="bg-white rounded-2xl shadow-lg overflow-hidden group transform hover:-translate-y-1 transition-transform duration-300">
+          <img [src]="item.image" [alt]="item.title" class="h-48 w-full object-cover">
+          <div class="p-4">
+            <h4 class="font-bold text-blue-900 truncate">{{ item.title }}</h4>
+            <p class="text-sm text-gray-600 mt-1 h-10">{{ item.description }}</p>
+            <p class="text-xs text-gray-500 mt-2">{{ item.date }} - {{ item.client }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acerca de -->
+      <div *ngSwitchCase="'about'" class="bg-white/50 backdrop-blur-lg rounded-2xl shadow-sm p-6">
+        <h3 class="text-xl font-bold text-blue-900 mb-4">Acerca de {{ worker().name }}</h3>
+        <p class="text-gray-700 leading-relaxed">{{ worker().bio }}</p>
+      </div>
+
+      <!-- Reseñas -->
+      <div *ngSwitchCase="'reviews'" class="space-y-6">
+        <div *ngFor="let review of worker().reviews" class="bg-white/50 backdrop-blur-lg rounded-2xl shadow-sm p-6 flex items-start space-x-4">
+          <img [src]="review.reviewerAvatar" [alt]="review.reviewerName" class="h-12 w-12 rounded-full">
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="font-bold text-blue-900">{{ review.reviewerName }}</h4>
+                <p class="text-sm text-gray-500">{{ review.projectTitle }}</p>
+              </div>
+              <div class="flex items-center">
+                <span class="text-yellow-500 font-bold">{{ review.rating }} ★</span>
+              </div>
+            </div>
+            <p class="mt-2 text-gray-700">{{ review.comment }}</p>
+            <p class="text-xs text-gray-400 mt-2">{{ review.createdAt | date:'mediumDate':'':'es-MX' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

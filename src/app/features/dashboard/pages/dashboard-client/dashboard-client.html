@@ -26,14 +26,14 @@
     <!-- Quick Actions -->
     <div class="space-y-3">
       <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Acciones rápidas</h3>
-      <button
+      <a href="/create-job"
         class="w-full flex items-center space-x-3 px-4 py-2.5 text-left text-blue-800 bg-blue-100/50 rounded-lg hover:bg-blue-200/70 transition-colors duration-200">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 5v14m-7-7h14" />
         </svg>
         <span>Publicar Trabajo</span>
-      </button>
+      </a>
       <a routerLink="/worker-explorer"
         class="w-full flex items-center space-x-3 px-4 py-2.5 text-left text-gray-700 hover:bg-gray-200/50 rounded-lg transition-colors duration-200">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -109,8 +109,11 @@
             </svg>
           </button>
           <div class="relative">
-            <img src="https://randomuser.me/api/portraits/men/86.jpg" alt="User Profile"
+            <a href="/profile" class="flex items-center space-x-2">
+              <img src="https://randomuser.me/api/portraits/men/86.jpg" alt="User Profile"
               class="h-10 w-10 rounded-full border-2 border-transparent hover:border-blue-500 cursor-pointer transition-all duration-200">
+            </a>
+            
           </div>
           <button
             class="p-2 rounded-full text-gray-600 hover:bg-gray-200/50 hover:text-red-600 transition-colors duration-200">

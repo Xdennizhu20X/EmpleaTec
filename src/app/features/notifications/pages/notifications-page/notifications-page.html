@@ -1,100 +1,142 @@
 <div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 text-gray-800 font-sans">
-  <!-- Header -->
-<header class="sticky top-0 z-10 bg-white/70 backdrop-blur-lg border-b border-gray-200/80 shadow-sm">
-  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-16">
-      <div class="flex items-center space-x-4">
-        <button (click)="goBack()" class="p-2 rounded-full hover:bg-gray-200/50 transition-colors">
-          <svg class="w-6 h-6 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-        </button>
-        <h1 class="text-xl font-bold text-blue-900">Notificaciones</h1>
+  <!-- Header Mejorado -->
+  <header class="sticky top-0 z-10 bg-white/70 backdrop-blur-lg border-b border-gray-200/80 shadow-sm">
+    <div class="container mx-auto px-4 sm:px-6">
+      <div class="flex items-center justify-between h-14 sm:h-16">
+        <div class="flex items-center space-x-2 sm:space-x-4">
+          <button (click)="goBack()" class="p-1 sm:p-2 rounded-full hover:bg-gray-200/50 transition-colors">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+          <h1 class="text-lg sm:text-xl font-bold text-blue-900">Notificaciones</h1>
+        </div>
+        <div class="flex items-center space-x-1 sm:space-x-2">
+          <p *ngIf="unreadCount > 0" class="text-xs sm:text-sm text-blue-600 hidden sm:block">{{ unreadCount }} sin leer</p>
+          <button *ngIf="unreadCount > 0" (click)="markAllAsRead()" class="p-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition">
+            <span class="hidden sm:inline">Marcar todas</span>
+            <svg class="sm:hidden w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
       </div>
-      <div class="flex items-center space-x-2">
-        <p *ngIf="unreadCount > 0" class="text-sm text-blue-600 hidden sm:block">{{ unreadCount }} sin leer</p>
-        <button *ngIf="unreadCount > 0" (click)="markAllAsRead()" class="px-3 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition">
-          <span class="hidden sm:inline">Marcar todas como leídas</span>
-          <svg class="sm:hidden w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+    </div>
+  </header>
+
+  <!-- Main Content Mejorado -->
+  <main class="container mx-auto px-3 sm:px-6 py-3 sm:py-4">
+    <!-- Tabs Mejoradas para Mobile -->
+    <div class="mb-4 sm:mb-6">
+      <div class="flex space-x-1 sm:space-x-2 overflow-x-auto pb-2 scrollbar-hide">
+        <button (click)="setTab('all')" [ngClass]="{
+          'bg-blue-500 text-white': activeTab === 'all', 
+          'bg-white/60 text-gray-700 hover:bg-white/80': activeTab !== 'all'
+        }" class="flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold rounded-full shadow-sm transition-colors duration-200 flex items-center space-x-1 sm:space-x-2">
+          <span>Todas</span>
+          <span class="px-1.5 py-0.5 sm:px-2 rounded-full text-[10px] sm:text-xs" [ngClass]="{
+            'bg-white/20 text-white': activeTab === 'all', 
+            'bg-gray-200 text-gray-800': activeTab !== 'all'
+          }">{{ notifications.length }}</span>
+        </button>
+        
+        <button (click)="setTab('messages')" [ngClass]="{
+          'bg-blue-500 text-white': activeTab === 'messages', 
+          'bg-white/60 text-gray-700 hover:bg-white/80': activeTab !== 'messages'
+        }" class="flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold rounded-full shadow-sm transition-colors duration-200 flex items-center space-x-1 sm:space-x-2">
+          <span>Mensajes</span>
+          <span *ngIf="messageCount > 0" class="px-1.5 py-0.5 sm:px-2 rounded-full text-[10px] sm:text-xs" [ngClass]="{
+            'bg-white/20 text-white': activeTab === 'messages', 
+            'bg-blue-200 text-blue-800': activeTab !== 'messages'
+          }">{{ messageCount }}</span>
+        </button>
+        
+        <button (click)="setTab('ratings')" [ngClass]="{
+          'bg-yellow-500 text-white': activeTab === 'ratings', 
+          'bg-white/60 text-gray-700 hover:bg-white/80': activeTab !== 'ratings'
+        }" class="flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold rounded-full shadow-sm transition-colors duration-200 flex items-center space-x-1 sm:space-x-2">
+          <span>Calif.</span>
+          <span class="hidden sm:inline">Calificaciones</span>
+          <span *ngIf="ratingCount > 0" class="px-1.5 py-0.5 sm:px-2 rounded-full text-[10px] sm:text-xs" [ngClass]="{
+            'bg-white/20 text-white': activeTab === 'ratings', 
+            'bg-yellow-200 text-yellow-800': activeTab !== 'ratings'
+          }">{{ ratingCount }}</span>
+        </button>
+        
+        <button (click)="setTab('applications')" [ngClass]="{
+          'bg-purple-500 text-white': activeTab === 'applications', 
+          'bg-white/60 text-gray-700 hover:bg-white/80': activeTab !== 'applications'
+        }" class="flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold rounded-full shadow-sm transition-colors duration-200 flex items-center space-x-1 sm:space-x-2">
+          <span>Post.</span>
+          <span class="hidden sm:inline">Postulaciones</span>
+          <span *ngIf="applicationCount > 0" class="px-1.5 py-0.5 sm:px-2 rounded-full text-[10px] sm:text-xs" [ngClass]="{
+            'bg-white/20 text-white': activeTab === 'applications', 
+            'bg-purple-200 text-purple-800': activeTab !== 'applications'
+          }">{{ applicationCount }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Notifications List Mejorada -->
+    <div *ngIf="filteredNotifications.length > 0; else noNotifications" class="space-y-3 sm:space-y-4">
+      <div *ngFor="let notification of filteredNotifications" 
+           (click)="markAsRead(notification)"
+           [ngClass]="{'border-l-4 border-blue-500': !notification.read}"
+           class="relative bg-white/50 backdrop-blur-lg rounded-lg shadow-sm sm:shadow-md p-3 sm:p-4 flex items-start space-x-3 sm:space-x-4 transition-all duration-300 hover:bg-white/70 cursor-pointer">
+        
+        <!-- Avatar Mejorado -->
+        <img class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover" [src]="notification.sender.avatar" [alt]="notification.sender.name">
+
+        <!-- Content Mejorado -->
+        <div class="flex-1 min-w-0">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between sm:mr-4">
+            <h3 class="text-sm sm:text-lg font-semibold text-blue-900 flex items-center mb-1 sm:mb-0 truncate">
+              {{ notification.title }}
+              <span *ngIf="!notification.read" class="ml-1 sm:ml-2 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-blue-500 rounded-full"></span>
+            </h3>
+            <div class="flex items-center space-x-1 sm:space-x-2 mt-1 sm:mt-0">
+              <span [ngClass]="getBadgeClass(notification.type)" class="px-1.5 py-0.5 sm:px-2 sm:py-1 text-[10px] sm:text-xs font-bold text-white rounded-full whitespace-nowrap">
+                {{ getBadgeText(notification.type) }}
+              </span>
+              <span class="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap">{{ notification.time }}</span>
+            </div>
+          </div>
+          <p class="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2">{{ notification.description }}</p>
+          
+          <!-- Actions Mejoradas -->
+          <div class="mt-2 sm:mt-3 flex items-center space-x-2 sm:space-x-3 flex-wrap gap-y-1">
+            <button *ngIf="notification.type === 'message'" class="px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition whitespace-nowrap">
+              Responder
+            </button>
+            <button *ngIf="notification.type === 'application'" class="px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white bg-purple-500 rounded-md hover:bg-purple-600 transition whitespace-nowrap">
+              Ver Postulaciones
+            </button>
+            <button *ngIf="notification.type === 'approved' || notification.type === 'rejected'" class="px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 transition whitespace-nowrap">
+              Ver Trabajos
+            </button>
+          </div>
+        </div>
+
+        <!-- Delete Button Mejorado -->
+        <button (click)="deleteNotification(notification.id); $event.stopPropagation()" class="absolute top-1 right-1 sm:top-2 sm:right-2 p-0.5 sm:p-1 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
       </div>
     </div>
-  </div>
-</header>
 
-<!-- Main Content -->
-<main class="container mx-auto py-4 px-0 sm:px-6 lg:px-8">
-  <!-- Tabs as Pills -->
-  <div class="mb-6 px-4 sm:px-0">
-    <div class="flex space-x-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-      <button (click)="setTab('all')" [ngClass]="{'bg-blue-500 text-white': activeTab === 'all', 'bg-white/60 text-gray-700 hover:bg-white/80': activeTab !== 'all'}" class="flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full shadow-sm transition-colors duration-200 flex items-center space-x-2">
-        <span>Todas</span>
-        <span class="px-2 py-0.5 rounded-full text-xs" [ngClass]="{'bg-white/20 text-white': activeTab === 'all', 'bg-gray-200 text-gray-800': activeTab !== 'all'}">{{ notifications.length }}</span>
-      </button>
-      <button (click)="setTab('messages')" [ngClass]="{'bg-blue-500 text-white': activeTab === 'messages', 'bg-white/60 text-gray-700 hover:bg-white/80': activeTab !== 'messages'}" class="flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full shadow-sm transition-colors duration-200 flex items-center space-x-2">
-        <span>Mensajes</span>
-        <span *ngIf="messageCount > 0" class="px-2 py-0.5 rounded-full text-xs" [ngClass]="{'bg-white/20 text-white': activeTab === 'messages', 'bg-blue-200 text-blue-800': activeTab !== 'messages'}">{{ messageCount }}</span>
-      </button>
-      <button (click)="setTab('ratings')" [ngClass]="{'bg-yellow-500 text-white': activeTab === 'ratings', 'bg-white/60 text-gray-700 hover:bg-white/80': activeTab !== 'ratings'}" class="flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full shadow-sm transition-colors duration-200 flex items-center space-x-2">
-        <span>Calificaciones</span>
-        <span *ngIf="ratingCount > 0" class="px-2 py-0.5 rounded-full text-xs" [ngClass]="{'bg-white/20 text-white': activeTab === 'ratings', 'bg-yellow-200 text-yellow-800': activeTab !== 'ratings'}">{{ ratingCount }}</span>
-      </button>
-      <button (click)="setTab('applications')" [ngClass]="{'bg-purple-500 text-white': activeTab === 'applications', 'bg-white/60 text-gray-700 hover:bg-white/80': activeTab !== 'applications'}" class="flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-full shadow-sm transition-colors duration-200 flex items-center space-x-2">
-        <span>Postulaciones</span>
-        <span *ngIf="applicationCount > 0" class="px-2 py-0.5 rounded-full text-xs" [ngClass]="{'bg-white/20 text-white': activeTab === 'applications', 'bg-purple-200 text-purple-800': activeTab !== 'applications'}">{{ applicationCount }}</span>
-      </button>
-    </div>
-  </div>
-
-    <!-- Notifications List -->
-    <div *ngIf="filteredNotifications.length > 0; else noNotifications" class="space-y-4">
-      <div *ngFor="let notification of filteredNotifications" 
-           (click)="markAsRead(notification)"
-           [ngClass]="{'border-l-4 border-blue-500': !notification.read}"
-           class="relative bg-white/50 backdrop-blur-lg rounded-lg shadow-md p-4 flex items-start space-x-4 transition-all duration-300 hover:bg-white/70 cursor-pointer">
-        
-        <!-- Avatar -->
-        <img class="w-12 h-12 rounded-full object-cover" [src]="notification.sender.avatar" [alt]="notification.sender.name">
-
-        <!-- Content -->
-        <div class="flex-1">
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mr-4">
-            <h3 class="text-lg font-semibold text-blue-900 flex items-center mb-2 sm:mb-0">
-              {{ notification.title }}
-              <span *ngIf="!notification.read" class="ml-2 w-2.5 h-2.5 bg-blue-500 rounded-full"></span>
-            </h3>
-            <div class="flex items-center space-x-2">
-              <span [ngClass]="getBadgeClass(notification.type)" class="px-2 py-1 text-xs font-bold text-white rounded-full">{{ getBadgeText(notification.type) }}</span>
-              <span class="text-xs text-gray-500">{{ notification.time }}</span>
-            </div>
-          </div>
-          <p class="text-gray-600 mt-1">{{ notification.description }}</p>
-          
-          <!-- Actions -->
-          <div class="mt-3 flex items-center space-x-3">
-            <button *ngIf="notification.type === 'message'" class="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition">Responder</button>
-            <button *ngIf="notification.type === 'application'" class="px-4 py-2 text-sm font-medium text-white bg-purple-500 rounded-md hover:bg-purple-600 transition">Ver Postulaciones</button>
-            <button *ngIf="notification.type === 'approved' || notification.type === 'rejected'" class="px-4 py-2 text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 transition">Ver Trabajos</button>
-          </div>
-        </div>
-
-        <!-- Delete Button -->
-        <button (click)="deleteNotification(notification.id); $event.stopPropagation()" class="absolute top-2 right-2 p-1 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- No Notifications Template -->
+    <!-- No Notifications Template Mejorado -->
     <ng-template #noNotifications>
-      <div class="text-center py-16">
-        <div class="inline-block bg-white/60 backdrop-blur-lg p-8 rounded-full">
-          <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <div class="text-center py-10 sm:py-16">
+        <div class="inline-block bg-white/60 backdrop-blur-lg p-6 sm:p-8 rounded-full">
+          <svg class="w-12 h-12 sm:w-16 sm:h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
         </div>
-        <h2 class="mt-6 text-2xl font-bold text-blue-900">No hay notificaciones</h2>
-        <p class="mt-2 text-gray-500">No tienes notificaciones en este momento.</p>
+        <h2 class="mt-4 sm:mt-6 text-xl sm:text-2xl font-bold text-blue-900">No hay notificaciones</h2>
+        <p class="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-500">No tienes notificaciones en este momento.</p>
       </div>
     </ng-template>
-
   </main>
 </div>

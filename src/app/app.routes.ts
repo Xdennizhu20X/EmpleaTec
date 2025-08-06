@@ -27,6 +27,10 @@ export const routes: Routes = [
     component: WorkerRegisterComponent
   },
   {
+    path: 'create-job',
+    loadComponent: () => import('./features/jobs/pages/create-job/create-job').then(m => m.CreateJobComponent)
+  },
+  {
     path: 'dashboard-worker',
     loadComponent: () => import('./features/dashboard/pages/dashboard-worker/dashboard').then(m => m.DashboardWorker)
   },
@@ -53,5 +57,9 @@ export const routes: Routes = [
   {
     path: 'notifications',
     loadComponent: () => import('./features/notifications/pages/notifications-page/notifications-page').then(m => m.NotificationsPageComponent)
+  },
+  {
+    path: 'worker/:id',
+    loadComponent: () => import('./features/explorer/pages/worker-profile/worker-profile').then(m => m.WorkerProfileComponent)
   }
 ];

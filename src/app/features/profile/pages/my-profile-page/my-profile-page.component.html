@@ -24,7 +24,9 @@
       <div class="flex flex-col items-center text-center md:flex-row md:space-x-8 md:text-left">
         <div class="relative mb-6 flex-shrink-0 md:mb-0">
           <img [src]="user().profileImage" [alt]="user().name" class="h-32 w-32 rounded-full border-4 border-white object-cover shadow-lg" />
-          <button class="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white transition-colors hover:bg-blue-700"></button>
+          <button class="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white transition-colors hover:bg-blue-700">
+            <span class="lucide-icon">camera</span>
+          </button>
         </div>
         <div class="flex-1">
           @if (isEditing()) {
@@ -39,20 +41,33 @@
                   <input id="email" type="email" [ngModel]="editData().email" (ngModelChange)="updateEditData('email', $event)" class="w-full rounded-md border border-white/30 bg-white/50 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
               </div>
+              <div class="grid gap-4 md:grid-cols-2">
+                <div>
+                  <label for="phone" class="mb-1 block text-sm font-medium text-blue-800">Teléfono</label>
+                  <input id="phone" type="text" [ngModel]="editData().phone" (ngModelChange)="updateEditData('phone', $event)" class="w-full rounded-md border border-white/30 bg-white/50 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label for="location" class="mb-1 block text-sm font-medium text-blue-800">Ubicación</label>
+                  <input id="location" type="text" [ngModel]="editData().location" (ngModelChange)="updateEditData('location', $event)" class="w-full rounded-md border border-white/30 bg-white/50 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+              </div>
               <div>
                 <label for="bio" class="mb-1 block text-sm font-medium text-blue-800">Descripción</label>
                 <textarea id="bio" [ngModel]="editData().bio" (ngModelChange)="updateEditData('bio', $event)" class="w-full rounded-md border border-white/30 bg-white/50 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3"></textarea>
               </div>
+              <button (click)="handleSave()" class="w-full rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-blue-700 sm:w-auto">
+                Guardar Cambios
+              </button>
             </div>
           } @else {
             <div>
               <h2 class="text-3xl font-bold text-blue-900">{{ user().name }}</h2>
               <p class="mb-4 text-xl text-blue-600">{{ user().userType === 'client' ? 'Cliente' : 'Trabajador Profesional' }}</p>
               <div class="mb-4 grid grid-cols-1 gap-x-8 gap-y-2 text-blue-700 sm:grid-cols-2">
-                <span class="flex items-center">{{ user().email }}</span>
-                <span class="flex items-center">{{ user().phone }}</span>
-                <span class="flex items-center">{{ user().location }}</span>
-                <span class="flex items-center">Miembro desde {{ formatDate(user().memberSince) }}</span>
+                <span class="flex items-center"><span class="lucide-icon mr-2">mail</span>{{ user().email }}</span>
+                <span class="flex items-center"><span class="lucide-icon mr-2">phone</span>{{ user().phone }}</span>
+                <span class="flex items-center"><span class="lucide-icon mr-2">map_pin</span>{{ user().location }}</span>
+                <span class="flex items-center"><span class="lucide-icon mr-2">calendar</span>Miembro desde {{ formatDate(user().memberSince) }}</span>
               </div>
               <p class="text-blue-800">{{ user().bio }}</p>
             </div>
@@ -85,24 +100,34 @@
                   <div class="flex justify-between"><span class="text-blue-700">Completados:</span> <span class="font-semibold text-green-600">{{ clientStats.projectsCompleted }}</span></div>
                   <div class="flex justify-between"><span class="text-blue-700">En progreso:</span> <span class="font-semibold text-yellow-600">{{ clientStats.projectsInProgress }}</span></div>
                   <div class="flex justify-between"><span class="text-blue-700">Total invertido:</span> <span class="font-semibold text-blue-800">${{ clientStats.totalSpent.toLocaleString() }}</span></div>
-                  <div class="flex items-center justify-between"><span class="text-blue-700">Rating promedio:</span> <span class="flex items-center font-semibold text-blue-800">{{ clientStats.averageRating }}</span></div>
+                  <div class="flex items-center justify-between"><span class="text-blue-700">Rating promedio:</span> <span class="flex items-center font-semibold text-blue-800"><span class="lucide-icon text-yellow-500">star</span>{{ clientStats.averageRating }}</span></div>
                 </div>
               </div>
-              <button class="w-full rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-blue-700">Ver Todos Mis Proyectos</button>
-              <button class="w-full rounded-lg border border-blue-600 px-4 py-2 font-semibold text-blue-700 transition-colors hover:bg-white/50">Crear Nuevo Proyecto</button>
+              <button (click)="onNavigate('my-projects')" class="flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-blue-700">
+                <span class="lucide-icon mr-2">briefcase</span> Ver Mis Proyectos
+              </button>
+              <button (click)="onNavigate('create-job')" class="flex w-full items-center justify-center rounded-lg border border-blue-600 px-4 py-2 font-semibold text-blue-700 transition-colors hover:bg-white/50">
+                <span class="lucide-icon mr-2">plus</span> Crear Nuevo Proyecto
+              </button>
             </div>
             <div class="rounded-xl border border-white/20 bg-white/40 p-6 backdrop-blur-lg lg:col-span-2">
-              <h3 class="mb-4 text-lg font-bold text-blue-900">Proyectos Recientes</h3>
-              <div class="space-y-4">
+              <div class="flex items-center justify-between border-b border-white/20 pb-4">
+                <h3 class="text-lg font-bold text-blue-900">Proyectos Recientes</h3>
+                <button (click)="onNavigate('my-projects')" class="rounded-md border border-white/30 bg-white/50 px-3 py-1 text-sm font-medium text-blue-700 transition-colors hover:bg-white/70">Ver todos</button>
+              </div>
+              <div class="space-y-4 pt-4">
                 @for (project of recentProjects; track project.id) {
-                  <div class="cursor-pointer rounded-xl bg-white/30 p-4 transition-colors hover:bg-white/50">
+                  <div (click)="onNavigate('project-details', project)" class="cursor-pointer rounded-xl bg-white/30 p-4 transition-colors hover:bg-white/50">
                     <div class="flex items-start space-x-4">
                       <img [src]="project.image" [alt]="project.title" class="h-16 w-16 rounded-lg object-cover">
                       <div class="min-w-0 flex-1">
                         <h4 class="mb-1 truncate font-semibold text-blue-900">{{ project.title }}</h4>
-                        <div class="mb-2 inline-flex items-center rounded-full px-2 py-1 text-xs font-medium" [ngClass]="getProjectStatusInfo(project.status).color">{{ getProjectStatusInfo(project.status).text }}</div>
+                        <div class="mb-2 inline-flex items-center rounded-full px-2 py-1 text-xs font-medium" [ngClass]="getProjectStatusInfo(project.status).color">
+                          <span class="lucide-icon mr-1 text-xs">{{ project.status === 'completed' ? 'check_circle' : 'clock' }}</span>
+                          {{ getProjectStatusInfo(project.status).text }}
+                        </div>
                         <div class="flex items-center justify-between text-sm">
-                          <span class="flex items-center text-blue-600">${{ project.budget.toLocaleString() }}</span>
+                          <span class="flex items-center text-blue-600"><span class="lucide-icon mr-1 text-xs">dollar_sign</span>${{ project.budget.toLocaleString() }}</span>
                           <span class="text-blue-500">{{ formatDate(project.date) }}</span>
                         </div>
                       </div>
@@ -138,9 +163,9 @@
                                class="cursor-pointer rounded-lg border-2 p-3 text-left transition-all"
                                [ngClass]="{
                                 'border-blue-500 bg-blue-50': editData().specialties?.includes(spec.id),
-                                'border-white/30': !editData().specialties?.includes(spec.id)
+                                'border-white/30 bg-white/50': !editData().specialties?.includes(spec.id)
                                }">
-                            <span class="text-sm font-medium text-blue-900">{{ spec.name }}</span>
+                            <span class="text-sm font-medium text-blue-900">{{ spec.icon }} {{ spec.name }}</span>
                           </div>
                         }
                       </div>
@@ -151,12 +176,12 @@
                     <div class="flex justify-between"><span class="text-blue-700">Experiencia:</span> <span class="font-semibold text-blue-800">{{ user().yearsExperience }} años</span></div>
                     <div class="flex justify-between"><span class="text-blue-700">Tarifa por día:</span> <span class="font-semibold text-blue-800">${{ user().hourlyRate }} MXN</span></div>
                     <div class="flex justify-between"><span class="text-blue-700">Trabajos completados:</span> <span class="font-semibold text-blue-800">{{ user().completedJobs }}</span></div>
-                    <div class="flex items-center justify-between"><span class="text-blue-700">Calificación:</span> <span class="flex items-center font-semibold text-blue-800">{{ user().rating }}</span></div>
+                    <div class="flex items-center justify-between"><span class="text-blue-700">Calificación:</span> <span class="flex items-center font-semibold text-blue-800"><span class="lucide-icon text-yellow-500">star</span>{{ user().rating }}</span></div>
                     <div>
                       <h4 class="mb-2 mt-3 font-medium text-blue-900">Especialidades:</h4>
                       <div class="flex flex-wrap gap-2">
                         @for (specId of user().specialties; track specId) {
-                          <div class="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">{{ getSpecialtyName(specId) }}</div>
+                          <div class="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">{{ getSpecialtyIcon(specId) }} {{ getSpecialtyName(specId) }}</div>
                         }
                       </div>
                     </div>
@@ -165,11 +190,11 @@
               </div>
               <div class="rounded-xl border border-white/20 bg-white/40 p-6 backdrop-blur-lg">
                 <h3 class="mb-4 text-lg font-bold text-blue-900">Verificaciones</h3>
-                <div class="space-y-3">
-                  <div class="flex items-center text-green-600">Identidad verificada</div>
-                  <div class="flex items-center text-green-600">Teléfono verificado</div>
-                  <div class="flex items-center text-green-600">Email verificado</div>
-                  <div class="flex items-center text-green-600">Perfil completo</div>
+                <div class="space-y-3 text-sm">
+                  <div class="flex items-center justify-between text-green-600"><span class="flex items-center"><span class="lucide-icon mr-2">check_circle</span>Identidad verificada</span><span class="lucide-icon">check_circle</span></div>
+                  <div class="flex items-center justify-between text-green-600"><span class="flex items-center"><span class="lucide-icon mr-2">check_circle</span>Teléfono verificado</span><span class="lucide-icon">check_circle</span></div>
+                  <div class="flex items-center justify-between text-green-600"><span class="flex items-center"><span class="lucide-icon mr-2">check_circle</span>Email verificado</span><span class="lucide-icon">check_circle</span></div>
+                  <div class="flex items-center justify-between text-green-600"><span class="flex items-center"><span class="lucide-icon mr-2">check_circle</span>Perfil completo</span><span class="lucide-icon">check_circle</span></div>
                 </div>
               </div>
             </div>
@@ -196,19 +221,25 @@
         @case ('settings') {
           <div class="grid gap-6 lg:grid-cols-2">
             <div class="rounded-xl border border-white/20 bg-white/40 p-6 backdrop-blur-lg">
-              <h3 class="mb-4 flex items-center text-lg font-bold text-blue-900">Preferencias</h3>
-              <div class="space-y-3">
-                <div class="flex items-center justify-between"><span class="text-blue-700">Notificaciones por email</span> <button class="rounded-lg bg-white/50 px-3 py-1 text-sm font-medium text-blue-700 transition-colors hover:bg-white/70">Configurar</button></div>
-                <div class="flex items-center justify-between"><span class="text-blue-700">Notificaciones push</span> <button class="rounded-lg bg-white/50 px-3 py-1 text-sm font-medium text-blue-700 transition-colors hover:bg-white/70">Configurar</button></div>
-                <div class="flex items-center justify-between"><span class="text-blue-700">Privacidad del perfil</span> <button class="rounded-lg bg-white/50 px-3 py-1 text-sm font-medium text-blue-700 transition-colors hover:bg-white/70">Editar</button></div>
+              <div class="flex items-center border-b border-white/20 pb-4">
+                <span class="lucide-icon mr-2 text-blue-900">settings</span>
+                <h3 class="text-lg font-bold text-blue-900">Preferencias</h3>
+              </div>
+              <div class="space-y-3 pt-4 text-sm">
+                <div class="flex items-center justify-between"><span class="text-blue-700">Notificaciones por email</span> <button class="rounded-lg border border-white/30 bg-white/50 px-3 py-1 font-medium text-blue-700 transition-colors hover:bg-white/70">Configurar</button></div>
+                <div class="flex items-center justify-between"><span class="text-blue-700">Notificaciones push</span> <button class="rounded-lg border border-white/30 bg-white/50 px-3 py-1 font-medium text-blue-700 transition-colors hover:bg-white/70">Configurar</button></div>
+                <div class="flex items-center justify-between"><span class="text-blue-700">Privacidad del perfil</span> <button class="rounded-lg border border-white/30 bg-white/50 px-3 py-1 font-medium text-blue-700 transition-colors hover:bg-white/70">Editar</button></div>
               </div>
             </div>
             <div class="rounded-xl border border-white/20 bg-white/40 p-6 backdrop-blur-lg">
-              <h3 class="mb-4 flex items-center text-lg font-bold text-blue-900">Seguridad</h3>
-              <div class="space-y-3">
-                <div class="flex items-center justify-between"><span class="text-blue-700">Cambiar contraseña</span> <button class="rounded-lg bg-white/50 px-3 py-1 text-sm font-medium text-blue-700 transition-colors hover:bg-white/70">Cambiar</button></div>
-                <div class="flex items-center justify-between"><span class="text-blue-700">Autenticación 2 pasos</span> <button class="rounded-lg bg-white/50 px-3 py-1 text-sm font-medium text-blue-700 transition-colors hover:bg-white/70">Activar</button></div>
-                <div class="flex items-center justify-between"><span class="text-blue-700">Sesiones activas</span> <button class="rounded-lg bg-white/50 px-3 py-1 text-sm font-medium text-blue-700 transition-colors hover:bg-white/70">Ver</button></div>
+              <div class="flex items-center border-b border-white/20 pb-4">
+                <span class="lucide-icon mr-2 text-blue-900">shield</span>
+                <h3 class="text-lg font-bold text-blue-900">Seguridad</h3>
+              </div>
+              <div class="space-y-3 pt-4 text-sm">
+                <div class="flex items-center justify-between"><span class="text-blue-700">Cambiar contraseña</span> <button class="rounded-lg border border-white/30 bg-white/50 px-3 py-1 font-medium text-blue-700 transition-colors hover:bg-white/70">Cambiar</button></div>
+                <div class="flex items-center justify-between"><span class="text-blue-700">Autenticación 2 pasos</span> <button class="rounded-lg border border-white/30 bg-white/50 px-3 py-1 font-medium text-blue-700 transition-colors hover:bg-white/70">Activar</button></div>
+                <div class="flex items-center justify-between"><span class="text-blue-700">Sesiones activas</span> <button class="rounded-lg border border-white/30 bg-white/50 px-3 py-1 font-medium text-blue-700 transition-colors hover:bg-white/70">Ver</button></div>
               </div>
             </div>
           </div>

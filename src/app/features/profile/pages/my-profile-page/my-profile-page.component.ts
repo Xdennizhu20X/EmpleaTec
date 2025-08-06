@@ -1,15 +1,18 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal, inject } from '@angular/core';
 import { CommonModule, formatDate } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
-// --- INTERFACES PARA TIPADO FUERTE ---
+// --- INTERFACES Y TIPOS ---
+type ProjectStatus = 'completed' | 'in_progress' | 'open';
+
 export interface Project {
   id: string;
   title: string;
-  status: 'completed' | 'in_progress' | 'open';
+  status: ProjectStatus;
   budget: number;
-  date: Date;
   image: string;
+  date: Date;
 }
 
 export interface UserProfile {
@@ -28,6 +31,12 @@ export interface UserProfile {
   rating?: number;
 }
 
+export interface Specialty {
+  id: string;
+  name: string;
+  icon: string;
+}
+
 @Component({
   selector: 'app-my-profile-page',
   standalone: true,
@@ -37,27 +46,30 @@ export interface UserProfile {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MyProfilePageComponent {
-  // SOLUCIÓN: Cambiado a 'client' para mostrar la pestaña y contenido correctos.
   private userType: 'client' | 'worker' = 'client';
+  private router = inject(Router);
 
+  // --- DATOS DEL COMPONENTE ---
   readonly user = signal<UserProfile>({
     userType: this.userType,
-    name: this.userType === 'client' ? 'Gabriela Mistral' : 'Alonso Quijano',
-    email: this.userType === 'client' ? 'gabi.mistral@email.com' : 'alonso.quijano@email.com',
+    name: 'Gabriela Mistral',
+    email: 'gabi.mistral@email.com',
     phone: '55 1234 5678',
     location: 'Ciudad de México, MX',
-    bio: 'Busco profesionales para proyectos de renovación.',
+    bio: 'Busco profesionales para proyectos de renovación y mantenimiento del hogar. Valoro la comunicación y la calidad del trabajo.',
     profileImage: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop',
     memberSince: new Date(2022, 5, 15),
-    // ...el resto de los datos no afecta a esta lógica
+    // Datos de trabajador (si aplica)
+    hourlyRate: 500,
+    yearsExperience: 8,
+    specialties: ['carpinteria', 'electricidad', 'pintura'],
+    completedJobs: 42,
+    rating: 4.9,
   });
 
-  readonly editData = signal(this.user());
   readonly isEditing = signal(false);
-  
-  // Esta señal ahora se inicializará correctamente a 'projects'
+  readonly editData = signal<Partial<UserProfile>>(this.user());
   readonly activeTab = signal(this.user().userType === 'client' ? 'projects' : 'profile');
-
   readonly editButtonText = computed(() => this.isEditing() ? 'Guardar' : 'Editar');
 
   readonly clientStats = {
@@ -66,68 +78,56 @@ export class MyProfilePageComponent {
     projectsInProgress: 2,
     totalSpent: 125000,
     averageRating: 4.8,
+    workersHired: 15,
   };
 
   readonly recentProjects: Project[] = [
-    {
-      id: '1',
-      title: 'Renovación de cocina integral',
-      status: 'completed',
-      budget: 25000,
-      date: new Date(Date.now() - 86400000 * 20),
-      image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=300&h=200&fit=crop'
-    },
-    {
-      id: '2',
-      title: 'Instalación sistema eléctrico',
-      status: 'in_progress',
-      budget: 40000,
-      date: new Date(Date.now() - 86400000 * 10),
-      image: 'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=300&h=200&fit=crop'
-    },
-    {
-      id: '3',
-      title: 'Pintura interior departamento',
-      status: 'open',
-      budget: 12000,
-      date: new Date(Date.now() - 86400000 * 2),
-      image: 'https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=300&h=200&fit=crop'
-    }
+    { id: '1', title: 'Renovación de cocina integral', status: 'completed', budget: 25000, date: new Date(Date.now() - 86400000 * 20), image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=300&h=200&fit=crop' },
+    { id: '2', title: 'Instalación sistema eléctrico', status: 'in_progress', budget: 40000, date: new Date(Date.now() - 86400000 * 10), image: 'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=300&h=200&fit=crop' },
+    { id: '3', title: 'Pintura interior departamento', status: 'open', budget: 12000, date: new Date(Date.now() - 86400000 * 2), image: 'https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=300&h=200&fit=crop' }
   ];
 
-  readonly specialtyOptions = [
-    { id: 'carpinteria', name: 'Carpintería' },
-    { id: 'plomeria', name: 'Plomería' },
-    { id: 'electricidad', name: 'Electricidad' },
+  readonly specialtyOptions: Specialty[] = [
+    { id: 'carpinteria', name: 'Carpintería', icon: '🪵' },
+    { id: 'plomeria', name: 'Plomería', icon: '🔧' },
+    { id: 'electricidad', name: 'Electricidad', icon: '⚡️' },
+    { id: 'pintura', name: 'Pintura', icon: '🎨' },
+    { id: 'albanileria', name: 'Albañilería', icon: '🧱' },
+    { id: 'jardineria', name: 'Jardinería', icon: '🌿' },
+    { id: 'limpieza', name: 'Limpieza', icon: '🧼' },
+    { id: 'soldadura', name: 'Soldadura', icon: '🔥' },
+    { id: 'refrigeracion', name: 'Refrigeración', icon: '❄️' },
+    { id: 'tapiceria', name: 'Tapicería', icon: '🛋️' },
+    { id: 'vidrieria', name: 'Vidriería', icon: '🪟' },
+    { id: 'cerrajeria', name: 'Cerrajería', icon: '🔑' }
   ];
 
-  onBack(): void { console.log('Volver'); }
+  // --- MÉTODOS DE ACCIÓN ---
+    onBack(): void {
+    this.router.navigate(['/dashboard-client']);
+  }
   onLogout(): void { console.log('Cerrar sesión'); }
+  onNavigate(screen: string, data?: any): void { console.log(`Navegar a ${screen}`, data); }
+
+  handleSave(): void {
+    this.user.update(currentUser => ({ ...currentUser, ...this.editData() }));
+    this.isEditing.set(false);
+    console.log('Usuario actualizado:', this.user());
+  }
 
   toggleEdit(): void {
-    if (this.isEditing()) {
-      this.user.set(this.editData());
+    if (!this.isEditing()) {
+      this.editData.set({ ...this.user() });
     }
     this.isEditing.update(value => !value);
   }
 
-  setActiveTab(tab: string): void { this.activeTab.set(tab); }
+  setActiveTab(tab: 'projects' | 'profile' | 'settings'): void {
+    this.activeTab.set(tab);
+  }
 
   updateEditData(field: keyof UserProfile, value: any): void {
     this.editData.update(data => ({ ...data, [field]: value }));
-  }
-
-  formatDate(date: Date): string {
-    return formatDate(date, 'dd/MMM/yyyy', 'es-MX');
-  }
-
-  getProjectStatusInfo(status: string): { text: string; color: string } {
-    switch (status) {
-      case 'open': return { text: 'Abierto', color: 'bg-blue-100 text-blue-800' };
-      case 'in_progress': return { text: 'En Progreso', color: 'bg-yellow-100 text-yellow-800' };
-      case 'completed': return { text: 'Completado', color: 'bg-green-100 text-green-800' };
-      default: return { text: 'Desconocido', color: 'bg-gray-100 text-gray-800' };
-    }
   }
 
   toggleSpecialty(specialtyId: string): void {
@@ -140,8 +140,24 @@ export class MyProfilePageComponent {
     });
   }
 
+  // --- MÉTODOS DE FORMATO Y UTILIDAD ---
+  formatDate(date: Date): string {
+    return formatDate(date, 'd MMM, y', 'es-MX');
+  }
+
+  getProjectStatusInfo(status: ProjectStatus) {
+    switch (status) {
+      case 'open': return { text: 'Abierto', color: 'bg-blue-100 text-blue-800' };
+      case 'in_progress': return { text: 'En Progreso', color: 'bg-yellow-100 text-yellow-800' };
+      case 'completed': return { text: 'Completado', color: 'bg-green-100 text-green-800' };
+    }
+  }
+
   getSpecialtyName(specId: string): string {
-    const specialty = this.specialtyOptions.find(s => s.id === specId);
-    return specialty ? specialty.name : specId;
+    return this.specialtyOptions.find(s => s.id === specId)?.name || specId;
+  }
+
+  getSpecialtyIcon(specId: string): string {
+    return this.specialtyOptions.find(s => s.id === specId)?.icon || '';
   }
 }
