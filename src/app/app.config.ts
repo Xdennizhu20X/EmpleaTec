@@ -4,6 +4,7 @@ import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { getStorage, provideStorage } from '@angular/fire/storage';
+import { provideHttpClient } from '@angular/common/http';
 
 // 1. Importa las funciones y datos de localización
 import { registerLocaleData } from '@angular/common';
@@ -31,6 +32,7 @@ export const appConfig: ApplicationConfig = {
     provideAuth(() => getAuth()),
     provideFirestore(() => getFirestore()),
     provideStorage(() => getStorage()),
+    provideHttpClient(),
 
     // 3. Provee el LOCALE_ID globalmente
     { provide: LOCALE_ID, useValue: 'es-MX' }

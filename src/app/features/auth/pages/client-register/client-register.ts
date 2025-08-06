@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService } from 'src/core/services/auth.service';
 import { Firestore, doc, setDoc } from '@angular/fire/firestore';
+import { CloudinaryService } from 'src/core/services/cloudinary.service';
 
 export function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
   const password = control.get('password');
@@ -24,16 +25,26 @@ export function passwordMatchValidator(control: AbstractControl): ValidationErro
 })
 export class ClientRegisterComponent implements OnInit {
   registerForm!: FormGroup;
+  selectedFile: File | null = null;
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router, private firestore: Firestore) { }
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private firestore = inject(Firestore);
+  private cloudinaryService = inject(CloudinaryService);
 
   ngOnInit(): void {
     this.registerForm = this.fb.group({
       fullName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required]
+      confirmPassword: ['', Validators.required],
+      profilePicture: [null]
     }, { validators: passwordMatchValidator });
+  }
+
+  onFileSelected(event: any): void {
+    this.selectedFile = event.target.files[0];
   }
 
   async onRegister() {
@@ -44,11 +55,18 @@ export class ClientRegisterComponent implements OnInit {
         const user = userCredential.user;
 
         if (user) {
+          let photoURL = '';
+          if (this.selectedFile) {
+            const uploadResponse = await this.cloudinaryService.uploadImage(this.selectedFile);
+            photoURL = uploadResponse.secure_url;
+          }
+
           const userRef = doc(this.firestore, `users/${user.uid}`);
           await setDoc(userRef, {
             uid: user.uid,
             email: user.email,
             displayName: fullName,
+            photoURL,
             userType: 'client',
             createdAt: new Date(),
             updatedAt: new Date(),
