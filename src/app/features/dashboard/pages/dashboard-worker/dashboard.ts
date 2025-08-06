@@ -1,18 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router'; 
-
-interface JobOffer {
-  id: string;
-  title: string;
-  clientName: string;
-  location: string;
-  budget: number;
-  category: string;
-  clientAvatar: string;
-  coverImage: string;
-  isUrgent: boolean;
-}
+import { JobService } from '../../../jobs/services/job.service';
+import { Job } from '../../../jobs/models/job-card.model';
+import { Observable } from 'rxjs';
 
 interface Specialty {
   id: string;
@@ -27,7 +18,7 @@ interface Specialty {
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.scss']
 })
-export class DashboardWorker {
+export class DashboardWorker implements OnInit {
   isSidebarOpen = false;
   specialties: Specialty[] = [
     { id: 'todos', name: 'Todos los Trabajos', jobCount: 89 },
@@ -39,43 +30,15 @@ export class DashboardWorker {
     { id: 'jardineria', name: 'Jardinería', jobCount: 9 },
   ];
 
-  jobOffers: JobOffer[] = [
-    {
-      id: '1',
-      title: 'Renovación de Cocina Integral',
-      clientName: 'Laura Torres',
-      location: 'Condesa, CDMX',
-      budget: 18500,
-      category: '🔨 Carpintería',
-      clientAvatar: 'https://randomuser.me/api/portraits/women/75.jpg',
-      coverImage: 'https://images.unsplash.com/photo-1556911220-bff31c812dba?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
-      isUrgent: true,
-    },
-    {
-      id: '2',
-      title: 'Instalación de Sistema de Riego',
-      clientName: 'Roberto Morales',
-      location: 'Polanco, CDMX',
-      budget: 7800,
-      category: '🌳 Jardinería',
-      clientAvatar: 'https://randomuser.me/api/portraits/men/75.jpg',
-      coverImage: 'https://decoracaobrasil.com/wp-content/uploads/2022/11/manutenc%CC%A7a%CC%83o-de-jardim.jpg',
-      isUrgent: false,
-    },
-    {
-      id: '3',
-      title: 'Reparación de Fugas en Baño Principal',
-      clientName: 'Sofía Castro',
-      location: 'Santa Fe, CDMX',
-      budget: 4200,
-      category: '🔧 Plomería',
-      clientAvatar: 'https://randomuser.me/api/portraits/women/76.jpg',
-      coverImage: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
-      isUrgent: true,
-    },
-  ];
+  jobOffers$!: Observable<Job[]>;
 
   activeSpecialty: string = 'todos';
+
+  private jobService = inject(JobService);
+
+  ngOnInit(): void {
+    this.jobOffers$ = this.jobService.getUrgentJobs();
+  }
 
   setActiveSpecialty(specialtyId: string) {
     this.activeSpecialty = specialtyId;

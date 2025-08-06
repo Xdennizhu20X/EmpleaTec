@@ -1,17 +1,10 @@
-export interface JobClient {
-  name: string;
-  avatar: string;
-  rating: number;
-  reviewCount: number;
-  location: string;
-}
-
 export interface Job {
   id: string;
   title: string;
   description: string;
   category: string;
-  client: JobClient;
+  clientId: string;
+  clientName: string;
   budget: {
     min: number;
     max: number;
@@ -19,15 +12,12 @@ export interface Job {
   };
   timeline: {
     start: string;
+    end?: string;
     urgency: 'urgent' | 'normal' | 'flexible';
   };
   location: string;
-  distance: number;
-  applicants: number;
-  postedDate: Date;
+  createdAt: any;
   requirements: string;
   images: string[];
   status: 'open' | 'urgent' | 'closed';
-  requiresPortfolio: boolean;
-  featured: boolean;
 }
