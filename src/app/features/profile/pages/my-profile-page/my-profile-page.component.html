@@ -1,0 +1,219 @@
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 font-sans text-slate-800">
+  <!-- Header Fijo -->
+  <header class="sticky top-0 z-40 border-b border-white/20 bg-white/50 backdrop-blur-lg">
+    <div class="container mx-auto flex items-center justify-between px-6 py-3">
+      <button (click)="onBack()" class="flex items-center rounded-lg px-3 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-white/30">
+        <span>Volver</span>
+      </button>
+      <h1 class="text-xl font-bold text-blue-900">Mi Perfil</h1>
+      <div class="flex items-center space-x-2">
+        <button (click)="toggleEdit()" class="rounded-lg p-2 text-blue-700 transition-colors hover:bg-white/30" [title]="isEditing() ? 'Guardar cambios' : 'Editar perfil'">
+          <span>{{ editButtonText() }}</span>
+        </button>
+        <button (click)="onLogout()" class="hidden items-center rounded-lg px-3 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-red-50/20 hover:text-red-600 sm:flex" title="Cerrar sesión">
+          <span class="ml-2">Salir</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenido Principal -->
+  <main class="container mx-auto max-w-6xl px-6 py-8">
+    <!-- Card de Perfil Principal -->
+    <div class="mb-8 rounded-xl border border-white/20 bg-white/40 p-8 backdrop-blur-lg">
+      <div class="flex flex-col items-center text-center md:flex-row md:space-x-8 md:text-left">
+        <div class="relative mb-6 flex-shrink-0 md:mb-0">
+          <img [src]="user().profileImage" [alt]="user().name" class="h-32 w-32 rounded-full border-4 border-white object-cover shadow-lg" />
+          <button class="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white transition-colors hover:bg-blue-700"></button>
+        </div>
+        <div class="flex-1">
+          @if (isEditing()) {
+            <div class="space-y-4">
+              <div class="grid gap-4 md:grid-cols-2">
+                <div>
+                  <label for="name" class="mb-1 block text-sm font-medium text-blue-800">Nombre completo</label>
+                  <input id="name" type="text" [ngModel]="editData().name" (ngModelChange)="updateEditData('name', $event)" class="w-full rounded-md border border-white/30 bg-white/50 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label for="email" class="mb-1 block text-sm font-medium text-blue-800">Correo electrónico</label>
+                  <input id="email" type="email" [ngModel]="editData().email" (ngModelChange)="updateEditData('email', $event)" class="w-full rounded-md border border-white/30 bg-white/50 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+              </div>
+              <div>
+                <label for="bio" class="mb-1 block text-sm font-medium text-blue-800">Descripción</label>
+                <textarea id="bio" [ngModel]="editData().bio" (ngModelChange)="updateEditData('bio', $event)" class="w-full rounded-md border border-white/30 bg-white/50 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3"></textarea>
+              </div>
+            </div>
+          } @else {
+            <div>
+              <h2 class="text-3xl font-bold text-blue-900">{{ user().name }}</h2>
+              <p class="mb-4 text-xl text-blue-600">{{ user().userType === 'client' ? 'Cliente' : 'Trabajador Profesional' }}</p>
+              <div class="mb-4 grid grid-cols-1 gap-x-8 gap-y-2 text-blue-700 sm:grid-cols-2">
+                <span class="flex items-center">{{ user().email }}</span>
+                <span class="flex items-center">{{ user().phone }}</span>
+                <span class="flex items-center">{{ user().location }}</span>
+                <span class="flex items-center">Miembro desde {{ formatDate(user().memberSince) }}</span>
+              </div>
+              <p class="text-blue-800">{{ user().bio }}</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Pestañas (Tabs) -->
+    <div class="space-y-6">
+      <div class="grid w-full grid-cols-3 rounded-xl border border-white/20 bg-white/40 p-1 backdrop-blur-lg">
+        @if (user().userType === 'client') {
+          <button (click)="setActiveTab('projects')" [ngClass]="{'bg-white/70 shadow-sm': activeTab() === 'projects'}" class="rounded-lg px-4 py-2 font-medium text-blue-800 transition-colors">Mis Proyectos</button>
+        }
+        <button (click)="setActiveTab('profile')" [ngClass]="{'bg-white/70 shadow-sm': activeTab() === 'profile'}" class="rounded-lg px-4 py-2 font-medium text-blue-800 transition-colors">
+          {{ user().userType === 'worker' ? 'Info. Profesional' : 'Info. Personal' }}
+        </button>
+        <button (click)="setActiveTab('settings')" [ngClass]="{'bg-white/70 shadow-sm': activeTab() === 'settings'}" class="rounded-lg px-4 py-2 font-medium text-blue-800 transition-colors">Configuración</button>
+      </div>
+
+      <!-- Contenido de las Pestañas -->
+      @switch (activeTab()) {
+        @case ('projects') {
+          <div class="grid gap-6 lg:grid-cols-3">
+            <div class="space-y-4 lg:col-span-1">
+              <div class="rounded-xl border border-white/20 bg-white/40 p-6 backdrop-blur-lg">
+                <h3 class="mb-4 text-lg font-bold text-blue-900">Estadísticas</h3>
+                <div class="space-y-3 text-sm">
+                  <div class="flex justify-between"><span class="text-blue-700">Publicados:</span> <span class="font-semibold text-blue-800">{{ clientStats.projectsPublished }}</span></div>
+                  <div class="flex justify-between"><span class="text-blue-700">Completados:</span> <span class="font-semibold text-green-600">{{ clientStats.projectsCompleted }}</span></div>
+                  <div class="flex justify-between"><span class="text-blue-700">En progreso:</span> <span class="font-semibold text-yellow-600">{{ clientStats.projectsInProgress }}</span></div>
+                  <div class="flex justify-between"><span class="text-blue-700">Total invertido:</span> <span class="font-semibold text-blue-800">${{ clientStats.totalSpent.toLocaleString() }}</span></div>
+                  <div class="flex items-center justify-between"><span class="text-blue-700">Rating promedio:</span> <span class="flex items-center font-semibold text-blue-800">{{ clientStats.averageRating }}</span></div>
+                </div>
+              </div>
+              <button class="w-full rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-blue-700">Ver Todos Mis Proyectos</button>
+              <button class="w-full rounded-lg border border-blue-600 px-4 py-2 font-semibold text-blue-700 transition-colors hover:bg-white/50">Crear Nuevo Proyecto</button>
+            </div>
+            <div class="rounded-xl border border-white/20 bg-white/40 p-6 backdrop-blur-lg lg:col-span-2">
+              <h3 class="mb-4 text-lg font-bold text-blue-900">Proyectos Recientes</h3>
+              <div class="space-y-4">
+                @for (project of recentProjects; track project.id) {
+                  <div class="cursor-pointer rounded-xl bg-white/30 p-4 transition-colors hover:bg-white/50">
+                    <div class="flex items-start space-x-4">
+                      <img [src]="project.image" [alt]="project.title" class="h-16 w-16 rounded-lg object-cover">
+                      <div class="min-w-0 flex-1">
+                        <h4 class="mb-1 truncate font-semibold text-blue-900">{{ project.title }}</h4>
+                        <div class="mb-2 inline-flex items-center rounded-full px-2 py-1 text-xs font-medium" [ngClass]="getProjectStatusInfo(project.status).color">{{ getProjectStatusInfo(project.status).text }}</div>
+                        <div class="flex items-center justify-between text-sm">
+                          <span class="flex items-center text-blue-600">${{ project.budget.toLocaleString() }}</span>
+                          <span class="text-blue-500">{{ formatDate(project.date) }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+        @case ('profile') {
+          @if (user().userType === 'worker') {
+            <div class="grid gap-6 lg:grid-cols-2">
+              <div class="rounded-xl border border-white/20 bg-white/40 p-6 backdrop-blur-lg">
+                <h3 class="mb-4 text-lg font-bold text-blue-900">Información Profesional</h3>
+                @if (isEditing()) {
+                  <div class="space-y-4">
+                    <div>
+                      <label class="mb-1 block text-sm font-medium text-blue-800">Años de experiencia</label>
+                      <input type="number" [ngModel]="editData().yearsExperience" (ngModelChange)="updateEditData('yearsExperience', $event)" class="w-full rounded-md border border-white/30 bg-white/50 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-sm font-medium text-blue-800">Tarifa por día (MXN)</label>
+                      <input type="number" [ngModel]="editData().hourlyRate" (ngModelChange)="updateEditData('hourlyRate', $event)" class="w-full rounded-md border border-white/30 bg-white/50 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                      <label class="mb-1 block text-sm font-medium text-blue-800">Especialidades</label>
+                      <div class="mt-2 grid grid-cols-2 gap-2">
+                        @for (spec of specialtyOptions; track spec.id) {
+                          <div (click)="toggleSpecialty(spec.id)" 
+                               role="button" 
+                               [attr.aria-pressed]="editData().specialties?.includes(spec.id)"
+                               class="cursor-pointer rounded-lg border-2 p-3 text-left transition-all"
+                               [ngClass]="{
+                                'border-blue-500 bg-blue-50': editData().specialties?.includes(spec.id),
+                                'border-white/30': !editData().specialties?.includes(spec.id)
+                               }">
+                            <span class="text-sm font-medium text-blue-900">{{ spec.name }}</span>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="space-y-3 text-sm">
+                    <div class="flex justify-between"><span class="text-blue-700">Experiencia:</span> <span class="font-semibold text-blue-800">{{ user().yearsExperience }} años</span></div>
+                    <div class="flex justify-between"><span class="text-blue-700">Tarifa por día:</span> <span class="font-semibold text-blue-800">${{ user().hourlyRate }} MXN</span></div>
+                    <div class="flex justify-between"><span class="text-blue-700">Trabajos completados:</span> <span class="font-semibold text-blue-800">{{ user().completedJobs }}</span></div>
+                    <div class="flex items-center justify-between"><span class="text-blue-700">Calificación:</span> <span class="flex items-center font-semibold text-blue-800">{{ user().rating }}</span></div>
+                    <div>
+                      <h4 class="mb-2 mt-3 font-medium text-blue-900">Especialidades:</h4>
+                      <div class="flex flex-wrap gap-2">
+                        @for (specId of user().specialties; track specId) {
+                          <div class="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">{{ getSpecialtyName(specId) }}</div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+              <div class="rounded-xl border border-white/20 bg-white/40 p-6 backdrop-blur-lg">
+                <h3 class="mb-4 text-lg font-bold text-blue-900">Verificaciones</h3>
+                <div class="space-y-3">
+                  <div class="flex items-center text-green-600">Identidad verificada</div>
+                  <div class="flex items-center text-green-600">Teléfono verificado</div>
+                  <div class="flex items-center text-green-600">Email verificado</div>
+                  <div class="flex items-center text-green-600">Perfil completo</div>
+                </div>
+              </div>
+            </div>
+          }
+
+          @if (user().userType === 'client') {
+            <div class="rounded-xl border border-white/20 bg-white/40 p-6 backdrop-blur-lg">
+              <h3 class="mb-4 text-lg font-bold text-blue-900">Información Personal</h3>
+              <div class="grid gap-6 text-sm md:grid-cols-2">
+                <div class="space-y-3">
+                  <div class="flex justify-between"><span class="text-blue-700">Nombre:</span> <span class="font-semibold text-blue-800">{{ user().name }}</span></div>
+                  <div class="flex justify-between"><span class="text-blue-700">Email:</span> <span class="font-semibold text-blue-800">{{ user().email }}</span></div>
+                  <div class="flex justify-between"><span class="text-blue-700">Teléfono:</span> <span class="font-semibold text-blue-800">{{ user().phone }}</span></div>
+                </div>
+                <div class="space-y-3">
+                  <div class="flex justify-between"><span class="text-blue-700">Ubicación:</span> <span class="font-semibold text-blue-800">{{ user().location }}</span></div>
+                  <div class="flex justify-between"><span class="text-blue-700">Miembro desde:</span> <span class="font-semibold text-blue-800">{{ formatDate(user().memberSince) }}</span></div>
+                  <div class="flex justify-between"><span class="text-blue-700">Estado:</span> <span class="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">Activo</span></div>
+                </div>
+              </div>
+            </div>
+          }
+        }
+        @case ('settings') {
+          <div class="grid gap-6 lg:grid-cols-2">
+            <div class="rounded-xl border border-white/20 bg-white/40 p-6 backdrop-blur-lg">
+              <h3 class="mb-4 flex items-center text-lg font-bold text-blue-900">Preferencias</h3>
+              <div class="space-y-3">
+                <div class="flex items-center justify-between"><span class="text-blue-700">Notificaciones por email</span> <button class="rounded-lg bg-white/50 px-3 py-1 text-sm font-medium text-blue-700 transition-colors hover:bg-white/70">Configurar</button></div>
+                <div class="flex items-center justify-between"><span class="text-blue-700">Notificaciones push</span> <button class="rounded-lg bg-white/50 px-3 py-1 text-sm font-medium text-blue-700 transition-colors hover:bg-white/70">Configurar</button></div>
+                <div class="flex items-center justify-between"><span class="text-blue-700">Privacidad del perfil</span> <button class="rounded-lg bg-white/50 px-3 py-1 text-sm font-medium text-blue-700 transition-colors hover:bg-white/70">Editar</button></div>
+              </div>
+            </div>
+            <div class="rounded-xl border border-white/20 bg-white/40 p-6 backdrop-blur-lg">
+              <h3 class="mb-4 flex items-center text-lg font-bold text-blue-900">Seguridad</h3>
+              <div class="space-y-3">
+                <div class="flex items-center justify-between"><span class="text-blue-700">Cambiar contraseña</span> <button class="rounded-lg bg-white/50 px-3 py-1 text-sm font-medium text-blue-700 transition-colors hover:bg-white/70">Cambiar</button></div>
+                <div class="flex items-center justify-between"><span class="text-blue-700">Autenticación 2 pasos</span> <button class="rounded-lg bg-white/50 px-3 py-1 text-sm font-medium text-blue-700 transition-colors hover:bg-white/70">Activar</button></div>
+                <div class="flex items-center justify-between"><span class="text-blue-700">Sesiones activas</span> <button class="rounded-lg bg-white/50 px-3 py-1 text-sm font-medium text-blue-700 transition-colors hover:bg-white/70">Ver</button></div>
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  </main>
+</div>
