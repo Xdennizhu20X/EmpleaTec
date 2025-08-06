@@ -41,5 +41,9 @@ export const routes: Routes = [
   {
     path: 'messages',
     loadComponent: () => import('./features/messages/pages/messages-screen/messages-screen').then(m => m.MessagesScreen)
+  },
+  {
+    path: 'chat/:id',
+    loadComponent: () => import('./features/messages/pages/chat-screen/chat-screen').then(m => m.ChatScreen)
   }
 ];
