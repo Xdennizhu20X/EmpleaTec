@@ -1,5 +1,4 @@
 <div *ngIf="isVisible" 
-     [@fadeScale]="isVisible ? 'visible' : 'hidden'"
      class="fixed top-5 right-5 w-full max-w-sm z-50">
   <div class="glass-card-notification rounded-xl p-4 flex items-start space-x-4" 
        [ngClass]="type === 'success' ? 'bg-green-500/80' : 'bg-red-500/80'">
