@@ -1,1 +1,48 @@
-/* Este archivo ya no es necesario. Todos los estilos se manejan con clases de Tailwind CSS en el archivo HTML. */
+/* Estilos para las tarjetas con efecto glassmorphism */
+.glass-card {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px);
+  border-radius: 1rem; /* 16px */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+/* Definición de colores Royal Blue para usar con Tailwind */
+.bg-royal-blue-100 {
+  background-color: #E6E9FF;
+}
+
+.bg-royal-blue-200 {
+  background-color: #C0C7FF;
+}
+
+.bg-royal-blue-300 {
+  background-color: #AAB2FF;
+}
+
+.text-royal-blue-800 {
+  color: #3341B3;
+}
+
+.border-royal-blue-500 {
+  border-color: #4D5BFF;
+}
+
+/* Animación de carga con colores acordes al tema */
+.loading-spinner {
+  border-color: #AAB2FF; /* royal-blue-300 */
+  border-top-color: transparent;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
