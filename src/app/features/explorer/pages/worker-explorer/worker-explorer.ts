@@ -116,8 +116,9 @@ export class WorkerExplorerComponent implements OnInit {
   }
 
   viewProfile() {
-    console.log('Ver perfil de', this.workers[this.currentIndex].id);
-    // this.router.navigate(['/worker-profile', this.workers[this.currentIndex].id]);
+    if (this.workers.length > 0) {
+      this.router.navigate(['/worker', this.workers[this.currentIndex].id]);
+    }
   }
 
   goBack() {

@@ -1,1 +1,29 @@
-/* Estilos para el perfil del trabajador. La mayoría de los estilos se gestionan con Tailwind CSS en el archivo HTML. */
+/* Estilos para las tarjetas con efecto glassmorphism */
+.glass-card {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px);
+  border-radius: 1rem; /* 16px */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+/* Definición de colores Royal Blue para usar con Tailwind */
+.bg-royal-blue-100 {
+  background-color: #E6E9FF;
+}
+
+.bg-royal-blue-200 {
+  background-color: #C0C7FF;
+}
+
+.bg-royal-blue-300 {
+  background-color: #AAB2FF;
+}
+
+.text-royal-blue-800 {
+  color: #3341B3;
+}
+
+.border-royal-blue-500 {
+  border-color: #4D5BFF;
+}

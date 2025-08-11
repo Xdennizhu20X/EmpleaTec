@@ -112,7 +112,7 @@
             <div class="relative">
               <a routerLink="/profile" class="flex items-center space-x-2">
                 <img [src]="user?.photoURL || 'https://via.placeholder.com/150'" [alt]="user?.displayName"
-                class="h-10 w-10 rounded-full border-2 border-transparent hover:border-blue-500 cursor-pointer transition-all duration-200">
+                  class="h-10 w-10 rounded-full border-2 border-transparent hover:border-blue-500 cursor-pointer transition-all duration-200">
               </a>
             </div>
             <button (click)="onLogout()"
@@ -131,10 +131,13 @@
       <!-- Page Content -->
       <main class="p-8">
         <!-- Welcome Card -->
-        <div class="bg-white/50 backdrop-blur-lg rounded-2xl shadow-sm p-8 mb-8 flex sm:flex-row flex-col justify-between items-center">
+        <div
+          class="bg-white/50 backdrop-blur-lg rounded-2xl shadow-sm p-8 mb-8 flex sm:flex-row flex-col justify-between items-center">
           <div>
-            <h1 class="text-3xl font-bold text-blue-900">Bienvenido de nuevo, <span class="text-blue-700">{{ user?.displayName }}!</span></h1>
-            <p class="text-gray-700 sm:mt-1 mt-4">Aquí tienes un resumen de tu actividad reciente.</p>
+            <h1 class="text-3xl font-bold text-blue-900">👤 Bienvenido de nuevo, <span class="text-blue-700">{{
+                user?.displayName }}!</span></h1>
+            <p class="text-gray-800 text-lg sm:mt-2 mt-4">Aquí tienes un resumen de tu actividad reciente.</p>
+            <p class="text-gray-600 sm:mt-1 mt-4">Estas registrado como <span class="text-blue-700 text-lg">cliente</span>.</p>
           </div>
           <div class="text-center sm:mt-0 mt-6">
             <p class="sm:text-4xl text-5xl font-bold text-blue-700">5</p>
@@ -145,55 +148,66 @@
         <!-- Featured Workers Section -->
         <div>
           <h2 class="text-2xl font-bold text-blue-900 mb-6">Profesionales Destacados</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Worker Card -->
-            <div *ngFor="let worker of featuredWorkers"
-              class="bg-white rounded-2xl shadow-lg overflow-hidden group transform hover:scale-105 transition-transform duration-300 ease-in-out cursor-pointer">
-              <div class="relative h-40">
-                <img [src]="worker.coverImage" alt="Cover Image" class="w-full h-full object-cover">
-                <img [src]="worker.avatar" alt="Avatar"
-                  class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 h-24 w-24 rounded-full border-4 border-white shadow-md">
-                <span *ngIf="worker.isOnline"
-                  class="absolute top-4 right-4 h-3 w-3 rounded-full bg-green-500 border-2 border-white"
-                  title="Online"></span>
-              </div>
-              <div class="pt-16 pb-6 px-6 text-center">
-                <div class="flex items-center justify-center gap-2">
-                  <h3 class="text-xl font-bold text-gray-800">{{ worker.name }}</h3>
-                  <svg *ngIf="worker.isVerified" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500"
-                    viewBox="0 0 20 20" fill="currentColor" title="Verificado">
-                    <path fill-rule="evenodd"
-                      d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm3.733 8.088a.75.75 0 001.06-1.06l-3.5-3.5a.75.75 0 00-1.06 0l-1.5 1.5a.75.75 0 101.06 1.06l.97-.97 3.03 3.03z"
-                      clip-rule="evenodd" />
-                  </svg>
+          <ng-container *ngIf="featuredWorkers$ | async as workers; else loading ">
+            <div *ngIf="workers.length > 0; else noWorkers"
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <!-- Worker Card -->
+              <a *ngFor="let worker of workers" [routerLink]="['/worker', worker.uid]"
+                class="block bg-white rounded-2xl shadow-lg overflow-hidden group transform hover:scale-105 transition-transform duration-300 ease-in-out">
+                <div
+                  class="relative h-40 bg-[url('https://i.pinimg.com/736x/6f/c1/22/6fc122d686ed4a9acc6b37090d81f00f.jpg')]">
+                  <!-- Placeholder for cover image -->
+                  <img [src]="worker.photoURL || 'https://via.placeholder.com/150'" alt="Avatar"
+                    class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 h-24 w-24 rounded-full border-4 border-white shadow-md object-cover">
                 </div>
-                <p class="text-sm text-gray-500 font-medium">{{ worker.specialty }}</p>
-                <div class="flex justify-center items-center gap-4 my-4">
-                  <div class="flex items-center gap-1 text-yellow-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path
-                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    <span class="font-bold">{{ worker.rating }}</span>
-                    <span class="text-sm text-gray-400">({{ worker.reviewCount }})</span>
+                <div class="pt-16 pb-6 px-6 text-center">
+                  <h3 class="text-xl font-bold text-gray-800">{{ worker.displayName }}</h3>
+                  <p class="text-sm text-gray-500 font-medium">{{ worker.city || 'Ubicación no especificada' }}</p>
+
+                  <!-- Oficios Badges -->
+                  <div class="flex flex-wrap justify-center gap-2 my-4">
+                    <span *ngFor="let oficio of worker.oficios"
+                      class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">{{ oficio
+                      }}</span>
                   </div>
-                  <div class="flex items-center gap-1 text-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd"
-                        d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                        clip-rule="evenodd" />
-                    </svg>
-                    <span class="text-sm">{{ worker.location }}</span>
+
+                  <div class="flex justify-center items-center gap-4 my-4">
+                    <div class="flex items-center gap-1 text-gray-500">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                          d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7z"
+                          clip-rule="evenodd" />
+                      </svg>
+                      <span class="text-sm">{{ worker.experience || 'N/A' }} años de exp.</span>
+                    </div>
+                    <div class="flex items-center gap-1 text-gray-500">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path
+                          d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.518.759a1.037 1.037 0 00-.54 1.06l.74 4.435a1 1 0 01.986.836H3a1 1 0 01-1-1V3zM14.39 3.836a1 1 0 01.54 1.06l-.74 4.435a1 1 0 01-1.518.759l-1.518-.759a1.037 1.037 0 00-1.06.54l-.74 4.435a1 1 0 01-.986.836H17a1 1 0 011 1v-2.153a1 1 0 01-.836-.986l-4.435-.74a1 1 0 01-1.06.54l-.759 1.518a1.037 1.037 0 00-.54 1.06l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2.153a1 1 0 01-.986-.836l-.74-4.435a1 1 0 01.54-1.06l1.518-.759a1.037 1.037 0 00.54-1.06l-.74-4.435a1 1 0 01-.986-.836H14a1 1 0 01.39-.836z" />
+                      </svg>
+                      <span class="text-sm">{{ worker.phone || 'No disponible' }}</span>
+                    </div>
+                  </div>
+                  <div routerLink="#"
+                    class="flex justify-center">
+                    <button class="bg-blue-600 px-6 py-2 rounded-lg text-white font-semibold hover:bg-blue-400">
+                      Contactar
+                    </button>
                   </div>
                 </div>
-                <p class="text-lg font-semibold text-blue-600 mb-4">${{ worker.price }}/día</p>
-                <button
-                  class="w-full bg-blue-500 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">
-                  Contactar
-                </button>
-              </div>
+              </a>
             </div>
-          </div>
+            <ng-template #noWorkers>
+              <div class="col-span-full text-center py-12">
+                <p class="text-gray-500">Aún no hay profesionales disponibles.</p>
+              </div>
+            </ng-template>
+          </ng-container>
+          <ng-template #loading>
+            <div class="col-span-full text-center py-12">
+              <p class="text-gray-500">Cargando profesionales...</p>
+            </div>
+          </ng-template>
         </div>
       </main>
     </div>

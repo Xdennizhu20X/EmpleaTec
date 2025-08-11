@@ -20,6 +20,7 @@ export class DashboardClient implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   user$!: Observable<User | null>;
+  featuredWorkers$!: Observable<User[]>;
 
   isSidebarOpen = false;
   categories: Category[] = [
@@ -33,52 +34,11 @@ export class DashboardClient implements OnInit {
     { id: 'limpieza', name: '🧹 Limpieza', count: 11 },
   ];
 
-  featuredWorkers: WorkerCard[] = [
-    {
-      id: '1',
-      name: 'Alejandro García',
-      specialty: 'Carpintero Profesional',
-      rating: 4.9,
-      reviewCount: 128,
-      location: 'Ciudad de México',
-      price: 450,
-      avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-      coverImage: 'https://st4.depositphotos.com/26587216/28257/i/450/depositphotos_282571902-stock-photo-clouds-soft-pastel-colored-skies.jpg',
-      isVerified: true,
-      isOnline: true,
-    },
-    {
-      id: '2',
-      name: 'Mariana Rodríguez',
-      specialty: 'Plomera Certificada',
-      rating: 4.8,
-      reviewCount: 94,
-      location: 'Guadalajara, Jalisco',
-      price: 480,
-      avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
-      coverImage: 'https://media.istockphoto.com/id/1269463595/photo/watercolor-background-with-abstract-retro-sky-texture-in-pastel-colors.jpg?s=612x612&w=0&k=20&c=IU5VyrbFJ0WfGO-bsUPkG-GkuGA3yFcEqjv20038t8A=',
-      isVerified: true,
-      isOnline: false,
-    },
-    {
-      id: '3',
-      name: 'Carlos Sánchez',
-      specialty: 'Electricista Industrial',
-      rating: 5.0,
-      reviewCount: 215,
-      location: 'Monterrey, Nuevo León',
-      price: 550,
-      avatar: 'https://randomuser.me/api/portraits/men/36.jpg',
-      coverImage: 'https://st4.depositphotos.com/26587216/28257/i/450/depositphotos_282571902-stock-photo-clouds-soft-pastel-colored-skies.jpg',
-      isVerified: true,
-      isOnline: true,
-    },
-  ];
-
   activeCategory: string = 'todos';
 
   ngOnInit(): void {
     this.user$ = this.userService.currentUserProfile$;
+    this.featuredWorkers$ = this.userService.getWorkers();
   }
 
   async onLogout(): Promise<void> {

@@ -45,9 +45,9 @@
         (mousedown)="onDragStart($event)" (touchstart)="onDragStart($event)" (mousemove)="onDragMove($event)"
         (touchmove)="onDragMove($event)" (mouseup)="onDragEnd()" (touchend)="onDragEnd()" (mouseleave)="onDragEnd()">
 
-        <div
-          class="absolute inset-0 bg-white/50 backdrop-blur-lg rounded-2xl shadow-lg flex flex-col overflow-hidden cursor-pointer worker-card"
-          [ngStyle]="getCardStyle()" (click)="viewProfile()">
+        <a [routerLink]="['/worker', workers[currentIndex].id]"
+          class="absolute inset-0 bg-white/50 backdrop-blur-lg rounded-2xl shadow-lg flex flex-col overflow-hidden worker-card"
+          [ngStyle]="getCardStyle()">
 
           <!-- Image and Overlay -->
           <div class="relative h-3/5 w-full">
@@ -124,7 +124,7 @@
 
           <!-- Swipe Feedback Overlay -->
           <div class="absolute inset-0 rounded-2xl pointer-events-none" [ngStyle]="getOverlayStyle()"></div>
-        </div>
+        </a>
       </div>
 
       <!-- No more workers message -->

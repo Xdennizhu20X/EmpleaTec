@@ -1,7 +1,7 @@
 
 import { Injectable, inject } from '@angular/core';
 import { Auth, authState } from '@angular/fire/auth';
-import { doc, docData, Firestore } from '@angular/fire/firestore';
+import { collection, collectionData, doc, docData, Firestore, query, where } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { User } from '../models/user.model';
@@ -29,5 +29,11 @@ export class UserService {
   getUserById(uid: string): Observable<User | null> {
     const userDocRef = doc(this.firestore, `users/${uid}`);
     return docData(userDocRef) as Observable<User | null>;
+  }
+
+  getWorkers(): Observable<User[]> {
+    const usersRef = collection(this.firestore, 'users');
+    const q = query(usersRef, where('userType', '==', 'worker'));
+    return collectionData(q, { idField: 'uid' }) as Observable<User[]>;
   }
 }
