@@ -1,12 +1,21 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { NotificationService } from './core/services/notification.service';
+import { NotificationComponent } from './shared/components/notification/notification';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  standalone: true,
+  imports: [CommonModule, RouterOutlet, NotificationComponent],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrls: ['./app.scss']
 })
 export class App {
-  protected readonly title = signal('EmpleaTec');
+  public notificationService = inject(NotificationService);
+  readonly notificationState = this.notificationService.notificationState;
+
+  onNotificationClose() {
+    this.notificationService.hide();
+  }
 }

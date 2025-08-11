@@ -1,16 +1,21 @@
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100 custom-background">
+<div
+  class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100 custom-background">
   <div class="relative sm:w-full w-[90%] max-w-2xl p-8 bg-white rounded-2xl shadow-lg">
     <!-- Header with Back Button and Logo -->
     <div class="flex justify-between items-center mb-6">
-      <button (click)="handleBackNavigation()" class="flex items-center gap-2 px-4 py-2 rounded-lg shadow-md bg-white hover:bg-gray-100 transition-colors duration-200">
-        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <button (click)="handleBackNavigation()"
+        class="flex items-center gap-2 px-4 py-2 rounded-lg shadow-md bg-white hover:bg-gray-100 transition-colors duration-200">
+        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
         </svg>
         <span class="text-gray-700">{{ currentStep === 1 ? 'Volver' : 'Anterior' }}</span>
       </button>
       <div class="flex items-center space-x-2">
         <svg class="w-6 h-6 text-blue-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-          <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V8z" clip-rule="evenodd"></path>
+          <path fill-rule="evenodd"
+            d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V8z"
+            clip-rule="evenodd"></path>
         </svg>
         <span class="text-xl font-semibold text-blue-700">EmpleaTec</span>
       </div>
@@ -28,16 +33,19 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-2">Nombre completo</label>
-            <input type="text" id="fullName" formControlName="fullName" placeholder="Tu nombre completo" class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="fullName" formControlName="fullName" placeholder="Tu nombre completo"
+              class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 text-black">
           </div>
           <div>
             <label for="cedula" class="block text-sm font-semibold text-gray-700 mb-2">Cédula</label>
-            <input type="text" id="cedula" formControlName="cedula" placeholder="Tu número de cédula" class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="cedula" formControlName="cedula" placeholder="Tu número de cédula"
+              class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 text-black">
           </div>
         </div>
         <div>
           <label for="email" class="block text-sm font-semibold text-gray-700 mb-2 mt-4">Correo electrónico</label>
-          <input type="email" id="email" formControlName="email" placeholder="tu@email.com" class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <input type="email" id="email" formControlName="email" placeholder="tu@email.com"
+            class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 text-black">
         </div>
       </div>
 
@@ -47,16 +55,19 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">Número de teléfono</label>
-            <input type="tel" id="phone" formControlName="phone" placeholder="0991234567" class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="tel" id="phone" formControlName="phone" placeholder="0991234567"
+              class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 text-black">
           </div>
           <div>
             <label for="city" class="block text-sm font-semibold text-gray-700 mb-2">Ciudad</label>
-            <input type="text" id="city" formControlName="city" placeholder="Quito" class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="city" formControlName="city" placeholder="Quito"
+              class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 text-black">
           </div>
         </div>
         <div>
           <label for="address" class="block text-sm font-semibold text-gray-700 mb-2 mt-4">Dirección</label>
-          <input type="text" id="address" formControlName="address" placeholder="Tu dirección" class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <input type="text" id="address" formControlName="address" placeholder="Tu dirección"
+            class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 text-black">
         </div>
       </div>
 
@@ -67,20 +78,23 @@
           <label class="block text-sm font-semibold text-gray-700 mb-2">Oficios o Especialidades</label>
           <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
             <div *ngFor="let oficio of oficios" class="flex items-center">
-              <input type="checkbox" [id]="oficio" [value]="oficio" (change)="onOficioChange($event)" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+              <input type="checkbox" [id]="oficio" [value]="oficio" (change)="onOficioChange($event)"
+                class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 placeholder-gray-400 text-black">
               <label [for]="oficio" class="ml-2 text-sm text-gray-700">{{ oficio }}</label>
             </div>
           </div>
           <div class="mt-4">
             <h3 class="text-sm font-semibold text-gray-700">Oficios Seleccionados:</h3>
             <div class="flex flex-wrap gap-2 mt-2">
-              <span *ngFor="let selected of selectedOficios" class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">{{ selected }}</span>
+              <span *ngFor="let selected of selectedOficios"
+                class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">{{ selected }}</span>
             </div>
           </div>
         </div>
         <div class="mt-4">
           <label for="experience" class="block text-sm font-semibold text-gray-700 mb-2">Tiempo de Experiencia</label>
-          <input type="text" id="experience" formControlName="experience" placeholder="Ej: 2 años y 6 meses" class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <input type="text" id="experience" formControlName="experience" placeholder="Ej: 2 años y 6 meses"
+            class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 text-black">
         </div>
       </div>
 
@@ -88,29 +102,53 @@
       <div *ngIf="currentStep === 4" formGroupName="accountInfo">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">Seguridad de la Cuenta</h2>
         <div>
-          <label for="photo" class="block text-sm font-semibold text-gray-700 mb-2">Foto de Perfil</label>
-          <input type="file" id="photo" (change)="onFileSelected($event)" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+          <label for="photo" class="block text-sm font-semibold text-gray-700 mb-2">
+            Foto de Perfil
+          </label>
+
+          <div class="flex items-center gap-4">
+            <!-- Imagen de previsualización -->
+            <img *ngIf="selectedImage" [src]="selectedImage" alt="Vista previa"
+              class="w-16 h-16 rounded-full object-cover border border-gray-300" />
+
+            <label for="photo"
+              class="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg shadow-sm cursor-pointer hover:bg-blue-600 transition duration-200">
+              Seleccionar imagen
+            </label>
+          </div>
+
+          <input type="file" id="photo" (change)="onFileSelected($event)" accept="image/*" class="hidden" />
+
+          <p class="mt-1 text-xs text-gray-500">
+            Formatos permitidos: JPG, PNG. Tamaño máximo: 2MB.
+          </p>
         </div>
         <div class="mt-4">
           <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Contraseña</label>
-          <input type="password" id="password" formControlName="password" placeholder="********" class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <input type="password" id="password" formControlName="password" placeholder="********"
+            class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 text-black">
         </div>
         <div class="mt-4">
-          <label for="confirmPassword" class="block text-sm font-semibold text-gray-700 mb-2">Confirmar contraseña</label>
-          <input type="password" id="confirmPassword" formControlName="confirmPassword" placeholder="********" class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label for="confirmPassword" class="block text-sm font-semibold text-gray-700 mb-2">Confirmar
+            contraseña</label>
+          <input type="password" id="confirmPassword" formControlName="confirmPassword" placeholder="********"
+            class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 text-black">
         </div>
       </div>
 
       <!-- Navigation Buttons -->
       <div class="flex justify-between mt-8">
-        <button type="button" *ngIf="currentStep > 1" (click)="prevStep()" class="px-6 py-2 rounded-md bg-gray-200 text-gray-800 font-semibold hover:bg-gray-300 transition-colors duration-200">
+        <button type="button" *ngIf="currentStep > 1" (click)="prevStep()"
+          class="px-6 py-2 rounded-md bg-gray-200 text-gray-800 font-semibold hover:bg-gray-300 transition-colors duration-200">
           Anterior
         </button>
         <div *ngIf="currentStep === 1" class="w-full"></div> <!-- Spacer -->
-        <button type="button" *ngIf="currentStep < 4" (click)="nextStep()" class="px-6 py-2 rounded-md bg-blue-700 text-white font-semibold hover:bg-blue-800 transition-colors duration-200 shadow-md">
+        <button type="button" *ngIf="currentStep < 4" (click)="nextStep()"
+          class="px-6 py-2 rounded-md bg-blue-700 text-white font-semibold hover:bg-blue-800 transition-colors duration-200 shadow-md">
           Siguiente
         </button>
-        <button type="submit" *ngIf="currentStep === 4" [disabled]="registerForm.invalid" class="w-full py-3 rounded-md bg-blue-700 text-white font-semibold hover:bg-blue-800 transition-colors duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="submit" *ngIf="currentStep === 4" [disabled]="registerForm.invalid"
+          class="w-full ml-4 py-3 rounded-md bg-blue-700 text-white font-semibold hover:bg-blue-800 transition-colors duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
           Crear Cuenta
         </button>
       </div>

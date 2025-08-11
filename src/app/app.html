@@ -1,4 +1,12 @@
 
 
 
+<app-notification 
+  [message]="notificationState().message" 
+  [type]="notificationState().type" 
+  [isVisible]="notificationState().isVisible"
+  (closed)="onNotificationClose()">
+</app-notification>
+
 <router-outlet />
+
