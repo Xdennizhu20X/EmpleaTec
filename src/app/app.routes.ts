@@ -65,5 +65,9 @@ export const routes: Routes = [
   {
     path: 'worker/:id',
     loadComponent: () => import('./features/explorer/pages/worker-profile/worker-profile').then(m => m.WorkerProfileComponent)
+  },
+  {
+    path: 'job-detail/:id',
+    loadComponent: () => import('./features/jobs/pages/job-detail/job-detail').then(m => m.JobDetailComponent)
   }
 ];

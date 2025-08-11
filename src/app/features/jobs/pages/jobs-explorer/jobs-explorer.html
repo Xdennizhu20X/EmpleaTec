@@ -48,7 +48,7 @@
 
       <!-- Jobs List -->
       <div class="lg:col-span-3 space-y-6">
-        <div *ngFor="let job of filteredJobs()" (click)="selectedJob.set(job)" class="cursor-pointer rounded-2xl bg-white/50 p-6 shadow-md backdrop-blur-lg transition-all duration-300 hover:scale-[1.01] hover:bg-white/70">
+        <div *ngFor="let job of filteredJobs()" [routerLink]="['/job-detail', job.id]" class="cursor-pointer rounded-2xl bg-white/50 p-6 shadow-md backdrop-blur-lg transition-all duration-300 hover:scale-[1.01] hover:bg-white/70">
           <div class="flex flex-col sm:flex-row gap-6">
             <img [src]="job.images[0]" alt="" class="h-32 w-full sm:w-48 rounded-lg object-cover flex-shrink-0">
             <div class="flex-grow">

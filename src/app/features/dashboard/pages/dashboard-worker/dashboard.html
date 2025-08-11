@@ -151,6 +151,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <!-- Job Offer Card -->
           <div *ngFor="let job of jobOffers$ | async"
+            [routerLink]="['/job-detail', job.id]"
             class="bg-white rounded-2xl shadow-lg overflow-hidden group transform hover:scale-105 transition-transform duration-300 ease-in-out cursor-pointer">
             <div class="relative h-40">
               <img [src]="job.images[0]" alt="Cover Image" class="w-full h-full object-cover">
