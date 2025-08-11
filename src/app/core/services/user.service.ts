@@ -25,4 +25,9 @@ export class UserService {
       })
     );
   }
+
+  getUserById(uid: string): Observable<User | null> {
+    const userDocRef = doc(this.firestore, `users/${uid}`);
+    return docData(userDocRef) as Observable<User | null>;
+  }
 }
