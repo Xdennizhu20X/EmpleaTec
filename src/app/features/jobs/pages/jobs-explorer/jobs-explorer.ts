@@ -2,14 +2,14 @@ import { ChangeDetectionStrategy, Component, computed, signal, inject, OnInit } 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Job } from '../../models/job-card.model';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { JobService } from '../../services/job.service';
 import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-jobs-explorer',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './jobs-explorer.html',
   styleUrls: ['./jobs-explorer.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
