@@ -188,7 +188,7 @@
                       <span class="text-sm">{{ worker.phone || 'No disponible' }}</span>
                     </div>
                   </div>
-                  <div routerLink="#"
+                  <div (click)="contactWorker(worker); $event.stopPropagation(); $event.preventDefault()"
                     class="flex justify-center">
                     <button class="bg-blue-600 px-6 py-2 rounded-lg text-white font-semibold hover:bg-blue-400">
                       Contactar

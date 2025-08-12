@@ -48,7 +48,7 @@ export const routes: Routes = [
   },
   {
     path: 'messages',
-    loadComponent: () => import('./features/messages/pages/messages-screen/messages-screen').then(m => m.MessagesScreen)
+    loadComponent: () => import('./features/messages/pages/messages-screen/messages-screen').then(m => m.MessagesScreenComponent)
   },
   {
     path: 'profile',

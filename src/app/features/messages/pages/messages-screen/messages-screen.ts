@@ -1,114 +1,184 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, computed, inject, OnDestroy, OnInit, signal, effect } from '@angular/core';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { Chat, User } from '../../models/chat';
-import { AuthService } from '../../../../core/services/auth.service';
+import { Router } from '@angular/router';
+import { Auth, user, User } from '@angular/fire/auth';
+import { Firestore, collection, query, where, onSnapshot, orderBy, CollectionReference, DocumentData, getDocs, addDoc, serverTimestamp, limit } from '@angular/fire/firestore';
+import { Subscription } from 'rxjs';
+
+// --- Interfaces ---
+interface AppUser {
+  uid: string;
+  displayName: string;
+  photoURL?: string;
+}
+
+interface Participant {
+  id: string;
+  name: string;
+  avatar: string;
+  isOnline: boolean;
+}
+
+interface Message {
+  text: string;
+  timestamp: any;
+}
+
+interface Chat {
+  id: string;
+  participants: string[];
+  participantInfo: Participant[];
+  projectTitle: string;
+  lastMessage: Message;
+  unreadCount: number;
+}
 
 @Component({
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
   selector: 'app-messages-screen',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './messages-screen.html',
   styleUrls: ['./messages-screen.scss']
 })
-export class MessagesScreen implements OnInit {
-  private authService = inject(AuthService);
+export class MessagesScreenComponent implements OnInit, OnDestroy {
   private router = inject(Router);
+  private location = inject(Location);
+  private auth: Auth = inject(Auth);
+  private firestore: Firestore = inject(Firestore);
 
+  private userSubscription: Subscription | undefined;
+  private firestoreSubscription: (() => void) | undefined;
+
+  currentUser = signal<User | null>(null);
+  chats = signal<Chat[]>([]);
   searchQuery = signal('');
-  currentUser: User | null = null;
-  
-  private allChats = signal<Chat[]>([]);
-  
-  readonly filteredChats = computed(() => {
-    const query = this.searchQuery().toLowerCase();
-    if (!query) {
-      return this.allChats();
-    }
-    return this.allChats().filter(chat =>
-      this.getParticipant(chat)?.name.toLowerCase().includes(query) ||
-      chat.projectTitle.toLowerCase().includes(query)
-    );
+  searchResults = signal<AppUser[]>([]);
+  isSearching = signal(false);
+
+  constructor() {
+    effect(async () => {
+      const queryText = this.searchQuery();
+      this.isSearching.set(queryText.length > 0);
+      if (queryText.length > 2) {
+        await this.searchUsers(queryText);
+      } else {
+        this.searchResults.set([]);
+      }
+    });
+  }
+
+  // --- SEÑALES COMPUTADAS ---
+  filteredChats = computed(() => {
+    // Esta función ahora solo devuelve los chats, ya que la búsqueda es para usuarios.
+    return this.chats();
   });
 
-  readonly totalUnreadMessages = computed(() => {
-    return this.allChats().reduce((total, chat) => total + chat.unreadCount, 0);
-  });
-
-  readonly onlineCount = computed(() => {
-    return this.allChats().filter(chat => this.getParticipant(chat)?.isOnline).length;
-  });
+  totalUnreadMessages = computed(() =>
+    this.chats().reduce((sum, chat) => sum + chat.unreadCount, 0)
+  );
 
   ngOnInit(): void {
-    // Simulación de obtener el usuario actual
-    this.currentUser = {
-      id: 'current_user_id',
-      name: 'Current User',
-      avatar: 'path/to/user/avatar.jpg',
-      userType: 'client',
-      isOnline: true
-    };
-
-    this.loadRecentChats();
+    this.userSubscription = user(this.auth).subscribe(user => {
+      this.currentUser.set(user);
+      if (user) {
+        this.listenToChats(user.uid);
+      } else {
+        this.chats.set([]);
+        this.firestoreSubscription?.();
+      }
+    });
   }
 
-  loadRecentChats(): void {
-    const mockChats: Chat[] = [
-      {
-        id: '1',
-        participants: [
-          this.currentUser!,
-          { id: '1', name: 'Carlos Mendoza', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face', userType: 'worker', specialty: 'Carpintería', isOnline: true }
+  async searchUsers(queryText: string) {
+    const usersCollection = collection(this.firestore, 'users');
+    const q = query(
+      usersCollection,
+      where('displayName', '>=', queryText),
+      where('displayName', '<=', queryText + '\uf8ff'),
+      limit(10)
+    );
+    const querySnapshot = await getDocs(q);
+    const users = querySnapshot.docs
+      .map(doc => doc.data() as AppUser)
+      .filter(user => user.uid !== this.currentUser()?.uid); // Excluir al usuario actual
+    this.searchResults.set(users);
+  }
+
+  async handleUserClick(selectedUser: AppUser) {
+    const currentUser = this.currentUser();
+    if (!currentUser) return;
+
+    const chatsCollection = collection(this.firestore, 'chats');
+    // Ordenar los UIDs para asegurar consistencia en la consulta
+    const participants = [currentUser.uid, selectedUser.uid].sort();
+    const q = query(chatsCollection, where('participants', '==', participants));
+    
+    const existingChatSnapshot = await getDocs(q);
+
+    if (!existingChatSnapshot.empty) {
+      const chatId = existingChatSnapshot.docs[0].id;
+      this.router.navigate(['/chat', chatId]);
+    } else {
+      const newChat = {
+        participants,
+        participantInfo: [
+          { id: currentUser.uid, name: currentUser.displayName || 'Tú', avatar: currentUser.photoURL || '' },
+          { id: selectedUser.uid, name: selectedUser.displayName, avatar: selectedUser.photoURL || '' }
         ],
-        lastMessage: { text: '¡Perfecto! Puedo empezar el proyecto la próxima semana. Te envío el presupuesto detallado.', timestamp: new Date(Date.now() - 300000), senderId: '1' },
-        unreadCount: 0,
-        projectTitle: 'Renovación de cocina integral',
-        createdAt: new Date(Date.now() - 86400000 * 2),
-        updatedAt: new Date(Date.now() - 300000)
-      },
-      {
-        id: '2',
-        participants: [
-          this.currentUser!,
-          { id: '2', name: 'Ana Rodríguez', avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b5c8?w=150&h=150&fit=crop&crop=face', userType: 'client', isOnline: false }
-        ],
-        lastMessage: { text: 'Hola! Me interesa tu propuesta para el proyecto de plomería. ¿Podrías darme más detalles?', timestamp: new Date(Date.now() - 3600000), senderId: '2' },
-        unreadCount: 2,
-        projectTitle: 'Reparación de fuga en baño',
-        createdAt: new Date(Date.now() - 86400000 * 3),
-        updatedAt: new Date(Date.now() - 3600000)
-      },
-    ];
-    this.allChats.set(mockChats);
+        projectTitle: 'Nueva Conversación',
+        lastMessage: { text: 'Inicia la conversación!', timestamp: serverTimestamp() },
+        unreadCount: 0
+      };
+      const docRef = await addDoc(chatsCollection, newChat);
+      this.router.navigate(['/chat', docRef.id]);
+    }
+    this.searchQuery.set('');
   }
 
-  getParticipant(chat: Chat): User | undefined {
-    return chat.participants.find(p => p.id !== this.currentUser?.id);
-  }
-
-  formatTimeAgo(date: Date): string {
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-
-    if (diffInMinutes < 1) return 'Ahora';
-    if (diffInMinutes < 60) return `${diffInMinutes}m`;
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h`;
-    if (diffInMinutes < 10080) return `${Math.floor(diffInMinutes / 1440)}d`;
-    return date.toLocaleDateString('es-MX');
-  }
-
+  // Función para manejar el click en un chat existente
   handleChatClick(chat: Chat): void {
     this.router.navigate(['/chat', chat.id]);
   }
 
-  onBack(): void {
-    this.router.navigate(['/dashboard-client']);
+  listenToChats(userId: string): void {
+    const chatsCollection = collection(this.firestore, 'chats') as CollectionReference<DocumentData>;
+    const q = query(
+      chatsCollection,
+      where('participants', 'array-contains', userId),
+      orderBy('lastMessage.timestamp', 'desc')
+    );
+
+    this.firestoreSubscription = onSnapshot(q, (querySnapshot) => {
+      const chatsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Chat));
+      this.chats.set(chatsData);
+    });
   }
 
-  onLogout(): void {
-    // this.authService.signOut();
-    // this.router.navigate(['/login']);
-    console.log('Logout');
+  ngOnDestroy(): void {
+    this.userSubscription?.unsubscribe();
+    this.firestoreSubscription?.();
+  }
+
+  getParticipant(chat: Chat): Participant | undefined {
+    const currentUserId = this.currentUser()?.uid;
+    return chat.participantInfo.find(p => p.id !== currentUserId);
+  }
+
+  onBack(): void {
+    this.location.back();
+  }
+
+  formatTimeAgo(timestamp: any): string {
+    if (!timestamp?.toDate) return '';
+    const date = timestamp.toDate();
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    let interval = seconds / 3600;
+    if (interval > 24) return Math.floor(interval / 24) + "d";
+    if (interval > 1) return Math.floor(interval) + "h";
+    interval = seconds / 60;
+    if (interval > 1) return Math.floor(interval) + " min";
+    return "Ahora";
   }
 }

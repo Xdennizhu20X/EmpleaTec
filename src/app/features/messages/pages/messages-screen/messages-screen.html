@@ -7,7 +7,7 @@
       </button>
       <div class="flex items-center gap-3">
         <h1 class="text-xl font-bold text-blue-900">Mensajes</h1>
-        <span *ngIf="totalUnreadMessages() > 0" class="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white">{{ totalUnreadMessages() }}</span>
+        <span *ngIf="totalUnreadMessages() > 0 && !isSearching()" class="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white">{{ totalUnreadMessages() }}</span>
       </div>
       <button class="p-2">
       </button>
@@ -18,41 +18,58 @@
   <main class="container mx-auto max-w-4xl p-4 sm:p-8">
     <!-- Search Bar -->
     <div class="relative mb-8">
-      <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="Buscar por nombre o proyecto..." class="w-full rounded-full border-2 border-white/80 bg-white/50 py-3 pl-12 pr-4 text-lg text-blue-900 shadow-sm backdrop-blur-lg placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="Buscar usuarios para chatear..." class="w-full rounded-full border-2 border-white/80 bg-white/50 py-3 pl-12 pr-4 text-lg text-blue-900 shadow-sm backdrop-blur-lg placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500">
       <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
     </div>
 
-    <!-- Chats List -->
-    <div class="space-y-4">
-      <div *ngIf="filteredChats().length === 0" class="text-center py-16">
-        <h3 class="text-lg font-semibold text-blue-800">No hay conversaciones</h3>
-        <p class="text-gray-600">{{ searchQuery() ? 'No se encontraron conversaciones' : 'Aún no tienes chats.' }}</p>
+    <!-- Search Results -->
+    <div *ngIf="isSearching()" class="space-y-4">
+      <div *ngIf="searchResults().length === 0" class="text-center py-16">
+        <h3 class="text-lg font-semibold text-blue-800">Buscando...</h3>
+        <p class="text-gray-600">Escribe al menos 3 letras para buscar un usuario.</p>
       </div>
-
-      <div *ngFor="let chat of filteredChats()" (click)="handleChatClick(chat)" class="cursor-pointer rounded-2xl bg-white/50 p-4 shadow-md backdrop-blur-lg transition-all duration-300 hover:scale-[1.02] hover:bg-white/70">
+      <div *ngFor="let user of searchResults()" (click)="handleUserClick(user)" class="cursor-pointer rounded-2xl bg-white/50 p-4 shadow-md backdrop-blur-lg transition-all duration-300 hover:scale-[1.02] hover:bg-white/70">
         <div class="flex items-center space-x-4">
-          <div class="relative flex-shrink-0">
-            <img [src]="getParticipant(chat)?.avatar" [alt]="getParticipant(chat)?.name" class="h-14 w-14 rounded-full">
-            <span *ngIf="getParticipant(chat)?.isOnline" class="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full border-2 border-white bg-green-500"></span>
-          </div>
+          <img [src]="user.photoURL || 'https://via.placeholder.com/150/CCCCCC/FFFFFF?text=?'" [alt]="user.displayName" class="h-14 w-14 rounded-full">
           <div class="min-w-0 flex-1">
-            <div class="flex justify-between">
-              <h4 class="truncate font-bold text-blue-900">{{ getParticipant(chat)?.name }}</h4>
-              <span class="text-xs text-gray-500">{{ formatTimeAgo(chat.lastMessage.timestamp) }}</span>
-            </div>
-            <p class="truncate text-sm font-medium text-gray-600">{{ chat.projectTitle }}</p>
-            <div class="flex justify-between items-end mt-1">
-              <p class="truncate text-sm text-gray-500" [class.font-bold]="chat.unreadCount > 0" [class.text-blue-800]="chat.unreadCount > 0">
-                {{ chat.lastMessage.text }}
-              </p>
-              <span *ngIf="chat.unreadCount > 0" class="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-blue-500 px-2 text-xs font-bold text-white">
-                {{ chat.unreadCount }}
-              </span>
-            </div>
+            <h4 class="truncate font-bold text-blue-900">{{ user.displayName }}</h4>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Chats List -->
+    <div *ngIf="!isSearching()" class="space-y-4">
+      <div *ngIf="filteredChats().length === 0" class="text-center py-16">
+        <h3 class="text-lg font-semibold text-blue-800">No hay conversaciones</h3>
+        <p class="text-gray-600">Usa la barra de búsqueda para encontrar un usuario e iniciar un chat.</p>
+      </div>
+
+      <div *ngFor="let chat of filteredChats()" (click)="handleChatClick(chat)" class="cursor-pointer rounded-2xl bg-white/50 p-4 shadow-md backdrop-blur-lg transition-all duration-300 hover:scale-[1.02] hover:bg-white/70">
+        <ng-container *ngIf="getParticipant(chat) as participant">
+          <div class="flex items-center space-x-4">
+            <div class="relative flex-shrink-0">
+              <img [src]="participant.avatar" [alt]="participant.name" class="h-14 w-14 rounded-full">
+              <span *ngIf="participant.isOnline" class="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full border-2 border-white bg-green-500"></span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex justify-between">
+                <h4 class="truncate font-bold text-blue-900">{{ participant.name }}</h4>
+                <span class="text-xs text-gray-500">{{ formatTimeAgo(chat.lastMessage.timestamp) }}</span>
+              </div>
+              <p class="truncate text-sm font-medium text-gray-600">{{ chat.projectTitle }}</p>
+              <div class="flex justify-between items-end mt-1">
+                <p class="truncate text-sm text-gray-500" [class.font-bold]="chat.unreadCount > 0" [class.text-blue-800]="chat.unreadCount > 0">
+                  {{ chat.lastMessage.text }}
+                </p>
+                <span *ngIf="chat.unreadCount > 0" class="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-blue-500 px-2 text-xs font-bold text-white">
+                  {{ chat.unreadCount }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
   </main>
 </div>
-''

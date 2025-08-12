@@ -7,6 +7,8 @@ import { UserService } from '../../../../core/services/user.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { User } from '../../../../core/models/user.model';
 import { Observable } from 'rxjs';
+import { Auth } from '@angular/fire/auth';
+import { Firestore, collection, query, where, getDocs, addDoc, serverTimestamp } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-dashboard-client',
@@ -19,6 +21,8 @@ export class DashboardClient implements OnInit {
   private userService = inject(UserService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private firestore: Firestore = inject(Firestore);
+  private auth: Auth = inject(Auth);
   user$!: Observable<User | null>;
   featuredWorkers$!: Observable<User[]>;
 
@@ -56,5 +60,39 @@ export class DashboardClient implements OnInit {
 
   toggleSidebar() {
     this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  async contactWorker(worker: User) {
+    const currentUser = this.auth.currentUser;
+    if (!currentUser) {
+      // Handle case where user is not logged in
+      this.router.navigate(['/auth/client-login']);
+      return;
+    }
+
+    const chatsCollection = collection(this.firestore, 'chats');
+    const participants = [currentUser.uid, worker.uid].sort();
+    const q = query(chatsCollection, where('participants', '==', participants));
+
+    const existingChatSnapshot = await getDocs(q);
+
+    if (!existingChatSnapshot.empty) {
+      const chatId = existingChatSnapshot.docs[0].id;
+      this.router.navigate(['/chat', chatId]);
+    } else {
+      const newChat = {
+        participants,
+        participantInfo: [
+          { id: currentUser.uid, name: currentUser.displayName || 'Tú', avatar: currentUser.photoURL || '' },
+          { id: worker.uid, name: worker.displayName, avatar: worker.photoURL || '' }
+        ],
+        projectTitle: `Conversación con ${worker.displayName}`,
+        lastMessage: { text: 'Inicia la conversación!', timestamp: serverTimestamp() },
+        unreadCount: 0,
+        isFinalized: false,
+      };
+      const docRef = await addDoc(chatsCollection, newChat);
+      this.router.navigate(['/chat', docRef.id]);
+    }
   }
 }

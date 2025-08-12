@@ -1,10 +1,12 @@
-import { Component, OnInit, OnDestroy, ElementRef, ViewChild, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild, inject, signal, effect } from '@angular/core';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Auth, user, User } from '@angular/fire/auth';
+import { Firestore, doc, onSnapshot, collection, addDoc, serverTimestamp, query, orderBy, Timestamp, updateDoc } from '@angular/fire/firestore';
 import { Subscription } from 'rxjs';
 
-// Define interfaces based on React code
+// --- Interfaces ---
 interface Participant {
   id: string;
   name: string;
@@ -15,11 +17,11 @@ interface Participant {
 }
 
 interface Message {
-  id: string;
+  id?: string;
   senderId: string;
   senderName: string;
   text: string;
-  timestamp: Date;
+  timestamp: Timestamp;
   isRead: boolean;
   type: 'text' | 'image' | 'system';
 }
@@ -40,197 +42,181 @@ interface ChatFinalizationData {
 export class ChatScreen implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private auth: Auth = inject(Auth);
+  private firestore: Firestore = inject(Firestore);
+  private location = inject(Location);
 
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
-  @ViewChild('inputRef') private inputRef!: ElementRef<HTMLInputElement>;
 
-  message = '';
-  isChatFinalized = false;
-  showFinalizationDialog = false;
-  showRatingDialog = false;
-  finalizationData: ChatFinalizationData = {
+  message = signal('');
+  messages = signal<Message[]>([]);
+  currentParticipant = signal<Participant | null>(null);
+  currentProjectTitle = signal('');
+  chatId = signal<string | null>(null);
+  currentUser = signal<User | null>(null);
+  isChatFinalized = signal(false);
+
+  showFinalizationDialog = signal(false);
+  showRatingDialog = signal(false);
+  finalizationData = signal<ChatFinalizationData>({
     rating: 0,
     comment: '',
     isSubmitted: false,
-  };
+  });
 
-  messages: Message[] = [];
-  currentParticipant: Participant = this.getDefaultParticipant();
-  currentProjectTitle = 'Renovación de cocina integral';
-  chatId: string | null = null;
+  private routeSub: Subscription | undefined;
+  private messagesSub: (() => void) | undefined;
+  private chatSub: (() => void) | undefined;
 
-  private routeSub!: Subscription;
+  constructor() {
+    user(this.auth).subscribe(u => this.currentUser.set(u));
+
+    effect(() => {
+      if (this.messages()) {
+        this.scrollToBottom();
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.routeSub = this.route.params.subscribe(params => {
-      this.chatId = params['id'];
-      // Here you would typically fetch chat data based on chatId
-      this.loadInitialMessages();
+      const chatId = params['id'];
+      if (chatId) {
+        this.chatId.set(chatId);
+        this.loadChatData(chatId);
+        this.listenToMessages(chatId);
+      }
     });
   }
 
   ngOnDestroy(): void {
-    if (this.routeSub) {
-      this.routeSub.unsubscribe();
-    }
+    this.routeSub?.unsubscribe();
+    this.messagesSub?.();
+    this.chatSub?.();
   }
 
-  ngAfterViewChecked(): void {
-    this.scrollToBottom();
+  loadChatData(chatId: string) {
+    const chatDocRef = doc(this.firestore, 'chats', chatId);
+    this.chatSub = onSnapshot(chatDocRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const chatData = docSnap.data();
+        this.currentProjectTitle.set(chatData['projectTitle']);
+        this.isChatFinalized.set(chatData['isFinalized'] || false);
+        const participantInfo = chatData['participantInfo'] as any[];
+        const otherParticipantData = participantInfo.find(p => p.id !== this.currentUser()?.uid);
+        if (otherParticipantData) {
+          // Here you might want to fetch the user document for more details like userType or specialty
+          this.currentParticipant.set({
+            id: otherParticipantData.id,
+            name: otherParticipantData.name,
+            avatar: otherParticipantData.avatar,
+            isOnline: true, // This needs a presence system
+            userType: 'worker' // This should be dynamic
+          });
+        }
+      }
+    });
   }
 
-  loadInitialMessages(): void {
-    // Mock data similar to the React component
-    this.messages = [
-      {
-        id: '1',
-        senderId: this.currentParticipant.id,
-        senderName: this.currentParticipant.name,
-        text: '¡Hola! Vi tu proyecto de renovación de cocina y me parece muy interesante.',
-        timestamp: new Date(Date.now() - 7200000), // 2 hours ago
-        isRead: true,
-        type: 'text',
-      },
-      {
-        id: '2',
-        senderId: 'me',
-        senderName: 'Yo',
-        text: 'Hola Carlos! Me da mucho gusto que te interese. ¿Tienes experiencia en este tipo de proyectos?',
-        timestamp: new Date(Date.now() - 7000000),
-        isRead: true,
-        type: 'text',
-      },
-      {
-        id: '3',
-        senderId: this.currentParticipant.id,
-        senderName: this.currentParticipant.name,
-        text: 'Sí, tengo más de 12 años trabajando en carpintería. He hecho muchas cocinas similares. Te puedo mostrar algunas fotos de mis trabajos anteriores.',
-        timestamp: new Date(Date.now() - 6800000),
-        isRead: true,
-        type: 'text',
-      },
-      {
-        id: '4',
-        senderId: this.currentParticipant.id,
-        senderName: this.currentParticipant.name,
-        text: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop',
-        timestamp: new Date(Date.now() - 6700000),
-        isRead: true,
-        type: 'image',
-      },
-      {
-        id: '5',
-        senderId: 'me',
-        senderName: 'Yo',
-        text: '¡Wow! Se ve increíble el trabajo. Definitivamente me interesa trabajar contigo.',
-        timestamp: new Date(Date.now() - 6600000),
-        isRead: true,
-        type: 'text',
-      },
-      {
-        id: '6',
-        senderId: this.currentParticipant.id,
-        senderName: this.currentParticipant.name,
-        text: 'Perfecto! ¿Cuándo podríamos agendar una visita para ver el espacio y darte un presupuesto más detallado?',
-        timestamp: new Date(Date.now() - 6500000),
-        isRead: true,
-        type: 'text',
-      },
-      {
-        id: '7',
-        senderId: 'me',
-        senderName: 'Yo',
-        text: 'Esta semana tengo disponibilidad. ¿Qué te parece el jueves por la tarde?',
-        timestamp: new Date(Date.now() - 300000), // 5 minutes ago
+  listenToMessages(chatId: string) {
+    const messagesCollection = collection(this.firestore, 'chats', chatId, 'messages');
+    const q = query(messagesCollection, orderBy('timestamp', 'asc'));
+    this.messagesSub = onSnapshot(q, (querySnapshot) => {
+      const newMessages: Message[] = [];
+      querySnapshot.forEach((doc) => {
+        newMessages.push({ id: doc.id, ...doc.data() } as Message);
+      });
+      this.messages.set(newMessages);
+    });
+  }
+
+  async handleSendMessage() {
+    const messageText = this.message().trim();
+    if (!messageText || !this.chatId() || !this.currentUser() || this.isChatFinalized()) return;
+
+    const messagesCollection = collection(this.firestore, 'chats', this.chatId()!, 'messages');
+    const chatDocRef = doc(this.firestore, 'chats', this.chatId()!);
+
+    try {
+      await addDoc(messagesCollection, {
+        senderId: this.currentUser()!.uid,
+        senderName: this.currentUser()!.displayName || 'Yo',
+        text: messageText,
+        timestamp: serverTimestamp(),
         isRead: false,
-        type: 'text',
-      },
-    ];
-  }
+        type: 'text'
+      });
 
-  handleSendMessage(): void {
-    if (!this.message.trim() || this.isChatFinalized) return;
+      // Update last message on chat document
+      await updateDoc(chatDocRef, {
+        'lastMessage.text': messageText,
+        'lastMessage.timestamp': serverTimestamp()
+      });
 
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      senderId: 'me',
-      senderName: 'Yo',
-      text: this.message.trim(),
-      timestamp: new Date(),
-      isRead: false,
-      type: 'text',
-    };
-
-    this.messages.push(newMessage);
-    this.message = '';
-
-    if (!this.isChatFinalized) {
-      setTimeout(() => {
-        const response: Message = {
-          id: (Date.now() + 1).toString(),
-          senderId: this.currentParticipant.id,
-          senderName: this.currentParticipant.name,
-          text: 'Perfecto! El jueves por la tarde me funciona muy bien. ¿A qué hora te queda mejor?',
-          timestamp: new Date(),
-          isRead: false,
-          type: 'text',
-        };
-        this.messages.push(response);
-      }, 2000);
+      this.message.set('');
+    } catch (error) {
+      console.error("Error sending message: ", error);
     }
   }
 
-  handleKeyPress(event: any): void {
-    if (event.key === 'Enter' && !event.shiftKey && !this.isChatFinalized) {
+  handleKeyPress(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && !event.shiftKey && !this.isChatFinalized()) {
       event.preventDefault();
       this.handleSendMessage();
     }
   }
 
   handleFinalizarChat(): void {
-    this.showFinalizationDialog = true;
+    this.showFinalizationDialog.set(true);
   }
 
-  confirmFinalizarChat(): void {
-    const systemMessage: Message = {
-      id: Date.now().toString(),
-      senderId: 'system',
-      senderName: 'Sistema',
-      text: 'El chat ha sido finalizado. Ya no es posible enviar más mensajes.',
-      timestamp: new Date(),
-      isRead: true,
-      type: 'system',
+  async confirmFinalizarChat() {
+    if (!this.chatId()) return;
+    const chatDocRef = doc(this.firestore, 'chats', this.chatId()!);
+    const systemMessage = {
+        senderId: 'system',
+        senderName: 'Sistema',
+        text: 'El chat ha sido finalizado. Ya no es posible enviar más mensajes.',
+        timestamp: serverTimestamp(),
+        isRead: true,
+        type: 'system' as const
     };
+    const messagesCollection = collection(this.firestore, 'chats', this.chatId()!, 'messages');
+    await addDoc(messagesCollection, systemMessage);
+    await updateDoc(chatDocRef, { isFinalized: true });
 
-    this.messages.push(systemMessage);
-    this.isChatFinalized = true;
-    this.showFinalizationDialog = false;
-
-    setTimeout(() => {
-      this.showRatingDialog = true;
-    }, 1000);
+    this.isChatFinalized.set(true);
+    this.showFinalizationDialog.set(false);
+    setTimeout(() => this.showRatingDialog.set(true), 1000);
   }
 
-  handleSubmitRating(): void {
-    if (this.finalizationData.rating === 0) return;
+  async handleSubmitRating() {
+    const ratingData = this.finalizationData();
+    if (ratingData.rating === 0) return;
 
     console.log('Rating submitted:', {
-      participantId: this.currentParticipant.id,
-      rating: this.finalizationData.rating,
-      comment: this.finalizationData.comment,
-      chatId: this.chatId || 'default-chat',
+      participantId: this.currentParticipant()?.id,
+      rating: ratingData.rating,
+      comment: ratingData.comment,
+      chatId: this.chatId() || 'default-chat',
       timestamp: new Date(),
     });
-
-    this.finalizationData.isSubmitted = true;
-
+    // Here you would typically save the rating to Firestore
+    
+    this.finalizationData.update(data => ({ ...data, isSubmitted: true }));
     setTimeout(() => {
-      this.showRatingDialog = false;
+      this.showRatingDialog.set(false);
       // this.router.navigate(['/messages']);
     }, 2000);
   }
 
-  formatMessageTime(date: Date): string {
+  updateFinalizationComment(comment: string): void {
+    this.finalizationData.update(data => ({ ...data, comment }));
+  }
+
+  formatMessageTime(timestamp: Timestamp): string {
+    if (!timestamp?.toDate) return '';
+    const date = timestamp.toDate();
     return date.toLocaleTimeString('es-MX', {
       hour: '2-digit',
       minute: '2-digit',
@@ -238,7 +224,9 @@ export class ChatScreen implements OnInit, OnDestroy {
     });
   }
 
-  formatDateHeader(date: Date): string {
+  formatDateHeader(timestamp: Timestamp): string {
+    if (!timestamp?.toDate) return '';
+    const date = timestamp.toDate();
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
@@ -257,36 +245,23 @@ export class ChatScreen implements OnInit, OnDestroy {
     }
   }
 
-  shouldShowDateHeader(currentMessage: Message, previousMessage: Message): boolean {
+  shouldShowDateHeader(currentMessage: Message, previousMessage?: Message): boolean {
     if (!previousMessage) return true;
-    const currentDate = new Date(currentMessage.timestamp).toDateString();
-    const previousDate = new Date(previousMessage.timestamp).toDateString();
+    if (!currentMessage.timestamp?.toDate || !previousMessage.timestamp?.toDate) return false;
+    const currentDate = currentMessage.timestamp.toDate().toDateString();
+    const previousDate = previousMessage.timestamp.toDate().toDateString();
     return currentDate !== previousDate;
   }
 
   onBack(): void {
-    this.router.navigate(['/messages']);
-  }
-
-  onNavigate(screen: string, data?: any): void {
-    // Implement navigation logic as needed
-    // e.g., this.router.navigate([screen, data.id]);
+    this.location.back();
   }
 
   private scrollToBottom(): void {
-    try {
-      this.messagesContainer.nativeElement.scrollTop = this.messagesContainer.nativeElement.scrollHeight;
-    } catch (err) { }
-  }
-
-  private getDefaultParticipant(): Participant {
-    return {
-      id: '1',
-      name: 'Carlos Mendoza',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-      specialty: 'Carpintería',
-      isOnline: true,
-      userType: 'worker',
-    };
+    setTimeout(() => {
+      try {
+        this.messagesContainer.nativeElement.scrollTop = this.messagesContainer.nativeElement.scrollHeight;
+      } catch (err) { }
+    }, 100);
   }
 }
