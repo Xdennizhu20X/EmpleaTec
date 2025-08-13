@@ -1,10 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Job } from '../../models/job-card.model';
+import { Job } from '../../models/job.model';
 import { Router, RouterModule } from '@angular/router';
 import { JobService } from '../../services/job.service';
+import { UserService } from '../../../../core/services/user.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { User } from '../../../../core/models/user.model';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-jobs-explorer',
@@ -22,6 +26,8 @@ export class JobsExplorerComponent implements OnInit {
   appliedJobs = signal<string[]>([]);
   private router = inject(Router);
   private jobService = inject(JobService);
+  private userService = inject(UserService);
+  private authService = inject(AuthService);
 
   // --- Filters State ---
   filters = signal({
@@ -34,10 +40,22 @@ export class JobsExplorerComponent implements OnInit {
 
   // --- Data ---
   private allJobs = signal<Job[]>([]);
+  user$!: Observable<User | null>;
+
+  private normalizeString(str: string): string {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  }
 
   ngOnInit(): void {
-    this.jobService.getJobs().subscribe(jobs => {
-      this.allJobs.set(jobs);
+    this.user$ = this.userService.currentUserProfile$;
+    this.user$.subscribe(user => {
+      if (user && user.oficios) {
+        this.jobService.getJobs().pipe(
+          map((jobs: Job[]) => jobs.filter((job: Job) => user.oficios!.map(o => this.normalizeString(o)).includes(this.normalizeString(job.category))))
+        ).subscribe(jobs => {
+          this.allJobs.set(jobs);
+        });
+      }
     });
   }
 
@@ -55,7 +73,7 @@ export class JobsExplorerComponent implements OnInit {
       })
       .sort((a, b) => {
         switch (f.sortBy) {
-          case 'budget': return b.budget.max - a.budget.max;
+          case 'budget': return (b.budget.max || 0) - (a.budget.max || 0);
           case 'urgent': return (a.timeline.urgency === 'urgent' ? -1 : 1) - (b.timeline.urgency === 'urgent' ? -1 : 1);
           default: return b.createdAt.toMillis() - a.createdAt.toMillis();
         }

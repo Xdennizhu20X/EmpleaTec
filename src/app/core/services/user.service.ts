@@ -1,4 +1,3 @@
-
 import { Injectable, inject } from '@angular/core';
 import { Auth, authState } from '@angular/fire/auth';
 import { collection, collectionData, doc, docData, Firestore, query, where, getCountFromServer, updateDoc } from '@angular/fire/firestore';

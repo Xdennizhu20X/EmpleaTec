@@ -2,8 +2,9 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { JobService } from '../../../jobs/services/job.service';
-import { Job } from '../../../jobs/models/job-card.model';
+import { Job } from '../../../jobs/models/job.model';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { UserService } from '../../../../core/services/user.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { User } from '../../../../core/models/user.model';
@@ -23,18 +24,10 @@ interface Specialty {
 })
 export class DashboardWorker implements OnInit {
   isSidebarOpen = false;
-  specialties: Specialty[] = [
-    { id: 'todos', name: 'Todos los Trabajos', jobCount: 89 },
-    { id: 'carpinteria', name: '🔨 Carpintería', jobCount: 25 },
-    { id: 'plomeria', name: '🔧 Plomería', jobCount: 18 },
-    { id: 'electricidad', name: '⚡ Electricidad', jobCount: 15 },
-    { id: 'albanileria', name: '🧱 Albañilería', jobCount: 12 },
-    { id: 'pintura', name: '🎨 Pintura', jobCount: 10 },
-    { id: 'jardineria', name: '🌳 Jardinería', jobCount: 9 },
-    { id: 'limpieza', name: '🧹 Limpieza', jobCount: 6 },
-  ];
+  specialties: Specialty[] = [];
 
   jobOffers$!: Observable<Job[]>;
+  filteredJobOffers$!: Observable<Job[]>;
   user$!: Observable<User | null>;
 
   activeSpecialty: string = 'todos';
@@ -44,9 +37,33 @@ export class DashboardWorker implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
 
+  private normalizeString(str: string): string {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  }
+
   ngOnInit(): void {
-    this.jobOffers$ = this.jobService.getUrgentJobs();
     this.user$ = this.userService.currentUserProfile$;
+
+    this.user$.subscribe(user => {
+      if (user && user.oficios) {
+        this.jobService.getJobs().subscribe(jobs => {
+          const oficios = user.oficios || [];
+          this.specialties = [
+            { id: 'todos', name: 'Todos los Trabajos', jobCount: jobs.length },
+            ...oficios.map(oficio => ({
+              id: oficio,
+              name: oficio,
+              jobCount: jobs.filter(job => this.normalizeString(job.category) === this.normalizeString(oficio)).length
+            }))
+          ];
+        });
+
+        this.jobOffers$ = this.jobService.getJobs().pipe(
+          map((jobs: Job[]) => jobs.filter((job: Job) => user.oficios!.map(o => this.normalizeString(o)).includes(this.normalizeString(job.category))))
+        );
+        this.filteredJobOffers$ = this.jobOffers$;
+      }
+    });
   }
 
   async onLogout(): Promise<void> {
@@ -60,6 +77,13 @@ export class DashboardWorker implements OnInit {
 
   setActiveSpecialty(specialtyId: string) {
     this.activeSpecialty = specialtyId;
+    if (specialtyId === 'todos') {
+      this.filteredJobOffers$ = this.jobOffers$;
+    } else {
+      this.filteredJobOffers$ = this.jobOffers$.pipe(
+        map(jobs => jobs.filter(job => this.normalizeString(job.category) === this.normalizeString(specialtyId)))
+      );
+    }
   }
 
   toggleSidebar() {

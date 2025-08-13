@@ -7,6 +7,7 @@ import { Firestore, addDoc, collection, serverTimestamp } from '@angular/fire/fi
 import { AuthService } from '../../../../core/services/auth.service';
 import { firstValueFrom } from 'rxjs';
 import { CloudinaryService } from '../../../../core/services/cloudinary.service';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-create-job',
@@ -25,10 +26,14 @@ export class CreateJobComponent {
   private firestore = inject(Firestore);
   private authService = inject(AuthService);
   private cloudinaryService = inject(CloudinaryService);
+  private notificationService = inject(NotificationService);
   isDragging = signal(false);
   uploadError = signal<string | null>(null);
 
   formData = signal<Job>({
+    id: '',
+    clientId: '',
+    clientName: '',
     title: '',
     category: '',
     description: '',
@@ -37,6 +42,8 @@ export class CreateJobComponent {
     timeline: { start: '', end: '', urgency: 'normal' },
     requirements: '',
     images: [],
+    createdAt: null,
+    status: 'open',
   });
 
   errors = signal<Record<string, string>>({});
@@ -294,9 +301,10 @@ export class CreateJobComponent {
       const docRef = await addDoc(collection(this.firestore, 'jobs'), jobData);
       console.log('Proyecto publicado con éxito. ID:', docRef.id);
       
+      this.notificationService.showSuccess('¡Trabajo creado con éxito!');
       this.isSubmitting.set(false);
       this.router.navigate(['/dashboard-client']);
-    } catch (error) {
+    } catch (error) { 
       console.error('Error al publicar el proyecto:', error);
       alert('Ocurrió un error al publicar el proyecto. Por favor, inténtalo de nuevo.');
       this.isSubmitting.set(false);
