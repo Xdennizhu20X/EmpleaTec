@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Notification } from '../../models/notification.model';
+import { NotificationService, Notification } from '../../../../core/services/notification.service';
 import { Location } from '@angular/common';
 
 @Component({
@@ -11,63 +11,18 @@ import { Location } from '@angular/common';
   styleUrls: ['./notifications-page.scss']
 })
 export class NotificationsPageComponent implements OnInit {
+  private notificationService = inject(NotificationService);
   notifications: Notification[] = [];
   filteredNotifications: Notification[] = [];
   activeTab: 'all' | 'messages' | 'ratings' | 'applications' = 'all';
 
-  ngOnInit() {
-    this.notifications = [
-      {
-        id: 1,
-        type: 'message',
-        sender: { name: 'Ana Rodríguez', avatar: 'https://randomuser.me/api/portraits/women/1.jpg' },
-        title: 'Nuevo mensaje de Ana Rodríguez',
-        description: 'Quiere coordinar horarios para el proyecto.',
-        read: false,
-        time: '5m'
-      },
-      {
-        id: 2,
-        type: 'rating',
-        sender: { name: 'Carlos Gomez', avatar: 'https://randomuser.me/api/portraits/men/2.jpg' },
-        title: 'Nueva calificación de Carlos Gomez',
-        description: 'Ha calificado tu trabajo en el proyecto de diseño.',
-        read: false,
-        time: '2h'
-      },
-      {
-        id: 3,
-        type: 'application',
-        sender: { name: 'Empresa Tech', avatar: 'https://randomuser.me/api/portraits/lego/1.jpg' },
-        title: 'Nueva postulación de Empresa Tech',
-        description: 'Están interesados en tu perfil para una vacante.',
-        read: true,
-        time: '1d'
-      },
-      {
-        id: 4,
-        type: 'approved',
-        sender: { name: 'Global Solutions', avatar: 'https://randomuser.me/api/portraits/lego/2.jpg' },
-        title: 'Postulación aprobada',
-        description: '¡Felicidades! Tu postulación ha sido aprobada.',
-        read: false,
-        time: '3d'
-      },
-      {
-        id: 5,
-        type: 'rejected',
-        sender: { name: 'Innovate Corp', avatar: 'https://randomuser.me/api/portraits/lego/3.jpg' },
-        title: 'Postulación rechazada',
-        description: 'Lamentamos informarte que tu postulación ha sido rechazada.',
-        read: true,
-        time: '5d'
-      }
-    ];
+  async ngOnInit() {
+    this.notifications = await this.notificationService.getNotificationsForCurrentUser();
     this.filterNotifications();
   }
 
   get unreadCount() {
-    return this.notifications.filter(n => !n.read).length;
+    return this.notifications.filter(n => !n.isRead).length;
   }
 
   get messageCount() {
@@ -99,19 +54,26 @@ export class NotificationsPageComponent implements OnInit {
     }
   }
 
-  markAllAsRead() {
-    this.notifications.forEach(n => n.read = true);
+  async markAllAsRead() {
+    await this.notificationService.markAllAsRead();
+    this.notifications.forEach(n => n.isRead = true);
     this.filterNotifications();
   }
 
-  markAsRead(notification: Notification) {
-    notification.read = true;
-    this.filterNotifications();
+  async markAsRead(notification: Notification) {
+    if (notification.id) {
+      await this.notificationService.markAsRead(notification.id);
+      notification.isRead = true;
+      this.filterNotifications();
+    }
   }
 
-  deleteNotification(id: number) {
-    this.notifications = this.notifications.filter(n => n.id !== id);
-    this.filterNotifications();
+  async deleteNotification(id: string | undefined) {
+    if (id) {
+      await this.notificationService.deleteNotification(id);
+      this.notifications = this.notifications.filter(n => n.id !== id);
+      this.filterNotifications();
+    }
   }
 
   getBadgeClass(type: string) {

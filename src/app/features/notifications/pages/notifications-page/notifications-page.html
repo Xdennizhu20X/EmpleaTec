@@ -81,24 +81,24 @@
     <div *ngIf="filteredNotifications.length > 0; else noNotifications" class="space-y-3 sm:space-y-4">
       <div *ngFor="let notification of filteredNotifications" 
            (click)="markAsRead(notification)"
-           [ngClass]="{'border-l-4 border-blue-500': !notification.read}"
+           [ngClass]="{'border-l-4 border-blue-500': !notification.isRead}"
            class="relative bg-white/50 backdrop-blur-lg rounded-lg shadow-sm sm:shadow-md p-3 sm:p-4 flex items-start space-x-3 sm:space-x-4 transition-all duration-300 hover:bg-white/70 cursor-pointer">
         
         <!-- Avatar Mejorado -->
-        <img class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover" [src]="notification.sender.avatar" [alt]="notification.sender.name">
+        <img class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover" [src]="notification.sender?.avatar" [alt]="notification.sender?.name">
 
         <!-- Content Mejorado -->
         <div class="flex-1 min-w-0">
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between sm:mr-4">
             <h3 class="text-sm sm:text-lg font-semibold text-blue-900 flex items-center mb-1 sm:mb-0 truncate">
               {{ notification.title }}
-              <span *ngIf="!notification.read" class="ml-1 sm:ml-2 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-blue-500 rounded-full"></span>
+              <span *ngIf="!notification.isRead" class="ml-1 sm:ml-2 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-blue-500 rounded-full"></span>
             </h3>
             <div class="flex items-center space-x-1 sm:space-x-2 mt-1 sm:mt-0">
               <span [ngClass]="getBadgeClass(notification.type)" class="px-1.5 py-0.5 sm:px-2 sm:py-1 text-[10px] sm:text-xs font-bold text-white rounded-full whitespace-nowrap">
                 {{ getBadgeText(notification.type) }}
               </span>
-              <span class="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap">{{ notification.time }}</span>
+              <span class="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap">{{ notification.createdAt?.toDate() | date:'short' }}</span>
             </div>
           </div>
           <p class="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2">{{ notification.description }}</p>

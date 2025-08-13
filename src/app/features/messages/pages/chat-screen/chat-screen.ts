@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Auth, user, User } from '@angular/fire/auth';
 import { Firestore, doc, onSnapshot, collection, addDoc, serverTimestamp, query, orderBy, Timestamp, updateDoc } from '@angular/fire/firestore';
+import { NotificationService } from '../../../../core/services/notification.service';
 import { Subscription } from 'rxjs';
 
 // --- Interfaces ---
@@ -45,6 +46,7 @@ export class ChatScreen implements OnInit, OnDestroy {
   private auth: Auth = inject(Auth);
   private firestore: Firestore = inject(Firestore);
   private location = inject(Location);
+  private notificationService = inject(NotificationService);
 
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
 
@@ -152,6 +154,19 @@ export class ChatScreen implements OnInit, OnDestroy {
         'lastMessage.text': messageText,
         'lastMessage.timestamp': serverTimestamp()
       });
+
+      // Send notification to the other participant
+      const recipient = this.currentParticipant();
+      if (recipient) {
+        this.notificationService.showChatNotification(
+          messageText,
+          recipient.id,
+          {
+            name: this.currentUser()?.displayName || 'Usuario Anónimo',
+            avatar: this.currentUser()?.photoURL || 'https://randomuser.me/api/portraits/lego/1.jpg'
+          }
+        );
+      }
 
       this.message.set('');
     } catch (error) {
