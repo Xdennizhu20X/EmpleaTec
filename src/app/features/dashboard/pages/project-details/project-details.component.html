@@ -11,42 +11,82 @@
   </header>
 
   <main class="p-8" *ngIf="project$ | async as project">
-    <div class="glass-card mb-8 p-8">
-      <div class="flex flex-col lg:flex-row lg:items-start lg:space-x-8">
-        <div class="w-full lg:w-80 h-64 rounded-xl overflow-hidden mb-6 lg:mb-0 flex-shrink-0">
-          <img [src]="project.images[0] || 'https://via.placeholder.com/400x300'" [alt]="project.title" class="w-full h-full object-cover">
-        </div>
-        <div class="flex-1">
-          <div class="flex items-start justify-between mb-4">
-            <div>
-              <h1 class="text-3xl font-bold text-blue-900 mb-3">{{ project.title }}</h1>
-              <div class="flex items-center space-x-3 mb-4">
-                <span class="badge" [ngClass]="getStatusInfo(project.status).color">{{ getStatusInfo(project.status).text }}</span>
-              </div>
-            </div>
-            <div class="text-right">
-              <div class="text-2xl font-bold text-blue-800">
-                {{ project.budget.min | currency }} - {{ project.budget.max | currency }}
-              </div>
-              <div class="text-gray-600">MXN</div>
-            </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Left Column -->
+      <div class="lg:col-span-2 space-y-8">
+        <!-- Project Header -->
+        <div class="bg-white/30 backdrop-blur-lg border border-white/40 shadow-lg p-8 rounded-xl">
+          <h1 class="text-3xl font-bold text-blue-900 mb-3">{{ project.title }}</h1>
+          <div class="flex items-center space-x-3 mb-4">
+            <span class="badge" [ngClass]="getStatusInfo(project.status).color">{{ getStatusInfo(project.status).text }}</span>
           </div>
-          <p class="text-gray-700 text-lg leading-relaxed mb-6">{{ project.description }}</p>
+        </div>
+
+        <!-- Project Image -->
+        <div class="relative bg-white/30 backdrop-blur-lg border border-white/40 shadow-lg rounded-xl">
+          <img [src]="project.images[currentImageIndex] || 'https://via.placeholder.com/800x400'" [alt]="project.title" class="w-full h-auto object-cover rounded-xl">
+
+          <div *ngIf="project.images.length > 1" class="absolute inset-0 flex items-center justify-between px-4">
+              <button (click)="previousImage()" [disabled]="currentImageIndex === 0" class="bg-black/50 text-white rounded-full p-2 hover:bg-black/75 transition disabled:opacity-50">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+              </button>
+              <button (click)="nextImage(project)" [disabled]="currentImageIndex === project.images.length - 1" class="bg-black/50 text-white rounded-full p-2 hover:bg-black/75 transition disabled:opacity-50">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+              </button>
+          </div>
+        </div>
+
+        <!-- Project Description -->
+        <div class="bg-white/30 backdrop-blur-lg border border-white/40 shadow-lg p-8 rounded-xl">
+          <h2 class="text-2xl font-bold text-blue-900 mb-6">Descripción del Proyecto</h2>
+          <p class="text-gray-700 text-lg leading-relaxed">{{ project.description }}</p>
         </div>
       </div>
-    </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div class="lg:col-span-2">
-        <div class="glass-card p-8">
+      <!-- Right Column -->
+      <div class="lg:col-span-1 space-y-8">
+        <!-- Timeline -->
+        <div class="bg-white/30 backdrop-blur-lg border border-white/40 shadow-lg p-8 rounded-xl">
+          <h3 class="text-xl font-bold text-blue-900 mb-4">Duración del Proyecto</h3>
+          <div class="space-y-2 text-sm">
+              <div class="flex justify-between">
+                  <span class="font-semibold">Inicio:</span>
+                  <span>{{ project.timeline.start | date: 'dd/MM/yyyy' }}</span>
+              </div>
+              <div class="flex justify-between">
+                  <span class="font-semibold">Fin:</span>
+                  <span>{{ project.timeline.end | date: 'dd/MM/yyyy' }}</span>
+              </div>
+              <div class="flex justify-between items-center">
+                  <span class="font-semibold">Urgencia:</span>
+                  <span class="badge" [ngClass]="getUrgencyInfo(project.timeline.urgency).color">
+                      {{ getUrgencyInfo(project.timeline.urgency).text }}
+                  </span>
+              </div>
+          </div>
+        </div>
+
+        <!-- Budget -->
+        <div class="bg-white/30 backdrop-blur-lg border border-white/40 shadow-lg p-8 rounded-xl text-right">
+          <div class="text-2xl font-bold text-blue-800">
+            {{ project.budget.min | currency }} - {{ project.budget.max | currency }}
+          </div>
+          <div class="text-gray-600">MXN</div>
+        </div>
+
+        <!-- Applicants -->
+        <div class="bg-white/30 backdrop-blur-lg border border-white/40 shadow-lg p-8 rounded-xl">
           <h2 class="text-2xl font-bold text-blue-900 mb-6">Postulaciones</h2>
           <div class="space-y-4">
-            <div *ngFor="let applicant of project.applicants" class="glass p-6 rounded-xl">
+            <div *ngIf="!project.applicants || project.applicants.length === 0" class="text-gray-500">No hay postulaciones para este proyecto.</div>
+            <div *ngFor="let applicant of project.applicants" class="bg-white/20 backdrop-blur-md border border-white/30 shadow-md p-6 rounded-xl">
               <div class="flex items-start space-x-4">
+                <img [src]="applicant.photoURL || 'https://via.placeholder.com/150'" alt="{{ applicant.displayName }}" class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md">
                 <div class="flex-1">
                   <div class="flex items-start justify-between mb-2">
                     <div>
-                      <h4 class="text-lg font-semibold text-blue-900">{{ applicant.applicantId }}</h4>
+                      <h4 class="text-lg font-semibold text-blue-900">{{ applicant.displayName }}</h4>
                     </div>
                     <span class="badge" [ngClass]="getApplicationStatusInfo(applicant.status).color">{{ getApplicationStatusInfo(applicant.status).text }}</span>
                   </div>
@@ -60,17 +100,22 @@
             </div>
           </div>
         </div>
-      </div>
-      <div>
-        <div class="glass-card p-8">
+
+        <!-- Assigned Workers -->
+        <div class="bg-white/30 backdrop-blur-lg border border-white/40 shadow-lg p-8 rounded-xl">
           <h2 class="text-2xl font-bold text-blue-900 mb-6">Trabajadores Asignados</h2>
           <div class="space-y-4">
-            <div *ngFor="let worker of acceptedWorkers(project.applicants)" class="glass p-6 rounded-xl">
-              <h4 class="text-lg font-semibold text-blue-900">{{ worker.applicantId }}</h4>
+            <div *ngIf="acceptedWorkers(project.applicants).length === 0" class="text-gray-500">Aún no hay trabajadores asignados.</div>
+            <div *ngFor="let worker of acceptedWorkers(project.applicants)" class="bg-white/20 backdrop-blur-md border border-white/30 shadow-md p-6 rounded-xl flex items-center space-x-4">
+              <img [src]="worker.photoURL || 'https://via.placeholder.com/150'" alt="{{ worker.displayName }}" class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md">
+              <div>
+                <h4 class="text-lg font-semibold text-blue-900">{{ worker.displayName }}</h4>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
     </div>
   </main>
 </div>

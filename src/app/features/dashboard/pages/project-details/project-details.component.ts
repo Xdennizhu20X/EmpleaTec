@@ -18,6 +18,7 @@ export class ProjectDetailsComponent implements OnInit {
   private jobService = inject(JobService);
 
   project$!: Observable<Job>;
+  currentImageIndex = 0;
 
   ngOnInit(): void {
     const projectId = this.route.snapshot.paramMap.get('id');
@@ -58,11 +59,36 @@ export class ProjectDetailsComponent implements OnInit {
     }
   }
 
+  getUrgencyInfo(urgency: string) {
+    switch (urgency) {
+      case 'urgent':
+        return { text: 'Urgente', color: 'bg-red-100 text-red-800' };
+      case 'normal':
+        return { text: 'Normal', color: 'bg-yellow-100 text-yellow-800' };
+      case 'flexible':
+        return { text: 'Flexible', color: 'bg-green-100 text-green-800' };
+      default:
+        return { text: 'Desconocido', color: 'bg-gray-100 text-gray-800' };
+    }
+  }
+
   updateApplicantStatus(projectId: string, applicantId: string, status: 'accepted' | 'rejected') {
     this.jobService.updateApplicantStatus(projectId, applicantId, status);
   }
 
   acceptedWorkers(applicants: Applicant[] = []) {
     return applicants.filter(applicant => applicant.status === 'accepted');
+  }
+
+  nextImage(project: Job) {
+    if (this.currentImageIndex < project.images.length - 1) {
+      this.currentImageIndex++;
+    }
+  }
+
+  previousImage() {
+    if (this.currentImageIndex > 0) {
+      this.currentImageIndex--;
+    }
   }
 }

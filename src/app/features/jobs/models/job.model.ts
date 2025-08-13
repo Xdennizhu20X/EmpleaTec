@@ -28,6 +28,8 @@ export interface Applicant {
   applicantId: string;
   description: string;
   status: 'pending' | 'accepted' | 'rejected';
+  displayName?: string;
+  photoURL?: string;
 }
 
 export interface Category {

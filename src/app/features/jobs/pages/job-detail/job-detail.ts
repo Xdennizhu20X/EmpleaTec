@@ -52,14 +52,22 @@ export class JobDetailComponent implements OnInit {
     console.log('Job ID:', jobId);
 
     try {
-      const currentUser = await firstValueFrom(this.authService.getCurrentUser());
+      const currentUser = await firstValueFrom(this.authService.getUserProfile());
       console.log('Current user:', currentUser);
 
       if (jobId && currentUser) {
-        const application = {
+        const application: any = {
           applicantId: currentUser.uid,
-          description: this.applicationForm.value.description
+          description: this.applicationForm.value.description,
         };
+
+        if (currentUser.displayName) {
+          application.displayName = currentUser.displayName;
+        }
+
+        if (currentUser.photoURL) {
+          application.photoURL = currentUser.photoURL;
+        }
         console.log('Application data:', application);
 
         await this.jobService.applyToJob(jobId, application);
