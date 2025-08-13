@@ -1,7 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
-import { Firestore, collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, doc, updateDoc, deleteDoc } from '@angular/fire/firestore';
+import { Firestore, collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, doc, updateDoc, deleteDoc, onSnapshot } from '@angular/fire/firestore';
 import { AuthService } from './auth.service';
-import { firstValueFrom } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { User } from '../models/user.model';
 
 export interface Notification {
@@ -32,7 +32,12 @@ export class NotificationService {
 
   private async addNotification(message: string, type: 'success' | 'error' | 'info' | 'message', options?: Partial<Notification>) {
     const user = await firstValueFrom(this.authService.getCurrentUser());
-    const targetUserId = options?.userId || user?.uid;
+    let targetUserId: string | undefined;
+    if (options?.userId) {
+      targetUserId = options.userId;
+    } else {
+      targetUserId = user?.uid;
+    }
 
     if (targetUserId) {
       await addDoc(collection(this.firestore, 'notifications'), {
@@ -51,18 +56,28 @@ export class NotificationService {
     }
   }
 
-  async getNotificationsForCurrentUser(): Promise<Notification[]> {
-    const user = await firstValueFrom(this.authService.getCurrentUser());
-    if (!user) {
-      return [];
-    }
-    const q = query(
-      collection(this.firestore, 'notifications'),
-      where('userId', '==', user.uid),
-      orderBy('createdAt', 'desc')
-    );
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Notification));
+  getNotificationsForCurrentUser(): Observable<Notification[]> {
+    return new Observable(subscriber => {
+      this.authService.getCurrentUser().subscribe(user => {
+        if (!user) {
+          subscriber.next([]);
+          return;
+        }
+        const q = query(
+          collection(this.firestore, 'notifications'),
+          where('userId', '==', user.uid),
+          orderBy('createdAt', 'desc')
+        );
+        const unsubscribe = onSnapshot(q, querySnapshot => {
+          const notifications: Notification[] = [];
+          querySnapshot.forEach(doc => {
+            notifications.push({ id: doc.id, ...doc.data() } as Notification);
+          });
+          subscriber.next(notifications);
+        });
+        return () => unsubscribe();
+      });
+    });
   }
 
   async markAsRead(notificationId: string): Promise<void> {

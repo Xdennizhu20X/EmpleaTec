@@ -2,10 +2,12 @@ import { Component, OnInit, OnDestroy, ElementRef, ViewChild, inject, signal, ef
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Auth, user, User } from '@angular/fire/auth';
+import { AuthService } from '../../../../core/services/auth.service';
+import { User } from '@angular/fire/auth';
+import { UserService } from '../../../../core/services/user.service';
 import { Firestore, doc, onSnapshot, collection, addDoc, serverTimestamp, query, orderBy, Timestamp, updateDoc } from '@angular/fire/firestore';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { Subscription } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
 
 // --- Interfaces ---
 interface Participant {
@@ -43,10 +45,11 @@ interface ChatFinalizationData {
 export class ChatScreen implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private auth: Auth = inject(Auth);
+  private authService = inject(AuthService);
   private firestore: Firestore = inject(Firestore);
   private location = inject(Location);
   private notificationService = inject(NotificationService);
+  private userService = inject(UserService);
 
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
 
@@ -71,8 +74,6 @@ export class ChatScreen implements OnInit, OnDestroy {
   private chatSub: (() => void) | undefined;
 
   constructor() {
-    user(this.auth).subscribe(u => this.currentUser.set(u));
-
     effect(() => {
       if (this.messages()) {
         this.scrollToBottom();
@@ -81,13 +82,17 @@ export class ChatScreen implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.routeSub = this.route.params.subscribe(params => {
-      const chatId = params['id'];
-      if (chatId) {
-        this.chatId.set(chatId);
-        this.loadChatData(chatId);
-        this.listenToMessages(chatId);
-      }
+    this.authService.getCurrentUser().subscribe(user => {
+      this.currentUser.set(user);
+      // Now that currentUser is set, we can safely load chat data
+      this.routeSub = this.route.params.subscribe(params => {
+        const chatId = params['id'];
+        if (chatId) {
+          this.chatId.set(chatId);
+          this.loadChatData(chatId);
+          this.listenToMessages(chatId);
+        }
+      });
     });
   }
 
@@ -98,6 +103,12 @@ export class ChatScreen implements OnInit, OnDestroy {
   }
 
   loadChatData(chatId: string) {
+    const currentUser = this.currentUser(); // Get the current user
+    if (!currentUser) {
+      console.error('Current user not available in loadChatData');
+      return; // Should not happen with the new ngOnInit structure
+    }
+
     const chatDocRef = doc(this.firestore, 'chats', chatId);
     this.chatSub = onSnapshot(chatDocRef, (docSnap) => {
       if (docSnap.exists()) {
@@ -105,9 +116,17 @@ export class ChatScreen implements OnInit, OnDestroy {
         this.currentProjectTitle.set(chatData['projectTitle']);
         this.isChatFinalized.set(chatData['isFinalized'] || false);
         const participantInfo = chatData['participantInfo'] as any[];
-        const otherParticipantData = participantInfo.find(p => p.id !== this.currentUser()?.uid);
+        console.log('Participant Info:', participantInfo);
+
+        // Filter to find the other participant
+        const otherParticipants = participantInfo.filter(p => {
+          console.log('  Filtering: p.id =', p.id, ', currentUser.uid =', currentUser.uid, ', p.id !== currentUser.uid =', p.id !== currentUser.uid);
+          return p.id !== currentUser.uid;
+        });
+        const otherParticipantData = otherParticipants.length > 0 ? otherParticipants[0] : undefined;
+
+        console.log('Other Participant Data:', otherParticipantData);
         if (otherParticipantData) {
-          // Here you might want to fetch the user document for more details like userType or specialty
           this.currentParticipant.set({
             id: otherParticipantData.id,
             name: otherParticipantData.name,
@@ -115,6 +134,9 @@ export class ChatScreen implements OnInit, OnDestroy {
             isOnline: true, // This needs a presence system
             userType: 'worker' // This should be dynamic
           });
+        } else {
+          console.warn('Other participant data not found for chat:', chatId);
+          // Handle case where other participant is not found (e.g., redirect to messages list)
         }
       }
     });
@@ -132,17 +154,20 @@ export class ChatScreen implements OnInit, OnDestroy {
     });
   }
 
-  async handleSendMessage() {
+    async handleSendMessage() {
     const messageText = this.message().trim();
-    if (!messageText || !this.chatId() || !this.currentUser() || this.isChatFinalized()) return;
+    const user = this.currentUser();
+    if (!messageText || !this.chatId() || !user || this.isChatFinalized()) return;
+
+    const userProfile = await firstValueFrom(this.userService.getUserById(user.uid));
 
     const messagesCollection = collection(this.firestore, 'chats', this.chatId()!, 'messages');
     const chatDocRef = doc(this.firestore, 'chats', this.chatId()!);
 
     try {
       await addDoc(messagesCollection, {
-        senderId: this.currentUser()!.uid,
-        senderName: this.currentUser()!.displayName || 'Yo',
+        senderId: user.uid,
+        senderName: userProfile?.displayName || 'Yo',
         text: messageText,
         timestamp: serverTimestamp(),
         isRead: false,
@@ -162,8 +187,8 @@ export class ChatScreen implements OnInit, OnDestroy {
           messageText,
           recipient.id,
           {
-            name: this.currentUser()?.displayName || 'Usuario Anónimo',
-            avatar: this.currentUser()?.photoURL || 'https://randomuser.me/api/portraits/lego/1.jpg'
+            name: userProfile?.displayName || 'Usuario Anónimo',
+            avatar: userProfile?.photoURL || 'https://randomuser.me/api/portraits/lego/1.jpg'
           }
         );
       }

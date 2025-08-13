@@ -1,7 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificationService, Notification } from '../../../../core/services/notification.service';
 import { Location } from '@angular/common';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-notifications-page',
@@ -10,69 +11,79 @@ import { Location } from '@angular/common';
   templateUrl: './notifications-page.html',
   styleUrls: ['./notifications-page.scss']
 })
-export class NotificationsPageComponent implements OnInit {
+export class NotificationsPageComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
-  notifications: Notification[] = [];
-  filteredNotifications: Notification[] = [];
-  activeTab: 'all' | 'messages' | 'ratings' | 'applications' = 'all';
+  private location = inject(Location);
+  private notificationSub: Subscription | undefined;
 
-  async ngOnInit() {
-    this.notifications = await this.notificationService.getNotificationsForCurrentUser();
-    this.filterNotifications();
+  notifications = signal<Notification[]>([]);
+  activeTab = signal<'all' | 'messages' | 'ratings' | 'applications'>('all');
+
+  filteredNotifications = computed(() => {
+    const notifications = this.notifications();
+    const tab = this.activeTab();
+    if (tab === 'all') {
+      return notifications;
+    } else if (tab === 'messages') {
+      return notifications.filter(n => n.type === 'message');
+    } else if (tab === 'ratings') {
+      return notifications.filter(n => n.type === 'rating');
+    } else if (tab === 'applications') {
+      return notifications.filter(n => n.type === 'application' || n.type === 'approved' || n.type === 'rejected');
+    }
+    return notifications;
+  });
+
+  ngOnInit() {
+    this.notificationSub = this.notificationService.getNotificationsForCurrentUser().subscribe(notifications => {
+      this.notifications.set(notifications);
+    });
+  }
+
+  ngOnDestroy() {
+    this.notificationSub?.unsubscribe();
   }
 
   get unreadCount() {
-    return this.notifications.filter(n => !n.isRead).length;
+    return this.notifications().filter(n => !n.isRead).length;
   }
 
   get messageCount() {
-    return this.notifications.filter(n => n.type === 'message').length;
+    return this.notifications().filter(n => n.type === 'message').length;
   }
 
   get ratingCount() {
-    return this.notifications.filter(n => n.type === 'rating').length;
+    return this.notifications().filter(n => n.type === 'rating').length;
   }
 
   get applicationCount() {
-    return this.notifications.filter(n => n.type === 'application' || n.type === 'approved' || n.type === 'rejected').length;
+    return this.notifications().filter(n => n.type === 'application' || n.type === 'approved' || n.type === 'rejected').length;
   }
 
   setTab(tab: 'all' | 'messages' | 'ratings' | 'applications') {
-    this.activeTab = tab;
-    this.filterNotifications();
-  }
-
-  filterNotifications() {
-    if (this.activeTab === 'all') {
-      this.filteredNotifications = this.notifications;
-    } else if (this.activeTab === 'messages') {
-      this.filteredNotifications = this.notifications.filter(n => n.type === 'message');
-    } else if (this.activeTab === 'ratings') {
-      this.filteredNotifications = this.notifications.filter(n => n.type === 'rating');
-    } else if (this.activeTab === 'applications') {
-      this.filteredNotifications = this.notifications.filter(n => n.type === 'application' || n.type === 'approved' || n.type === 'rejected');
-    }
+    this.activeTab.set(tab);
   }
 
   async markAllAsRead() {
     await this.notificationService.markAllAsRead();
-    this.notifications.forEach(n => n.isRead = true);
-    this.filterNotifications();
+    this.notifications.update(notifications => 
+      notifications.map(n => ({ ...n, isRead: true }))
+    );
   }
 
   async markAsRead(notification: Notification) {
-    if (notification.id) {
+    if (notification.id && !notification.isRead) {
       await this.notificationService.markAsRead(notification.id);
-      notification.isRead = true;
-      this.filterNotifications();
+      this.notifications.update(notifications =>
+        notifications.map(n => n.id === notification.id ? { ...n, isRead: true } : n)
+      );
     }
   }
 
   async deleteNotification(id: string | undefined) {
     if (id) {
       await this.notificationService.deleteNotification(id);
-      this.notifications = this.notifications.filter(n => n.id !== id);
-      this.filterNotifications();
+      this.notifications.update(notifications => notifications.filter(n => n.id !== id));
     }
   }
 
@@ -97,8 +108,6 @@ export class NotificationsPageComponent implements OnInit {
       default: return 'General';
     }
   }
-
-  constructor(private location: Location) {}
 
   goBack(): void {
     this.location.back();
