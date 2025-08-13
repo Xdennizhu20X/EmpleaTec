@@ -2,18 +2,20 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { Category, WorkerCard } from '../../models/dashboard';
+import { Category } from '../../models/dashboard';
 import { UserService } from '../../../../core/services/user.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { User } from '../../../../core/models/user.model';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 import { Auth } from '@angular/fire/auth';
 import { Firestore, collection, query, where, getDocs, addDoc, serverTimestamp } from '@angular/fire/firestore';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-dashboard-client',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule],
   templateUrl: './dashboard-client.html',
   styleUrls: ['./dashboard-client.scss']
 })
@@ -23,26 +25,62 @@ export class DashboardClient implements OnInit {
   private router = inject(Router);
   private firestore: Firestore = inject(Firestore);
   private auth: Auth = inject(Auth);
+
   user$!: Observable<User | null>;
-  featuredWorkers$!: Observable<User[]>;
+  
+  allWorkers: User[] = [];
+  filteredWorkers$!: Observable<User[]>;
 
+  activeWorkersCount = 0;
   isSidebarOpen = false;
-  categories: Category[] = [
-    { id: 'todos', name: 'Todos', count: 156 },
-    { id: 'carpinteria', name: '🔨 Carpintería', count: 42 },
-    { id: 'plomeria', name: '🔧 Plomería', count: 38 },
-    { id: 'electricidad', name: '⚡ Electricidad', count: 29 },
-    { id: 'albanileria', name: '🧱 Albañilería', count: 21 },
-    { id: 'jardineria', name: '🌳 Jardinería', count: 15 },
-    { id: 'pintura', name: '🎨 Pintura', count: 14 },
-    { id: 'limpieza', name: '🧹 Limpieza', count: 11 },
-  ];
-
-  activeCategory: string = 'todos';
+  
+  categories$!: Observable<Category[]>;
+  categoryFilter = new FormControl('todos');
 
   ngOnInit(): void {
     this.user$ = this.userService.currentUserProfile$;
-    this.featuredWorkers$ = this.userService.getWorkers();
+    this.loadActiveWorkersCount();
+
+    const workers$ = this.userService.getWorkers();
+
+    this.categories$ = workers$.pipe(
+      map(workers => {
+        const allOficios = workers.flatMap(worker => worker.oficios || []);
+        const uniqueOficios = [...new Set(allOficios)];
+        const categoryCounts = uniqueOficios.reduce((acc, oficio) => {
+          acc[oficio] = allOficios.filter(o => o === oficio).length;
+          return acc;
+        }, {} as { [key: string]: number });
+
+        const categories: Category[] = uniqueOficios.map(oficio => ({
+          id: oficio, // ID is the oficio name itself
+          name: `🔎 ${oficio}`,
+          count: categoryCounts[oficio]
+        }));
+
+        const totalCount = workers.length;
+        categories.unshift({ id: 'todos', name: 'Todos', count: totalCount });
+
+        return categories;
+      })
+    );
+
+    this.filteredWorkers$ = combineLatest([
+      workers$,
+      this.categoryFilter.valueChanges.pipe(startWith('todos'))
+    ]).pipe(
+      map(([workers, selectedCategory]) => {
+        this.allWorkers = workers;
+        if (selectedCategory === 'todos' || !selectedCategory) {
+          return workers;
+        }
+        return workers.filter(worker => worker.oficios?.includes(selectedCategory));
+      })
+    );
+  }
+
+  async loadActiveWorkersCount() {
+    this.activeWorkersCount = await this.userService.getActiveWorkersCount();
   }
 
   async onLogout(): Promise<void> {
@@ -54,8 +92,8 @@ export class DashboardClient implements OnInit {
     }
   }
 
-  setActiveCategory(categoryId: string) {
-    this.activeCategory = categoryId;
+  setActiveCategory(categoryId: string | null) {
+    this.categoryFilter.setValue(categoryId);
   }
 
   toggleSidebar() {
@@ -65,7 +103,6 @@ export class DashboardClient implements OnInit {
   async contactWorker(worker: User) {
     const currentUser = this.auth.currentUser;
     if (!currentUser) {
-      // Handle case where user is not logged in
       this.router.navigate(['/auth/client-login']);
       return;
     }
