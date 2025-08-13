@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { JobService } from '../../../jobs/services/job.service';
-import { Job } from '../../../jobs/models/job-card.model';
+import { Job } from '../../../jobs/models/job.model';
 import { Observable } from 'rxjs';
 import { UserService } from '../../../../core/services/user.service';
 import { AuthService } from '../../../../core/services/auth.service';

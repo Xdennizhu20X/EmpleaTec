@@ -50,6 +50,16 @@ export const routes: Routes = [
     canActivate: [clientGuard]
   },
   {
+    path: 'my-projects',
+    loadComponent: () => import('./features/dashboard/pages/my-projects/my-projects.component').then(m => m.MyProjectsComponent),
+    canActivate: [clientGuard]
+  },
+  {
+    path: 'project-details/:id',
+    loadComponent: () => import('./features/dashboard/pages/project-details/project-details.component').then(m => m.ProjectDetailsComponent),
+    canActivate: [clientGuard]
+  },
+  {
     path: 'worker-explorer',
     loadComponent: () => import('./features/explorer/pages/worker-explorer/worker-explorer').then(m => m.WorkerExplorerComponent),
     canActivate: [clientGuard]
@@ -81,7 +91,6 @@ export const routes: Routes = [
   },
   {
     path: 'job-detail/:id',
-    loadComponent: () => import('./features/jobs/pages/job-detail/job-detail').then(m => m.JobDetailComponent),
-    canActivate: [workerGuard]
+    loadComponent: () => import('./features/jobs/pages/job-detail/job-detail').then(m => m.JobDetailComponent)
   }
 ];

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Job } from '../../models/job-card.model';
+import { Job } from '../../models/job.model';
 import { Router, RouterModule } from '@angular/router';
 import { JobService } from '../../services/job.service';
 import { Observable } from 'rxjs';
@@ -55,7 +55,7 @@ export class JobsExplorerComponent implements OnInit {
       })
       .sort((a, b) => {
         switch (f.sortBy) {
-          case 'budget': return b.budget.max - a.budget.max;
+          case 'budget': return (b.budget.max || 0) - (a.budget.max || 0);
           case 'urgent': return (a.timeline.urgency === 'urgent' ? -1 : 1) - (b.timeline.urgency === 'urgent' ? -1 : 1);
           default: return b.createdAt.toMillis() - a.createdAt.toMillis();
         }

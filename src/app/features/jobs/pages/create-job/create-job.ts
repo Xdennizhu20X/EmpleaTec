@@ -29,6 +29,9 @@ export class CreateJobComponent {
   uploadError = signal<string | null>(null);
 
   formData = signal<Job>({
+    id: '',
+    clientId: '',
+    clientName: '',
     title: '',
     category: '',
     description: '',
@@ -37,6 +40,8 @@ export class CreateJobComponent {
     timeline: { start: '', end: '', urgency: 'normal' },
     requirements: '',
     images: [],
+    createdAt: null,
+    status: 'open',
   });
 
   errors = signal<Record<string, string>>({});

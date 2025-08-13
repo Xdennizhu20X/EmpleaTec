@@ -44,8 +44,20 @@
             </div>
           </div>
           <div class="mt-8">
-            <button (click)="applyForJob()" class="w-full py-3 rounded-lg font-bold text-white bg-blue-500 hover:bg-blue-600 transition-colors">Postularme</button>
+            <button (click)="toggleApplicationForm()" class="w-full py-3 rounded-lg font-bold text-white bg-blue-500 hover:bg-blue-600 transition-colors">Postularme</button>
           </div>
+
+          <div *ngIf="showApplicationForm" class="mt-6">
+            <form [formGroup]="applicationForm" (ngSubmit)="submitApplication()">
+              <h3 class="text-xl font-semibold text-blue-900 mb-2">Tu Postulación</h3>
+              <textarea formControlName="description" class="w-full p-2 border rounded-lg" rows="4" placeholder="Escribe una breve descripción de por qué eres el indicado para este trabajo..."></textarea>
+              <div class="mt-4 flex justify-end gap-4">
+                <button type="button" (click)="toggleApplicationForm()" class="py-2 px-4 rounded-lg font-bold text-gray-700 bg-gray-200 hover:bg-gray-300 transition-colors">Cancelar</button>
+                <button type="submit" [disabled]="applicationForm.invalid" class="py-2 px-4 rounded-lg font-bold text-white bg-blue-500 hover:bg-blue-600 transition-colors disabled:bg-gray-400">Enviar Postulación</button>
+              </div>
+            </form>
+          </div>
+
         </div>
       </div>
     </div>

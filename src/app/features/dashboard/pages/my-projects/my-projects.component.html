@@ -1,0 +1,78 @@
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 text-gray-800 font-sans">
+  <!-- Header -->
+  <header class="sticky top-0 bg-white/50 backdrop-blur-lg z-10">
+    <div class="flex items-center justify-between h-20 px-8">
+      <h1 class="text-2xl font-bold text-blue-900">Mis Proyectos</h1>
+      <div class="flex items-center space-x-5">
+        <button (click)="onNavigate('create-job')" class="flex items-center space-x-3 px-4 py-2.5 text-left text-blue-800 bg-blue-100/50 rounded-lg hover:bg-blue-200/70 transition-colors duration-200">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+          <span>Nuevo Proyecto</span>
+        </button>
+        <button (click)="onLogout()" class="p-2 rounded-full text-gray-600 hover:bg-gray-200/50 hover:text-red-600 transition-colors duration-200">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H3"></path></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="p-8">
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+      <div class="bg-white/50 backdrop-blur-lg rounded-2xl shadow-sm p-6 flex items-center space-x-4">
+        <div class="bg-blue-100 p-4 rounded-full">
+          <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+        </div>
+        <div>
+          <div class="text-3xl font-bold text-blue-900">{{ stats().total }}</div>
+          <div class="text-sm text-gray-500">Proyectos Totales</div>
+        </div>
+      </div>
+      <!-- Other stats cards here -->
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white/50 backdrop-blur-lg rounded-2xl shadow-sm p-6 mb-8">
+      <div class="flex items-center space-x-4">
+        <div class="flex-1">
+          <input type="text" placeholder="Buscar proyectos..." [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" class="w-full pl-12 pr-4 py-2.5 bg-white/50 border border-gray-200/80 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300">
+        </div>
+        <div>
+          <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)" class="w-full pl-4 pr-10 py-2.5 bg-white/50 border border-gray-200/80 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300">
+            <option value="all">Todos</option>
+            <option value="open">Abiertos</option>
+            <option value="in_progress">En Progreso</option>
+            <option value="completed">Completados</option>
+            <option value="cancelled">Cancelados</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Projects List -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div *ngFor="let project of filteredProjects()" class="bg-white rounded-2xl shadow-lg overflow-hidden group transform hover:scale-105 transition-transform duration-300 ease-in-out">
+        <div class="relative h-40 bg-cover bg-center" [style.backgroundImage]="'url(' + project.images[0] + ')'">
+          <div class="absolute inset-0 bg-black/20"></div>
+          <div class="absolute top-4 right-4">
+            <span class="badge" [ngClass]="getStatusInfo(project.status).color">
+              {{ getStatusInfo(project.status).text }}
+            </span>
+          </div>
+        </div>
+        <div class="p-6">
+          <h3 class="text-xl font-bold text-gray-800">{{ project.title }}</h3>
+          <p class="text-sm text-gray-500 font-medium">{{ project.location }}</p>
+
+          <p class="text-gray-700 mt-4 line-clamp-2">{{ project.description }}</p>
+
+          <div class="flex justify-between items-center mt-6">
+            <div class="text-lg font-bold text-blue-900">
+              {{ project.budget.min | currency }} - {{ project.budget.max | currency }}
+            </div>
+            <button (click)="handleViewProject(project)" class="btn btn-secondary">Ver Detalles</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
