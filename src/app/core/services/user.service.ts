@@ -1,7 +1,7 @@
 
 import { Injectable, inject } from '@angular/core';
 import { Auth, authState } from '@angular/fire/auth';
-import { collection, collectionData, doc, docData, Firestore, query, where, getCountFromServer } from '@angular/fire/firestore';
+import { collection, collectionData, doc, docData, Firestore, query, where, getCountFromServer, updateDoc } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { User } from '../models/user.model';
@@ -42,5 +42,10 @@ export class UserService {
     const q = query(usersRef, where('userType', '==', 'worker'), where('isActive', '==', true));
     const snapshot = await getCountFromServer(q);
     return snapshot.data().count;
+  }
+
+  updateUserProfile(uid: string, data: Partial<User>): Promise<void> {
+    const userDocRef = doc(this.firestore, `users/${uid}`);
+    return updateDoc(userDocRef, data);
   }
 }

@@ -22,4 +22,27 @@ export interface User {
   phone?: string;
   registrationCompleted?: boolean;
   lastLogin?: Timestamp;
+
+  // Optional fields for the new worker profile design
+  coverURL?: string;
+  isOnline?: boolean;
+  isVerified?: boolean;
+  specialty?: string;
+  description?: string;
+  stats?: {
+    averageRating?: number;
+    totalJobs?: number;
+  };
+  pricing?: {
+    hourlyRate?: number;
+  };
+  portfolio?: {
+    imageUrl: string;
+    title?: string;
+    description?: string;
+  }[];
+  certifications?: {
+    name?: string;
+    description?: string;
+  }[];
 }

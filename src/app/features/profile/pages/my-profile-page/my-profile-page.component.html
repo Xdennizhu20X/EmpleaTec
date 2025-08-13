@@ -1,144 +1,292 @@
 <ng-container *ngIf="user$ | async as user; else loading">
-  <div class="min-h-screen bg-gradient-to-br from-blue-100 to-royal-blue-300 font-sans">
+  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 font-sans text-gray-800">
 
-    <!-- Header con Glassmorphism -->
-    <header class="sticky top-0 z-40 bg-white/70 backdrop-blur-lg border-b border-gray-200/80 shadow-sm">
-      <div class="container mx-auto flex items-center justify-between px-4 sm:px-6 py-3">
-        <button (click)="goBack()" class="p-2 rounded-full hover:bg-gray-200/50 transition-colors">
-          <svg class="w-6 h-6 text-blue-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-          </svg>
-        </button>
-        <h1 class="text-xl font-bold text-blue-900">Mi Perfil</h1>
-        <button
-          (click)="onLogout()"
-          class="flex items-center gap-2 px-4 py-2 rounded-full text-blue-900 hover:bg-gray-200/50 hover:text-red-600 transition-colors duration-200">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
-          <span class="text-sm font-medium">Cerrar Sesión</span>
-        </button>
+    <!-- Header -->
+    <header class="glass border-b border-white/30 sticky top-0 z-40 bg-white/70 backdrop-blur-lg">
+      <div class="container mx-auto px-4 sm:px-6 py-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2 sm:space-x-4">
+            <button (click)="goBack()" class="p-1 sm:p-2 rounded-full hover:bg-gray-200/50 transition-colors">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+            </button>
+            <h1 class="text-lg sm:text-xl font-bold text-blue-900">Mi Perfil</h1>
+          </div>
+          <div class="flex items-center gap-2">
+            <button (click)="onLogout()"
+              class="glass-button flex items-center gap-2 text-sm font-semibold text-red-600 cursor-pointer bg-red-100 p-2 rounded-lg hover:bg-red-200">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+              </svg>
+              Cerrar Sesión
+            </button>
+          </div>
+        </div>
+
       </div>
     </header>
-    <!-- Contenido Principal -->
-    <main class="container mx-auto max-w-7xl px-4 sm:px-6 py-8">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-        <!-- Columna Izquierda (Perfil) -->
-        <div class="lg:col-span-1 space-y-8">
-          <!-- Card Perfil Básico con Glassmorphism -->
-          <div class="glass-card text-center p-6">
-            <img [src]="user.photoURL || 'https://via.placeholder.com/150'" [alt]="user.displayName"
-              class="h-32 w-32 rounded-full border-4 border-royal-blue-500 object-cover shadow-lg mx-auto mb-4" />
-            <h2 class="text-2xl font-bold text-blue-900">{{ user.displayName }}</h2>
-            <p class="text-md text-gray-700">{{ user.userType === 'worker' ? 'Trabajador Profesional' : 'Cliente' }}</p>
-            <p class="text-sm text-gray-500 mt-2">Miembro desde {{ formatDate(user.createdAt) }}</p>
+    <!-- Profile Body -->
+    <main class="container mx-auto px-6 py-8 max-w-6xl">
+      <div class="glass-card p-6 sm:p-8">
+        <div class="flex flex-col sm:flex-row items-center gap-6">
+          <img *ngIf="!isEditing()" [src]="user.photoURL || 'https://via.placeholder.com/150'" [alt]="user.displayName"
+            class="h-32 w-32 rounded-full border-4 border-white object-cover shadow-lg">
+
+          <!-- Display Mode -->
+          <div *ngIf="!isEditing()" class="flex-grow text-center sm:text-left">
+            <div class="flex flex-row justify-between">
+              <h1 class="text-3xl font-bold text-blue-900 ">{{ user.displayName }}</h1>
+              <button (click)="toggleEdit(user)"
+                class="glass-button flex items-center gap-2 text-sm font-semibold bg-blue-100 p-2 rounded-lg hover:bg-blue-200 cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z">
+                  </path>
+                </svg>
+                {{ isEditing() ? 'Cancelar' : 'Editar Perfil' }}
+              </button>
+            </div>
+
+            <div class="flex flex-row space-x-8 mt-3">
+              <p *ngIf="user.city" class="text-gray-800">🏙️ {{ user.city }} - EC</p>
+              <p class="text-blue-700">📧 {{ user.email }}</p>
+            </div>
+            <p class="text-gray-800 mt-2">⏳ Miembro desde {{ formatDate(user.createdAt) }}</p>
           </div>
 
-          <!-- Card Verificaciones (Solo para Workers) -->
-          <ng-container *ngIf="user.userType === 'worker'">
-            <div class="glass-card p-6">
-              <h3 class="text-lg font-bold text-blue-900 mb-4 border-b border-white/20 pb-2">Verificaciones</h3>
-              <ul class="space-y-3 text-gray-700">
-                <li class="flex items-center gap-3 text-green-600 font-semibold">
-                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clip-rule="evenodd"></path>
-                  </svg>
-                  <span>Identidad Verificada</span>
-                </li>
-                <li class="flex items-center gap-3 text-green-600 font-semibold">
-                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clip-rule="evenodd"></path>
-                  </svg>
-                  <span>Email Verificado</span>
-                </li>
-                <li class="flex items-center gap-3 text-green-600 font-semibold">
-                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clip-rule="evenodd"></path>
-                  </svg>
-                  <span>Teléfono Verificado</span>
-                </li>
-              </ul>
-            </div>
-          </ng-container>
-        </div>
-
-        <!-- Columna Derecha (Detalles) -->
-        <div class="lg:col-span-2 space-y-8">
-          <!-- Card Información Profesional (Solo para Workers) -->
-          <ng-container *ngIf="user.userType === 'worker'">
-            <div class="glass-card p-6">
-              <h3 class="text-lg font-bold text-blue-900 mb-4 border-b border-white/20 pb-2">Información Profesional
-              </h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label class="text-sm font-medium text-gray-600">Años de Experiencia</label>
-                  <p class="text-md font-semibold text-blue-800 mt-1">{{ user.experience || 'No especificado' }}</p>
-                </div>
-                <div>
-                  <label class="text-sm font-medium text-gray-600">Especialidades (Oficios)</label>
-                  <div class="flex flex-wrap gap-2 mt-2">
-                    <span *ngFor="let oficio of user.oficios"
-                      class="bg-royal-blue-200 text-royal-blue-800 text-xs font-semibold px-3 py-1 rounded-full">{{
-                      oficio }}</span>
-                    <span *ngIf="!user.oficios || user.oficios.length === 0" class="text-gray-500">No
-                      especificado</span>
+          <!-- Edit Mode -->
+          <form *ngIf="isEditing()" [formGroup]="profileForm" (ngSubmit)="saveProfile()"
+            class="bg-white/60 backdrop-blur-lg rounded-2xl shadow-xl p-6 sm:p-8 border border-[#e3efff] ">
+            <h2 class="text-3xl font-bold text-blue-900 mb-8">Editando Perfil</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-6">
+              <!-- Columna de Foto -->
+              <div class="lg:col-span-1 flex flex-col items-center mx-24">
+                <div class="relative group w-40 h-40 shrink-0">
+                  <img [src]="profileForm.get('photoURL')?.value || 'https://via.placeholder.com/150'"
+                    class="w-40 h-40 rounded-full object-cover border-4 border-white shadow-lg">
+                  <label for="photo-upload"
+                    class="absolute inset-0 bg-black/60 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 rounded-full cursor-pointer transition-opacity">
+                    <div class="text-center">
+                      <svg class="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z">
+                        </path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      </svg>
+                      <span class="text-xs font-semibold mt-1 block">Cambiar</span>
+                    </div>
+                  </label>
+                  <input id="photo-upload" type="file" class="hidden" (change)="onFileSelected($event, user)">
+                  <div *ngIf="isUploading()"
+                    class="absolute inset-0 bg-white/80 flex items-center justify-center rounded-full">
+                    <p class="text-sm font-semibold text-blue-800">Subiendo...</p>
                   </div>
                 </div>
+                <p class="text-xs text-gray-600 mt-4 text-center">Haz clic en la imagen para subir una nueva.</p>
+              </div>
+
+              <!-- Columna de Campos -->
+              <div class="lg:col-span-2 space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div class="sm:col-span-2">
+                    <label class="form-label text-lg font-semibold">Nombre Completo</label>
+                    <div class="flex flex-row space-x-2 mt-2">
+                      <p>✏️</p>
+                      <input formControlName="displayName" class="form-input w-full border-0 border-b border-gray-300 focus:border-blue-500 focus:outline-none">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="form-label text-lg font-semibold">Teléfono</label>
+                    <div class="flex flex-row space-x-2 mt-2">
+                      <p>✏️</p>
+                      <input formControlName="phone" class="form-input w-full border-0 border-b border-gray-300 focus:border-blue-500 focus:outline-none">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="form-label text-lg font-semibold">Ciudad</label>
+                    <div class="flex flex-row space-x-2 mt-2">
+                      <p>✏️</p>
+                      <input formControlName="city" class="form-input w-full border-0 border-b border-gray-300 focus:border-blue-500 focus:outline-none">
+                    </div>
+                  </div>
+                  <div class="sm:col-span-2">
+                    <label class="form-label text-lg font-semibold">Dirección</label>
+                    <div class="flex flex-row space-x-2 mt-2">
+                      <p>✏️</p>
+                      <input formControlName="address" class="form-input w-full border-0 border-b border-gray-300 focus:border-blue-500 focus:outline-none">
+                    </div>
+                  </div>
+                  <div class="sm:col-span-2">
+                    <label class="form-label text-lg font-semibold">Biografía / Descripción</label>
+                    <div class="flex flex-row space-x-2 mt-2 border-1 border-gray-300 focus:border-blue-500 focus:outline-none">
+                      <p>✏️</p>
+                      <textarea formControlName="description" class="form-input w-full" rows="4"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <ng-container *ngIf="user.userType === 'worker'">
+                  <hr class="border-white/50">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                      <label class="form-label text-lg font-semibold">Años de Experiencia</label>
+                      <div class="flex flex-row space-x-2 mt-2">
+                      <p>✏️</p>
+                      <input formControlName="experience" type="number" class="form-input w-full border-0 border-b border-gray-300 focus:border-blue-500 focus:outline-none">
+                    </div>
+                    </div>
+                    <div class="sm:col-span-2">
+                      <label class="form-label text-lg font-semibold">Oficios</label>
+                      <div
+                        class="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 rounded-lg bg-white/30 border border-white/40 mt-1">
+                        <div *ngFor="let oficio of all_oficios; let i = index" class="flex items-center">
+                          <input type="checkbox" [formControl]="$any(oficiosFormArray.controls[i])" [id]="'oficio-' + i"
+                            class="h-4 w-4 rounded text-blue-600 focus:ring-blue-500 border-gray-400">
+                          <label [for]="'oficio-' + i" class="ml-2 text-sm font-semibold text-gray-800">{{ oficio
+                            }}</label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
+
+                <div class="flex flex-row space-x-4 mt-8 border-t border-white/50 pt-6">
+                  <button (click)="toggleEdit(user)"
+                    class="glass-button flex items-center gap-2 text-sm font-semibold bg-blue-100 px-8 py-3 rounded-lg hover:bg-blue-200 cursor-pointer transition-all transform hover:scale-105">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z">
+                      </path>
+                    </svg>
+                    {{ isEditing() ? 'Cancelar' : 'Editar Perfil' }}
+                  </button>
+                  <button type="submit" [disabled]="!profileForm.valid || isUploading()"
+                    class="px-8 py-3 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105">Guardar
+                    Cambios</button>  
+                </div>
               </div>
             </div>
-          </ng-container>
+          </form>
+        </div>
+      </div>
 
-          <!-- Card Información de Contacto (Para ambos) -->
-          <div class="glass-card p-6">
-            <h3 class="text-lg font-bold text-blue-900 mb-4 border-b border-white/20 pb-2">Información de Contacto</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label class="text-sm font-medium text-gray-600">Correo Electrónico</label>
-                <p class="text-md font-semibold text-blue-800 mt-1">{{ user.email }}</p>
-              </div>
-              <div>
-                <label class="text-sm font-medium text-gray-600">Número de Teléfono</label>
-                <p class="text-md font-semibold text-blue-800 mt-1">{{ user.phone || 'No especificado' }}</p>
-              </div>
-              <div>
-                <label class="text-sm font-medium text-gray-600">Ciudad</label>
-                <p class="text-md font-semibold text-blue-800 mt-1">{{ user.city || 'No especificado' }}</p>
-              </div>
-              <div class="md:col-span-2">
-                <label class="text-sm font-medium text-gray-600">Dirección</label>
-                <p class="text-md font-semibold text-blue-800 mt-1">{{ user.address || 'No especificado' }}</p>
+      <!-- Tabs (Display Mode Only) -->
+      <div *ngIf="!isEditing()" class="mt-8">
+        <div class="border-b border-white/30">
+          <nav class="-mb-px flex space-x-8">
+            <button (click)="selectTab('proyectos')"
+              [ngClass]="{'border-blue-500 text-blue-800': activeTab() === 'proyectos', 'border-transparent text-gray-500 hover:text-gray-700': activeTab() !== 'proyectos'}"
+              class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">{{ user.userType === 'worker' ?
+              'Portafolio'
+              : 'Proyectos' }}</button>
+            <button (click)="selectTab('perfil')"
+              [ngClass]="{'border-blue-500 text-blue-800': activeTab() === 'perfil', 'border-transparent text-gray-500 hover:text-gray-700': activeTab() !== 'perfil'}"
+              class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Perfil</button>
+          </nav>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="mt-8">
+          <div *ngIf="activeTab() === 'perfil'">
+            <ng-container [ngSwitch]="user.userType">
+              <!-- Worker View -->
+              <ng-container *ngSwitchCase="'worker'">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div class="glass-card p-6">
+                    <h3 class="font-bold text-lg text-blue-900 mb-4">Información Profesional</h3>
+                    <div class="space-y-3 text-sm">
+                      <p *ngIf="user.displayName"><strong class="text-gray-600">👤 Nombre:</strong> {{ user.displayName
+                        }}</p>
+                      <p *ngIf="user.description"><strong class="text-gray-600">ℹ️ Bio:</strong> {{ user.description }}
+                      </p>
+                      <p *ngIf="user.phone"><strong class="text-gray-600">📱 Teléfono:</strong> {{ user.phone }}</p>
+                      <p *ngIf="user.address"><strong class="text-gray-600">🏠 Dirección:</strong> {{ user.address }}
+                      </p>
+                      <p *ngIf="user.address"><strong class="text-gray-600">🏙️ Ciudad:</strong> {{ user.city }} - EC
+                      </p>
+                      <p *ngIf="user.cedula"><strong class="text-gray-600">🪪 Cédula:</strong> {{ user.cedula }}</p>
+                      <p *ngIf="user.email"><strong class="text-gray-600">📧 Email:</strong> {{ user.email }}</p>
+                      <p *ngIf="user.oficios"><strong class="text-gray-600">🛠️ Oficios:</strong> {{ user.oficios }}</p>
+                      <p><strong class="text-gray-600">❓ Tipo de usuario:</strong> Trabajador</p>
+                      <p *ngIf="user.createdAt"><strong class="text-gray-600">⏳ Miembro desde</strong> {{
+                        formatDate(user.createdAt) }}</p>
+                    </div>
+                  </div>
+                  <div class="glass-card p-6">
+                    <h3 class="font-bold text-lg text-blue-900 mb-4">Estadísticas</h3>
+                    <div class="space-y-3 text-sm">
+                      <p><strong class="text-gray-600">✅ Trabajos Totales:</strong> 15</p>
+                      <p><strong class="text-gray-600">⭐ Calificación Promedio:</strong> 4.5</p>
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
+
+              <!-- Client View -->
+              <ng-container *ngSwitchCase="'client'">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div class="glass-card p-6">
+                    <h3 class="font-bold text-lg text-blue-900 mb-4">Información Personal</h3>
+                    <div class="space-y-3 text-sm">
+                      <p *ngIf="user.displayName"><strong class="text-gray-600">👤 Nombre:</strong> {{ user.displayName
+                        }}</p>
+                      <p *ngIf="user.description"><strong class="text-gray-600">ℹ️ Bio:</strong> {{ user.description }}
+                      </p>
+                      <p *ngIf="user.phone"><strong class="text-gray-600">📱 Teléfono:</strong> {{ user.phone || 'No
+                        añadido' }}</p>
+                      <p *ngIf="user.address"><strong class="text-gray-600">🏠 Dirección:</strong> {{ user.address ||
+                        'No añadida' }}</p>
+                      <p *ngIf="user.address"><strong class="text-gray-600">🏙️ Ciudad:</strong> {{ user.city }} - EC
+                      </p>
+                      <p *ngIf="user.email"><strong class="text-gray-600">📧 Email:</strong> {{ user.email }}</p>
+                      <p><strong class="text-gray-600">❓ Tipo de usuario:</strong> Cliente</p>
+                      <p *ngIf="user.createdAt"><strong class="text-gray-600">⏳ Miembro desde</strong> {{
+                        formatDate(user.createdAt) }}</p>
+                    </div>
+                  </div>
+                  <div class="glass-card p-6">
+                    <h3 class="font-bold text-lg text-blue-900 mb-4">Actividad</h3>
+                    <div class="space-y-3 text-sm">
+                      <p><strong class="text-gray-600">Proyectos Publicados:</strong> 0</p>
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
+            </ng-container>
+          </div>
+
+          <div *ngIf="activeTab() === 'proyectos'">
+            <div class="glass-card p-6">
+              <h3 class="font-bold text-lg text-blue-900 mb-4">{{ user.userType === 'worker' ? 'Mi Portafolio' : 'Mis
+                Proyectos Publicados' }}</h3>
+              <div class="text-center py-12 text-gray-500">
+                <p>{{ user.userType === 'worker' ? 'Aquí se mostrarán los trabajos de tu portafolio.' : 'Aquí se
+                  mostrarán los proyectos que has publicado.' }}</p>
               </div>
             </div>
           </div>
         </div>
-
       </div>
     </main>
   </div>
 </ng-container>
 
 <ng-template #loading>
-  <div class="min-h-screen bg-gradient-to-br from-blue-100 to-royal-blue-300 flex items-center justify-center">
+  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
     <div class="text-center">
-      <svg class="mx-auto h-12 w-12 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none"
+      <svg class="mx-auto h-12 w-12 text-blue-800 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none"
         viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor"
           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
         </path>
       </svg>
-      <p class="text-lg font-medium text-white/80 mt-4">Cargando perfil...</p>
+      <p class="text-lg font-medium text-blue-900/80 mt-4">Cargando perfil...</p>
     </div>
   </div>
 </ng-template>
