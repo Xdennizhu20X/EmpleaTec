@@ -21,6 +21,7 @@ export interface Job {
   images: string[];
   status: 'open' | 'in_progress' | 'completed' | 'cancelled' | 'urgent' | 'closed';
   applicants?: Applicant[];
+  applicantIds?: string[];
   requiresPortfolio?: boolean;
 }
 

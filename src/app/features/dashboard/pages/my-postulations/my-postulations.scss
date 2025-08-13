@@ -1,0 +1,8 @@
+/* Puedes añadir estilos personalizados aquí si es necesario */
+.status-badge {
+  @apply px-3 py-1 rounded-full text-sm font-medium;
+}
+
+.loading-spinner {
+  @apply inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500;
+}

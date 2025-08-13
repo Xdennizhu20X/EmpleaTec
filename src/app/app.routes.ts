@@ -92,5 +92,10 @@ export const routes: Routes = [
   {
     path: 'job-detail/:id',
     loadComponent: () => import('./features/jobs/pages/job-detail/job-detail').then(m => m.JobDetailComponent)
+  },
+  {
+    path: 'my-postulations',
+    loadComponent: () => import('./features/dashboard/pages/my-postulations/my-postulations').then(m => m.MyPostulations),
+    canActivate: [workerGuard]
   }
 ];

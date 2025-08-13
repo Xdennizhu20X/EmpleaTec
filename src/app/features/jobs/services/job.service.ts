@@ -37,8 +37,15 @@ export class JobService {
     const jobDocRef = doc(this.firestore, `jobs/${jobId}`);
     const newApplication: Applicant = { ...application, status: 'pending' };
     return updateDoc(jobDocRef, {
-      applicants: arrayUnion(newApplication)
+      applicants: arrayUnion(newApplication),
+      applicantIds: arrayUnion(application.applicantId)
     });
+  }
+
+  getJobsByApplicantId(applicantId: string): Observable<Job[]> {
+    const jobsCollection = collection(this.firestore, 'jobs');
+    const q = query(jobsCollection, where('applicantIds', 'array-contains', applicantId));
+    return collectionData(q, { idField: 'id' as keyof Job }) as Observable<Job[]>;
   }
 
   async updateApplicantStatus(jobId: string, applicantId: string, status: 'accepted' | 'rejected'): Promise<void> {
