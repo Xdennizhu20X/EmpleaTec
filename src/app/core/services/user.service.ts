@@ -1,9 +1,9 @@
 
 import { Injectable, inject } from '@angular/core';
 import { Auth, authState } from '@angular/fire/auth';
-import { collection, collectionData, doc, docData, Firestore, query, where } from '@angular/fire/firestore';
+import { collection, collectionData, doc, docData, Firestore, query, where, getCountFromServer } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { User } from '../models/user.model';
 
 @Injectable({
@@ -33,7 +33,14 @@ export class UserService {
 
   getWorkers(): Observable<User[]> {
     const usersRef = collection(this.firestore, 'users');
-    const q = query(usersRef, where('userType', '==', 'worker'));
+    const q = query(usersRef, where('userType', '==', 'worker'), where('isActive', '==', true));
     return collectionData(q, { idField: 'uid' }) as Observable<User[]>;
+  }
+
+  async getActiveWorkersCount(): Promise<number> {
+    const usersRef = collection(this.firestore, 'users');
+    const q = query(usersRef, where('userType', '==', 'worker'), where('isActive', '==', true));
+    const snapshot = await getCountFromServer(q);
+    return snapshot.data().count;
   }
 }
