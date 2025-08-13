@@ -15,7 +15,7 @@
         <svg class="w-6 h-6 text-blue-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
           <path fill-rule="evenodd"
             d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V8z"
-            clip-rule="evenodd"></path>
+          clip-rule="evenodd"></path>
         </svg>
         <span class="text-xl font-semibold text-blue-700">EmpleaTec</span>
       </div>
@@ -25,38 +25,50 @@
     <h1 class="text-3xl font-bold text-blue-800 text-center mb-2">Iniciar Sesión</h1>
     <br>
 
-    <!-- Form -->
-    <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-6">
-      <div>
-        <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Correo electrónico</label>
-        <input type="email" id="email" formControlName="email" placeholder="tu@email.com"
-          class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-black" />
-        <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
-          class="text-red-500 text-xs mt-1">
-          <span *ngIf="loginForm.get('email')?.errors?.['required']">El correo electrónico es requerido.</span>
-          <span *ngIf="loginForm.get('email')?.errors?.['email']">El formato del correo electrónico no es válido.</span>
-        </div>
-      </div>
-      <div>
-        <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Contraseña</label>
-        <input type="password" id="password" formControlName="password" placeholder="********"
-          class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-black">
-        <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
-          class="text-red-500 text-xs mt-1">
-          <span *ngIf="loginForm.get('password')?.errors?.['required']">La contraseña es requerida.</span>
-          <span *ngIf="loginForm.get('password')?.errors?.['minlength']">La contraseña debe tener al menos 6
-            caracteres.</span>
-        </div>
-      </div>
-      <button type="submit" [disabled]="loginForm.invalid"
-        class="w-full py-3 rounded-md bg-blue-700 text-white font-semibold hover:bg-blue-800 transition-colors duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
-        Iniciar Sesión
-      </button>
-    </form>
+      <!-- Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-6">
+        <div>
+          <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Correo electrónico</label>
+          <input type="email" id="email" formControlName="email" placeholder="tu@email.com"
+            class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-black" />
+            @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+              <div
+                class="text-red-500 text-xs mt-1">
+                @if (loginForm.get('email')?.errors?.['required']) {
+                  <span>El correo electrónico es requerido.</span>
+                }
+                @if (loginForm.get('email')?.errors?.['email']) {
+                  <span>El formato del correo electrónico no es válido.</span>
+                }
+              </div>
+            }
+          </div>
+          <div>
+            <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Contraseña</label>
+            <input type="password" id="password" formControlName="password" placeholder="********"
+              class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-black">
+              @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+                <div
+                  class="text-red-500 text-xs mt-1">
+                  @if (loginForm.get('password')?.errors?.['required']) {
+                    <span>La contraseña es requerida.</span>
+                  }
+                  @if (loginForm.get('password')?.errors?.['minlength']) {
+                    <span>La contraseña debe tener al menos 6
+                    caracteres.</span>
+                  }
+                </div>
+              }
+            </div>
+            <button type="submit" [disabled]="loginForm.invalid"
+              class="w-full py-3 rounded-md bg-blue-700 text-white font-semibold hover:bg-blue-800 transition-colors duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+              Iniciar Sesión
+            </button>
+          </form>
 
-    <!-- Link to Register -->
-    <p class="text-sm text-blue-600 text-center mt-6">
-      ¿No tienes cuenta? <a routerLink="/register-client" class="hover:underline">Regístrate</a>
-    </p>
-  </div>
-</div>
+          <!-- Link to Register -->
+          <p class="text-sm text-blue-600 text-center mt-6">
+            ¿No tienes cuenta? <a routerLink="/register-client" class="hover:underline">Regístrate</a>
+          </p>
+        </div>
+      </div>

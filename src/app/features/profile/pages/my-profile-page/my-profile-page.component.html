@@ -1,6 +1,5 @@
-<ng-container *ngIf="user$ | async as user; else loading">
+@if (user$ | async; as user) {
   <div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 font-sans text-gray-800">
-
     <!-- Header -->
     <header class="glass border-b border-white/30 sticky top-0 z-40 bg-white/70 backdrop-blur-lg">
       <div class="container mx-auto px-4 sm:px-6 py-3">
@@ -19,347 +18,393 @@
               class="glass-button flex items-center gap-2 text-sm font-semibold text-red-600 cursor-pointer bg-red-100 p-2 rounded-lg hover:bg-red-200">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
               </svg>
               Cerrar Sesión
             </button>
           </div>
         </div>
-
       </div>
     </header>
-
     <!-- Profile Body -->
     <main class="container mx-auto px-6 py-8 max-w-6xl">
       <div class="glass-card p-6 sm:p-8">
         <div class="flex flex-col sm:flex-row items-center gap-6">
-          <img *ngIf="!isEditing()" [src]="user.photoURL || 'https://via.placeholder.com/150'" [alt]="user.displayName"
-            class="h-32 w-32 rounded-full border-4 border-white object-cover shadow-lg">
-
+          @if (!isEditing()) {
+            <img [src]="user.photoURL || 'https://via.placeholder.com/150'" [alt]="user.displayName"
+              class="h-32 w-32 rounded-full border-4 border-white object-cover shadow-lg">
+          }
           <!-- Display Mode -->
-          <div *ngIf="!isEditing()" class="flex-grow text-center sm:text-left">
-            <div class="flex flex-row justify-between">
-              <h1 class="text-3xl font-bold text-blue-900 ">{{ user.displayName }}</h1>
-              <button (click)="toggleEdit(user)"
-                class="glass-button flex items-center gap-2 text-sm font-semibold bg-blue-100 p-2 rounded-lg hover:bg-blue-200 cursor-pointer">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z">
-                  </path>
-                </svg>
-                {{ isEditing() ? 'Cancelar' : 'Editar Perfil' }}
-              </button>
-            </div>
-
-            <div class="flex flex-row space-x-8 mt-3">
-              <p *ngIf="user.city" class="text-gray-800">🏙️ {{ user.city }} - EC</p>
-              <p class="text-blue-700">📧 {{ user.email }}</p>
-            </div>
-            <p class="text-gray-800 mt-2">⏳ Miembro desde {{ formatDate(user.createdAt) }}</p>
-          </div>
-
-          <!-- Edit Mode -->
-          <form *ngIf="isEditing()" [formGroup]="profileForm" (ngSubmit)="saveProfile()"
-            class="bg-white/60 backdrop-blur-lg rounded-2xl shadow-xl p-6 sm:p-8 border border-[#e3efff] ">
-            <h2 class="text-3xl font-bold text-blue-900 mb-8">Editando Perfil</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-6">
-              <!-- Columna de Foto -->
-              <div class="lg:col-span-1 flex flex-col items-center mx-24">
-                <div class="relative group w-40 h-40 shrink-0">
-                  <img [src]="profileForm.get('photoURL')?.value || 'https://via.placeholder.com/150'"
-                    class="w-40 h-40 rounded-full object-cover border-4 border-white shadow-lg">
-                  <label for="photo-upload"
-                    class="absolute inset-0 bg-black/60 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 rounded-full cursor-pointer transition-opacity">
-                    <div class="text-center">
-                      <svg class="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z">
-                        </path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                      </svg>
-                      <span class="text-xs font-semibold mt-1 block">Cambiar</span>
-                    </div>
-                  </label>
-                  <input id="photo-upload" type="file" class="hidden" (change)="onFileSelected($event, user)">
-                  <div *ngIf="isUploading()"
-                    class="absolute inset-0 bg-white/80 flex items-center justify-center rounded-full">
-                    <p class="text-sm font-semibold text-blue-800">Subiendo...</p>
-                  </div>
-                </div>
-                <p class="text-xs text-gray-600 mt-4 text-center">Haz clic en la imagen para subir una nueva.</p>
-              </div>
-
-              <!-- Columna de Campos -->
-              <div class="lg:col-span-2 space-y-6">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div class="sm:col-span-2">
-                    <label class="form-label text-lg font-semibold">Nombre Completo</label>
-                    <div class="flex flex-row space-x-2 mt-2">
-                      <p>✏️</p>
-                      <input formControlName="displayName" class="form-input w-full border-0 border-b border-gray-300 focus:border-blue-500 focus:outline-none">
-                    </div>
-                  </div>
-                  <div>
-                    <label class="form-label text-lg font-semibold">Teléfono</label>
-                    <div class="flex flex-row space-x-2 mt-2">
-                      <p>✏️</p>
-                      <input formControlName="phone" class="form-input w-full border-0 border-b border-gray-300 focus:border-blue-500 focus:outline-none">
-                    </div>
-                  </div>
-                  <div>
-                    <label class="form-label text-lg font-semibold">Ciudad</label>
-                    <div class="flex flex-row space-x-2 mt-2">
-                      <p>✏️</p>
-                      <input formControlName="city" class="form-input w-full border-0 border-b border-gray-300 focus:border-blue-500 focus:outline-none">
-                    </div>
-                  </div>
-                  <div class="sm:col-span-2">
-                    <label class="form-label text-lg font-semibold">Dirección</label>
-                    <div class="flex flex-row space-x-2 mt-2">
-                      <p>✏️</p>
-                      <input formControlName="address" class="form-input w-full border-0 border-b border-gray-300 focus:border-blue-500 focus:outline-none">
-                    </div>
-                  </div>
-                  <div class="sm:col-span-2">
-                    <label class="form-label text-lg font-semibold">Biografía / Descripción</label>
-                    <div class="flex flex-row space-x-2 mt-2 border-1 border-gray-300 focus:border-blue-500 focus:outline-none">
-                      <p>✏️</p>
-                      <textarea formControlName="description" class="form-input w-full" rows="4"></textarea>
-                    </div>
-                  </div>
-                </div>
-
-                <ng-container *ngIf="user.userType === 'worker'">
-                  <hr class="border-white/50">
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div>
-                      <label class="form-label text-lg font-semibold">Años de Experiencia</label>
-                      <div class="flex flex-row space-x-2 mt-2">
-                      <p>✏️</p>
-                      <input formControlName="experience" type="number" class="form-input w-full border-0 border-b border-gray-300 focus:border-blue-500 focus:outline-none">
-                    </div>
-                    </div>
-                    <div class="sm:col-span-2">
-                      <label class="form-label text-lg font-semibold">Oficios</label>
-                      <div
-                        class="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 rounded-lg bg-white/30 border border-white/40 mt-1">
-                        <div *ngFor="let oficio of all_oficios; let i = index" class="flex items-center">
-                          <input type="checkbox" [formControl]="$any(oficiosFormArray.controls[i])" [id]="'oficio-' + i"
-                            class="h-4 w-4 rounded text-blue-600 focus:ring-blue-500 border-gray-400">
-                          <label [for]="'oficio-' + i" class="ml-2 text-sm font-semibold text-gray-800">{{ oficio
-                            }}</label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </ng-container>
-
-                <div class="flex flex-row space-x-4 mt-8 border-t border-white/50 pt-6">
-                  <button (click)="toggleEdit(user)"
-                    class="glass-button flex items-center gap-2 text-sm font-semibold bg-blue-100 px-8 py-3 rounded-lg hover:bg-blue-200 cursor-pointer transition-all transform hover:scale-105">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z">
-                      </path>
-                    </svg>
-                    {{ isEditing() ? 'Cancelar' : 'Editar Perfil' }}
-                  </button>
-                  <button type="submit" [disabled]="!profileForm.valid || isUploading()"
-                    class="px-8 py-3 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105">Guardar
-                    Cambios</button>  
-                </div>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Tabs (Display Mode Only) -->
-      <div *ngIf="!isEditing()" class="mt-8">
-        <div class="border-b border-white/30">
-          <nav class="-mb-px flex space-x-8">
-            <button (click)="selectTab('proyectos')"
-              [ngClass]="{'border-blue-500 text-blue-800': activeTab() === 'proyectos', 'border-transparent text-gray-500 hover:text-gray-700': activeTab() !== 'proyectos'}"
-              class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">{{ user.userType === 'worker' ?
-              'Portafolio'
-              : 'Proyectos' }}</button>
-            <button (click)="selectTab('perfil')"
-              [ngClass]="{'border-blue-500 text-blue-800': activeTab() === 'perfil', 'border-transparent text-gray-500 hover:text-gray-700': activeTab() !== 'perfil'}"
-              class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Perfil</button>
-          </nav>
-        </div>
-
-        <!-- Tab Content -->
-        <div class="mt-8">
-          <div *ngIf="activeTab() === 'perfil'">
-            <ng-container [ngSwitch]="user.userType">
-              <!-- Worker View -->
-              <ng-container *ngSwitchCase="'worker'">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div class="glass-card p-6">
-                    <h3 class="font-bold text-lg text-blue-900 mb-4">Información Profesional</h3>
-                    <div class="space-y-3 text-sm">
-                      <p *ngIf="user.displayName"><strong class="text-gray-600">👤 Nombre:</strong> {{ user.displayName
-                        }}</p>
-                      <p *ngIf="user.description"><strong class="text-gray-600">ℹ️ Bio:</strong> {{ user.description }}
-                      </p>
-                      <p *ngIf="user.phone"><strong class="text-gray-600">📱 Teléfono:</strong> {{ user.phone }}</p>
-                      <p *ngIf="user.address"><strong class="text-gray-600">🏠 Dirección:</strong> {{ user.address }}
-                      </p>
-                      <p *ngIf="user.address"><strong class="text-gray-600">🏙️ Ciudad:</strong> {{ user.city }} - EC
-                      </p>
-                      <p *ngIf="user.cedula"><strong class="text-gray-600">🪪 Cédula:</strong> {{ user.cedula }}</p>
-                      <p *ngIf="user.email"><strong class="text-gray-600">📧 Email:</strong> {{ user.email }}</p>
-                      <p *ngIf="user.oficios"><strong class="text-gray-600">🛠️ Oficios:</strong> {{ user.oficios }}</p>
-                      <p><strong class="text-gray-600">❓ Tipo de usuario:</strong> Trabajador</p>
-                      <p *ngIf="user.createdAt"><strong class="text-gray-600">⏳ Miembro desde</strong> {{
-                        formatDate(user.createdAt) }}</p>
-                    </div>
-                  </div>
-                  <div class="glass-card p-6">
-                    <h3 class="font-bold text-lg text-blue-900 mb-4">Estadísticas</h3>
-                    <div class="space-y-3 text-sm">
-                      <p><strong class="text-gray-600">✅ Trabajos Totales:</strong> 15</p>
-                      <p><strong class="text-gray-600">⭐ Calificación Promedio:</strong> 4.5</p>
-                    </div>
-                  </div>
-                </div>
-              </ng-container>
-
-              <!-- Client View -->
-              <ng-container *ngSwitchCase="'client'">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div class="glass-card p-6">
-                    <h3 class="font-bold text-lg text-blue-900 mb-4">Información Personal</h3>
-                    <div class="space-y-3 text-sm">
-                      <p *ngIf="user.displayName"><strong class="text-gray-600">👤 Nombre:</strong> {{ user.displayName
-                        }}</p>
-                      <p *ngIf="user.description"><strong class="text-gray-600">ℹ️ Bio:</strong> {{ user.description }}
-                      </p>
-                      <p *ngIf="user.phone"><strong class="text-gray-600">📱 Teléfono:</strong> {{ user.phone || 'No
-                        añadido' }}</p>
-                      <p *ngIf="user.address"><strong class="text-gray-600">🏠 Dirección:</strong> {{ user.address ||
-                        'No añadida' }}</p>
-                      <p *ngIf="user.address"><strong class="text-gray-600">🏙️ Ciudad:</strong> {{ user.city }} - EC
-                      </p>
-                      <p *ngIf="user.email"><strong class="text-gray-600">📧 Email:</strong> {{ user.email }}</p>
-                      <p><strong class="text-gray-600">❓ Tipo de usuario:</strong> Cliente</p>
-                      <p *ngIf="user.createdAt"><strong class="text-gray-600">⏳ Miembro desde</strong> {{
-                        formatDate(user.createdAt) }}</p>
-                    </div>
-                  </div>
-                  <div class="glass-card p-6">
-                    <h3 class="font-bold text-lg text-blue-900 mb-4">Actividad</h3>
-                    <div class="space-y-3 text-sm">
-                      <p><strong class="text-gray-600">Proyectos Publicados:</strong> 0</p>
-                    </div>
-                  </div>
-                </div>
-              </ng-container>
-            </ng-container>
-          </div>
-
-          <div *ngIf="activeTab() === 'proyectos'">
-            <!-- Client: Projects View -->
-            <div *ngIf="user.userType === 'client'">
-              <div *ngIf="clientProjects().length > 0; else noProjects">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  <div *ngFor="let project of clientProjects()" class="bg-white rounded-2xl shadow-lg overflow-hidden group transform hover:scale-105 transition-transform duration-300 ease-in-out">
-                    <div class="relative h-40 bg-cover bg-center" [style.backgroundImage]="'url(' + project.images[0] + ')'">
-                      <div class="absolute inset-0 bg-black/20"></div>
-                      <div class="absolute top-4 right-4">
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full" [ngClass]="getStatusInfo(project.status).color">
-                          {{ getStatusInfo(project.status).text }}
-                        </span>
-                      </div>
-                    </div>
-                    <div class="p-6">
-                      <h3 class="text-xl font-bold text-gray-800">{{ project.title }}</h3>
-                      <p class="text-sm text-gray-500 font-medium">{{ project.location }}</p>
-                      <p class="text-gray-700 mt-4 line-clamp-2">{{ project.description }}</p>
-                      <div class="flex justify-between items-center mt-6">
-                        <div class="text-lg font-bold text-blue-900">
-                          {{ project.budget.min | currency }} - {{ project.budget.max | currency }}
-                        </div>
-                        <button (click)="handleViewProject(project)" class="inline-block px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Ver Detalles</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <ng-template #noProjects>
-                <div class="glass-card p-6 text-center py-12 text-gray-500">
-                  <p>Aquí se mostrarán los proyectos que has publicado.</p>
-                </div>
-              </ng-template>
-            </div>
-
-            <!-- Worker: Portfolio View -->
-            <div *ngIf="user.userType === 'worker'" class="glass-card p-6">
-              <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-lg text-blue-900">Mi Portafolio</h3>
-                <button (click)="toggleEditPortfolio(user)" class="glass-button flex items-center gap-2 text-sm font-semibold bg-blue-100 p-2 rounded-lg hover:bg-blue-200 cursor-pointer">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z"></path></svg>
-                  <span>{{ isEditingPortfolio() ? 'Cancelar' : 'Editar Portafolio' }}</span>
+          @if (!isEditing()) {
+            <div class="flex-grow text-center sm:text-left">
+              <div class="flex flex-row justify-between">
+                <h1 class="text-3xl font-bold text-blue-900 ">{{ user.displayName }}</h1>
+                <button (click)="toggleEdit(user)"
+                  class="glass-button flex items-center gap-2 text-sm font-semibold bg-blue-100 p-2 rounded-lg hover:bg-blue-200 cursor-pointer">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z">
+                    </path>
+                  </svg>
+                  {{ isEditing() ? 'Cancelar' : 'Editar Perfil' }}
                 </button>
               </div>
-
-              <!-- Portfolio Edit Mode -->
-              <form *ngIf="isEditingPortfolio(); else portfolioView" [formGroup]="portfolioForm">
-                <div formArrayName="portfolio" class="space-y-4">
-                  <div *ngFor="let item of portfolioFormArray.controls; let i = index" [formGroupName]="i" class="flex items-center gap-4 p-3 bg-white/40 rounded-lg">
-                    <div class="relative group w-24 h-24 shrink-0">
-                      <img [src]="item.get('imageUrl')?.value || 'https://via.placeholder.com/150'" class="w-24 h-24 rounded-md object-cover border-2 border-white shadow-sm">
-                      <label class="absolute inset-0 bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 rounded-md cursor-pointer transition-opacity">
-                        <input type="file" class="hidden" (change)="onPortfolioImageSelected($event, i)">
-                        <span>Cambiar</span>
-                      </label>
-                    </div>
-                    <div class="flex-grow">
-                      <textarea formControlName="description" placeholder="Descripción breve del trabajo..." class="form-input w-full text-sm" rows="3"></textarea>
-                    </div>
-                    <button type="button" (click)="removePortfolioItem(i)" class="p-2 rounded-full text-red-500 hover:bg-red-100">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                    </button>
+              <div class="flex flex-row space-x-8 mt-3">
+                @if (user.city) {
+                  <p class="text-gray-800">🏙️ {{ user.city }} - EC</p>
+                }
+                <p class="text-blue-700">📧 {{ user.email }}</p>
+              </div>
+              <p class="text-gray-800 mt-2">⏳ Miembro desde {{ formatDate(user.createdAt) }}</p>
+            </div>
+          }
+          <!-- Edit Mode -->
+          @if (isEditing()) {
+            <form [formGroup]="profileForm" (ngSubmit)="saveProfile()"
+              class="bg-white/60 backdrop-blur-lg rounded-2xl shadow-xl p-6 sm:p-8 border border-[#e3efff] ">
+              <h2 class="text-3xl font-bold text-blue-900 mb-8">Editando Perfil</h2>
+              <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-6">
+                <!-- Columna de Foto -->
+                <div class="lg:col-span-1 flex flex-col items-center mx-24">
+                  <div class="relative group w-40 h-40 shrink-0">
+                    <img [src]="profileForm.get('photoURL')?.value || 'https://via.placeholder.com/150'"
+                      class="w-40 h-40 rounded-full object-cover border-4 border-white shadow-lg">
+                    <label for="photo-upload"
+                      class="absolute inset-0 bg-black/60 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 rounded-full cursor-pointer transition-opacity">
+                      <div class="text-center">
+                        <svg class="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z">
+                          </path>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        <span class="text-xs font-semibold mt-1 block">Cambiar</span>
+                      </div>
+                    </label>
+                    <input id="photo-upload" type="file" class="hidden" (change)="onFileSelected($event, user)">
+                    @if (isUploading()) {
+                      <div
+                        class="absolute inset-0 bg-white/80 flex items-center justify-center rounded-full">
+                        <p class="text-sm font-semibold text-blue-800">Subiendo...</p>
+                      </div>
+                    }
                   </div>
+                  <p class="text-xs text-gray-600 mt-4 text-center">Haz clic en la imagen para subir una nueva.</p>
                 </div>
-                <button type="button" (click)="addPortfolioItem()" class="mt-4 px-4 py-2 text-sm font-semibold text-blue-800 bg-blue-100 rounded-lg hover:bg-blue-200">+ Añadir item al portafolio</button>
-                <div class="flex justify-end gap-4 mt-6 border-t border-white/50 pt-4">
-                  <button (click)="toggleEditPortfolio(user)" class="px-6 py-2 rounded-lg font-semibold text-gray-700 hover:bg-gray-200/50">Cancelar</button>
-                  <button (click)="savePortfolio()" [disabled]="isUploading()" class="px-6 py-2 rounded-lg font-bold text-white bg-blue-500 hover:bg-blue-600 disabled:opacity-70">
-                    {{ isUploading() ? 'Subiendo...' : 'Guardar Portafolio' }}
-                  </button>
-                </div>
-              </form>
-
-              <!-- Portfolio View Mode -->
-              <ng-template #portfolioView>
-                <div *ngIf="user.portfolio && user.portfolio.length > 0; else noPortfolio">
-                  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    <div *ngFor="let item of user.portfolio" class="overflow-hidden group bg-white/30 rounded-lg shadow-sm">
-                      <img [src]="item.imageUrl" [alt]="item.title" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
-                      <div class="p-4">
-                        <p class="text-sm text-gray-700">{{ item.description }}</p>
+                <!-- Columna de Campos -->
+                <div class="lg:col-span-2 space-y-6">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="sm:col-span-2">
+                      <label class="form-label text-lg font-semibold">Nombre Completo</label>
+                      <div class="flex flex-row space-x-2 mt-2">
+                        <p>✏️</p>
+                        <input formControlName="displayName" class="form-input w-full border-0 border-b border-gray-300 focus:border-blue-500 focus:outline-none">
+                      </div>
+                    </div>
+                    <div>
+                      <label class="form-label text-lg font-semibold">Teléfono</label>
+                      <div class="flex flex-row space-x-2 mt-2">
+                        <p>✏️</p>
+                        <input formControlName="phone" class="form-input w-full border-0 border-b border-gray-300 focus:border-blue-500 focus:outline-none">
+                      </div>
+                    </div>
+                    <div>
+                      <label class="form-label text-lg font-semibold">Ciudad</label>
+                      <div class="flex flex-row space-x-2 mt-2">
+                        <p>✏️</p>
+                        <input formControlName="city" class="form-input w-full border-0 border-b border-gray-300 focus:border-blue-500 focus:outline-none">
+                      </div>
+                    </div>
+                    <div class="sm:col-span-2">
+                      <label class="form-label text-lg font-semibold">Dirección</label>
+                      <div class="flex flex-row space-x-2 mt-2">
+                        <p>✏️</p>
+                        <input formControlName="address" class="form-input w-full border-0 border-b border-gray-300 focus:border-blue-500 focus:outline-none">
+                      </div>
+                    </div>
+                    <div class="sm:col-span-2">
+                      <label class="form-label text-lg font-semibold">Biografía / Descripción</label>
+                      <div class="flex flex-row space-x-2 mt-2 border-1 border-gray-300 focus:border-blue-500 focus:outline-none">
+                        <p>✏️</p>
+                        <textarea formControlName="description" class="form-input w-full" rows="4"></textarea>
                       </div>
                     </div>
                   </div>
-                </div>
-                <ng-template #noPortfolio>
-                  <div class="text-center py-12 text-gray-500">
-                    <p>Aún no has añadido nada a tu portafolio. ¡Edítalo para empezar a mostrar tus trabajos!</p>
+                  @if (user.userType === 'worker') {
+                    <hr class="border-white/50">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div>
+                        <label class="form-label text-lg font-semibold">Años de Experiencia</label>
+                        <div class="flex flex-row space-x-2 mt-2">
+                          <p>✏️</p>
+                          <input formControlName="experience" type="number" class="form-input w-full border-0 border-b border-gray-300 focus:border-blue-500 focus:outline-none">
+                        </div>
+                      </div>
+                      <div class="sm:col-span-2">
+                        <label class="form-label text-lg font-semibold">Oficios</label>
+                        <div
+                          class="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 rounded-lg bg-white/30 border border-white/40 mt-1">
+                          @for (oficio of all_oficios; track oficio; let i = $index) {
+                            <div class="flex items-center">
+                              <input type="checkbox" [formControl]="$any(oficiosFormArray.controls[i])" [id]="'oficio-' + i"
+                                class="h-4 w-4 rounded text-blue-600 focus:ring-blue-500 border-gray-400">
+                              <label [for]="'oficio-' + i" class="ml-2 text-sm font-semibold text-gray-800">{{ oficio
+                              }}</label>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  }
+                  <div class="flex flex-row space-x-4 mt-8 border-t border-white/50 pt-6">
+                    <button (click)="toggleEdit(user)"
+                      class="glass-button flex items-center gap-2 text-sm font-semibold bg-blue-100 px-8 py-3 rounded-lg hover:bg-blue-200 cursor-pointer transition-all transform hover:scale-105">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z">
+                        </path>
+                      </svg>
+                      {{ isEditing() ? 'Cancelar' : 'Editar Perfil' }}
+                    </button>
+                    <button type="submit" [disabled]="!profileForm.valid || isUploading()"
+                      class="px-8 py-3 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105">Guardar
+                    Cambios</button>
                   </div>
-                </ng-template>
-              </ng-template>
-            </div>
-          </div>
+                </div>
+              </div>
+            </form>
+          }
         </div>
       </div>
-    </main>
+      <!-- Tabs (Display Mode Only) -->
+      @if (!isEditing()) {
+        <div class="mt-8">
+          <div class="border-b border-white/30">
+            <nav class="-mb-px flex space-x-8">
+              <button (click)="selectTab('proyectos')"
+                [ngClass]="{'border-blue-500 text-blue-800': activeTab() === 'proyectos', 'border-transparent text-gray-500 hover:text-gray-700': activeTab() !== 'proyectos'}"
+                class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">{{ user.userType === 'worker' ?
+                'Portafolio'
+              : 'Proyectos' }}</button>
+              <button (click)="selectTab('perfil')"
+                [ngClass]="{'border-blue-500 text-blue-800': activeTab() === 'perfil', 'border-transparent text-gray-500 hover:text-gray-700': activeTab() !== 'perfil'}"
+              class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Perfil</button>
+            </nav>
+          </div>
+          <!-- Tab Content -->
+          <div class="mt-8">
+            @if (activeTab() === 'perfil') {
+              <div>
+                @switch (user.userType) {
+                  <!-- Worker View -->
+                  @case ('worker') {
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div class="glass-card p-6">
+                        <h3 class="font-bold text-lg text-blue-900 mb-4">Información Profesional</h3>
+                        <div class="space-y-3 text-sm">
+                          @if (user.displayName) {
+                            <p><strong class="text-gray-600">👤 Nombre:</strong> {{ user.displayName
+                          }}</p>
+                        }
+                        @if (user.description) {
+                          <p><strong class="text-gray-600">ℹ️ Bio:</strong> {{ user.description }}
+                        </p>
+                      }
+                      @if (user.phone) {
+                        <p><strong class="text-gray-600">📱 Teléfono:</strong> {{ user.phone }}</p>
+                      }
+                      @if (user.address) {
+                        <p><strong class="text-gray-600">🏠 Dirección:</strong> {{ user.address }}
+                      </p>
+                    }
+                    @if (user.address) {
+                      <p><strong class="text-gray-600">🏙️ Ciudad:</strong> {{ user.city }} - EC
+                    </p>
+                  }
+                  @if (user.cedula) {
+                    <p><strong class="text-gray-600">🪪 Cédula:</strong> {{ user.cedula }}</p>
+                  }
+                  @if (user.email) {
+                    <p><strong class="text-gray-600">📧 Email:</strong> {{ user.email }}</p>
+                  }
+                  @if (user.oficios) {
+                    <p><strong class="text-gray-600">🛠️ Oficios:</strong> {{ user.oficios }}</p>
+                  }
+                  <p><strong class="text-gray-600">❓ Tipo de usuario:</strong> Trabajador</p>
+                  @if (user.createdAt) {
+                    <p><strong class="text-gray-600">⏳ Miembro desde</strong> {{
+                  formatDate(user.createdAt) }}</p>
+                }
+              </div>
+            </div>
+            <div class="glass-card p-6">
+              <h3 class="font-bold text-lg text-blue-900 mb-4">Estadísticas</h3>
+              <div class="space-y-3 text-sm">
+                <p><strong class="text-gray-600">✅ Trabajos Totales:</strong> 15</p>
+                <p><strong class="text-gray-600">⭐ Calificación Promedio:</strong> 4.5</p>
+              </div>
+            </div>
+          </div>
+        }
+        <!-- Client View -->
+        @case ('client') {
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="glass-card p-6">
+              <h3 class="font-bold text-lg text-blue-900 mb-4">Información Personal</h3>
+              <div class="space-y-3 text-sm">
+                @if (user.displayName) {
+                  <p><strong class="text-gray-600">👤 Nombre:</strong> {{ user.displayName
+                }}</p>
+              }
+              @if (user.description) {
+                <p><strong class="text-gray-600">ℹ️ Bio:</strong> {{ user.description }}
+              </p>
+            }
+            @if (user.phone) {
+              <p><strong class="text-gray-600">📱 Teléfono:</strong> {{ user.phone || 'No
+            añadido' }}</p>
+          }
+          @if (user.address) {
+            <p><strong class="text-gray-600">🏠 Dirección:</strong> {{ user.address ||
+          'No añadida' }}</p>
+        }
+        @if (user.address) {
+          <p><strong class="text-gray-600">🏙️ Ciudad:</strong> {{ user.city }} - EC
+        </p>
+      }
+      @if (user.email) {
+        <p><strong class="text-gray-600">📧 Email:</strong> {{ user.email }}</p>
+      }
+      <p><strong class="text-gray-600">❓ Tipo de usuario:</strong> Cliente</p>
+      @if (user.createdAt) {
+        <p><strong class="text-gray-600">⏳ Miembro desde</strong> {{
+      formatDate(user.createdAt) }}</p>
+    }
   </div>
-</ng-container>
-
-<ng-template #loading>
+</div>
+<div class="glass-card p-6">
+  <h3 class="font-bold text-lg text-blue-900 mb-4">Actividad</h3>
+  <div class="space-y-3 text-sm">
+    <p><strong class="text-gray-600">Proyectos Publicados:</strong> 0</p>
+  </div>
+</div>
+</div>
+}
+}
+</div>
+}
+@if (activeTab() === 'proyectos') {
+  <div>
+    <!-- Client: Projects View -->
+    @if (user.userType === 'client') {
+      <div>
+        @if (clientProjects().length > 0) {
+          <div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              @for (project of clientProjects(); track project) {
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden group transform hover:scale-105 transition-transform duration-300 ease-in-out">
+                  <div class="relative h-40 bg-cover bg-center" [style.backgroundImage]="'url(' + project.images[0] + ')'">
+                    <div class="absolute inset-0 bg-black/20"></div>
+                    <div class="absolute top-4 right-4">
+                      <span class="px-2 py-1 text-xs font-semibold rounded-full" [ngClass]="getStatusInfo(project.status).color">
+                        {{ getStatusInfo(project.status).text }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="p-6">
+                    <h3 class="text-xl font-bold text-gray-800">{{ project.title }}</h3>
+                    <p class="text-sm text-gray-500 font-medium">{{ project.location }}</p>
+                    <p class="text-gray-700 mt-4 line-clamp-2">{{ project.description }}</p>
+                    <div class="flex justify-between items-center mt-6">
+                      <div class="text-lg font-bold text-blue-900">
+                        {{ project.budget.min | currency }} - {{ project.budget.max | currency }}
+                      </div>
+                      <button (click)="handleViewProject(project)" class="inline-block px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Ver Detalles</button>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="glass-card p-6 text-center py-12 text-gray-500">
+            <p>Aquí se mostrarán los proyectos que has publicado.</p>
+          </div>
+        }
+      </div>
+    }
+    <!-- Worker: Portfolio View -->
+    @if (user.userType === 'worker') {
+      <div class="glass-card p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-lg text-blue-900">Mi Portafolio</h3>
+          <button (click)="toggleEditPortfolio(user)" class="glass-button flex items-center gap-2 text-sm font-semibold bg-blue-100 p-2 rounded-lg hover:bg-blue-200 cursor-pointer">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z"></path></svg>
+            <span>{{ isEditingPortfolio() ? 'Cancelar' : 'Editar Portafolio' }}</span>
+          </button>
+        </div>
+        <!-- Portfolio Edit Mode -->
+        @if (isEditingPortfolio()) {
+          <form [formGroup]="portfolioForm">
+            <div formArrayName="portfolio" class="space-y-4">
+              @for (item of portfolioFormArray.controls; track item; let i = $index) {
+                <div [formGroupName]="i" class="flex items-center gap-4 p-3 bg-white/40 rounded-lg">
+                  <div class="relative group w-24 h-24 shrink-0">
+                    <img [src]="item.get('imageUrl')?.value || 'https://via.placeholder.com/150'" class="w-24 h-24 rounded-md object-cover border-2 border-white shadow-sm">
+                    <label class="absolute inset-0 bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 rounded-md cursor-pointer transition-opacity">
+                      <input type="file" class="hidden" (change)="onPortfolioImageSelected($event, i)">
+                      <span>Cambiar</span>
+                    </label>
+                  </div>
+                  <div class="flex-grow">
+                    <textarea formControlName="description" placeholder="Descripción breve del trabajo..." class="form-input w-full text-sm" rows="3"></textarea>
+                  </div>
+                  <button type="button" (click)="removePortfolioItem(i)" class="p-2 rounded-full text-red-500 hover:bg-red-100">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
+                </div>
+              }
+            </div>
+            <button type="button" (click)="addPortfolioItem()" class="mt-4 px-4 py-2 text-sm font-semibold text-blue-800 bg-blue-100 rounded-lg hover:bg-blue-200">+ Añadir item al portafolio</button>
+            <div class="flex justify-end gap-4 mt-6 border-t border-white/50 pt-4">
+              <button (click)="toggleEditPortfolio(user)" class="px-6 py-2 rounded-lg font-semibold text-gray-700 hover:bg-gray-200/50">Cancelar</button>
+              <button (click)="savePortfolio()" [disabled]="isUploading()" class="px-6 py-2 rounded-lg font-bold text-white bg-blue-500 hover:bg-blue-600 disabled:opacity-70">
+                {{ isUploading() ? 'Subiendo...' : 'Guardar Portafolio' }}
+              </button>
+            </div>
+          </form>
+        } @else {
+          @if (user.portfolio && user.portfolio.length > 0) {
+            <div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                @for (item of user.portfolio; track item) {
+                  <div class="overflow-hidden group bg-white/30 rounded-lg shadow-sm">
+                    <img [src]="item.imageUrl" [alt]="item.title" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                    <div class="p-4">
+                      <p class="text-sm text-gray-700">{{ item.description }}</p>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="text-center py-12 text-gray-500">
+              <p>Aún no has añadido nada a tu portafolio. ¡Edítalo para empezar a mostrar tus trabajos!</p>
+            </div>
+          }
+        }
+        <!-- Portfolio View Mode -->
+      </div>
+    }
+  </div>
+}
+</div>
+</div>
+}
+</main>
+</div>
+} @else {
   <div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
     <div class="text-center">
       <svg class="mx-auto h-12 w-12 text-blue-800 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -372,4 +417,5 @@
       <p class="text-lg font-medium text-blue-900/80 mt-4">Cargando perfil...</p>
     </div>
   </div>
-</ng-template>
+}
+

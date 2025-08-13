@@ -1,5 +1,5 @@
 import { Component, computed, inject, OnDestroy, OnInit, signal, effect } from '@angular/core';
-import { CommonModule, Location } from '@angular/common';
+import { Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Auth, user, User } from '@angular/fire/auth';
@@ -37,7 +37,7 @@ interface Chat {
 @Component({
   selector: 'app-messages-screen',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './messages-screen.html',
   styleUrls: ['./messages-screen.scss']
 })

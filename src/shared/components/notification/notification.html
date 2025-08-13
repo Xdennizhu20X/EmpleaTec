@@ -1,34 +1,36 @@
-<div *ngIf="isVisible" [@slideInOut] class="fixed top-5 right-5 max-w-sm w-full z-50">
-  <div 
-    class="relative w-full rounded-lg shadow-2xl border border-white/20"
+@if (isVisible) {
+  <div [@slideInOut] class="fixed top-5 right-5 max-w-sm w-full z-50">
+    <div
+      class="relative w-full rounded-lg shadow-2xl border border-white/20"
     [ngClass]="{
       'bg-blue-600/50 text-white': type === 'success',
       'bg-red-600/50 text-white': type === 'error'
     }">
-    
-    <!-- Efecto Glassmorphism -->
-    <div class="absolute inset-0 bg-white/10 backdrop-blur-lg rounded-lg"></div>
-
-    <!-- Contenido -->
-    <div class="relative flex items-center p-4">
-      <!-- Icono -->
-      <div class="flex-shrink-0">
-        <lucide-icon *ngIf="type === 'success'" name="check-circle" class="w-6 h-6"></lucide-icon>
-        <lucide-icon *ngIf="type === 'error'" name="alert-circle" class="w-6 h-6"></lucide-icon>
-      </div>
-
-      <!-- Mensaje -->
-      <div class="ml-3 flex-1">
-        <p class="text-sm font-medium">{{ message }}</p>
-      </div>
-
-      <!-- Botón de cerrar -->
-      <div class="ml-4 flex-shrink-0">
-        <button (click)="close()" class="inline-flex rounded-md p-1.5 text-white/70 hover:text-white hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-white transition-all">
-          <span class="sr-only">Cerrar</span>
-          <lucide-icon name="x" class="w-5 h-5"></lucide-icon>
-        </button>
+      <!-- Efecto Glassmorphism -->
+      <div class="absolute inset-0 bg-white/10 backdrop-blur-lg rounded-lg"></div>
+      <!-- Contenido -->
+      <div class="relative flex items-center p-4">
+        <!-- Icono -->
+        <div class="flex-shrink-0">
+          @if (type === 'success') {
+            <lucide-icon name="check-circle" class="w-6 h-6"></lucide-icon>
+          }
+          @if (type === 'error') {
+            <lucide-icon name="alert-circle" class="w-6 h-6"></lucide-icon>
+          }
+        </div>
+        <!-- Mensaje -->
+        <div class="ml-3 flex-1">
+          <p class="text-sm font-medium">{{ message }}</p>
+        </div>
+        <!-- Botón de cerrar -->
+        <div class="ml-4 flex-shrink-0">
+          <button (click)="close()" class="inline-flex rounded-md p-1.5 text-white/70 hover:text-white hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-white transition-all">
+            <span class="sr-only">Cerrar</span>
+            <lucide-icon name="x" class="w-5 h-5"></lucide-icon>
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+}

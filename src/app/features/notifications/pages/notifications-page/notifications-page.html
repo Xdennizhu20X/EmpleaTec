@@ -12,13 +12,17 @@
           <h1 class="text-lg sm:text-xl font-bold text-blue-900">Notificaciones</h1>
         </div>
         <div class="flex items-center space-x-1 sm:space-x-2">
-          <p *ngIf="unreadCount > 0" class="text-xs sm:text-sm text-blue-600 hidden sm:block">{{ unreadCount }} sin leer</p>
-          <button *ngIf="unreadCount > 0" (click)="markAllAsRead()" class="p-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition">
-            <span class="hidden sm:inline">Marcar todas</span>
-            <svg class="sm:hidden w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-            </svg>
-          </button>
+          @if (unreadCount > 0) {
+            <p class="text-xs sm:text-sm text-blue-600 hidden sm:block">{{ unreadCount }} sin leer</p>
+          }
+          @if (unreadCount > 0) {
+            <button (click)="markAllAsRead()" class="p-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition">
+              <span class="hidden sm:inline">Marcar todas</span>
+              <svg class="sm:hidden w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          }
         </div>
       </div>
     </div>
@@ -39,95 +43,106 @@
             'bg-gray-200 text-gray-800': activeTab() !== 'all'
           }">{{ notifications().length }}</span>
         </button>
-        
+
         <button (click)="setTab('messages')" [ngClass]="{
           'bg-blue-500 text-white': activeTab() === 'messages', 
           'bg-white/60 text-gray-700 hover:bg-white/80': activeTab() !== 'messages'
         }" class="flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold rounded-full shadow-sm transition-colors duration-200 flex items-center space-x-1 sm:space-x-2">
           <span>Mensajes</span>
-          <span *ngIf="messageCount > 0" class="px-1.5 py-0.5 sm:px-2 rounded-full text-[10px] sm:text-xs" [ngClass]="{
+          @if (messageCount > 0) {
+<span class="px-1.5 py-0.5 sm:px-2 rounded-full text-[10px] sm:text-xs" [ngClass]="{
             'bg-white/20 text-white': activeTab() === 'messages', 
             'bg-blue-200 text-blue-800': activeTab() !== 'messages'
           }">{{ messageCount }}</span>
+          }
         </button>
-        
+
         <button (click)="setTab('ratings')" [ngClass]="{
           'bg-yellow-500 text-white': activeTab() === 'ratings', 
           'bg-white/60 text-gray-700 hover:bg-white/80': activeTab() !== 'ratings'
         }" class="flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold rounded-full shadow-sm transition-colors duration-200 flex items-center space-x-1 sm:space-x-2">
           <span>Calif.</span>
           <span class="hidden sm:inline">Calificaciones</span>
-          <span *ngIf="ratingCount > 0" class="px-1.5 py-0.5 sm:px-2 rounded-full text-[10px] sm:text-xs" [ngClass]="{
+          @if (ratingCount > 0) {
+<span class="px-1.5 py-0.5 sm:px-2 rounded-full text-[10px] sm:text-xs" [ngClass]="{
             'bg-white/20 text-white': activeTab() === 'ratings', 
             'bg-yellow-200 text-yellow-800': activeTab() !== 'ratings'
           }">{{ ratingCount }}</span>
+          }
         </button>
-        
+
         <button (click)="setTab('applications')" [ngClass]="{
           'bg-purple-500 text-white': activeTab() === 'applications', 
           'bg-white/60 text-gray-700 hover:bg-white/80': activeTab() !== 'applications'
         }" class="flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold rounded-full shadow-sm transition-colors duration-200 flex items-center space-x-1 sm:space-x-2">
           <span>Post.</span>
           <span class="hidden sm:inline">Postulaciones</span>
-          <span *ngIf="applicationCount > 0" class="px-1.5 py-0.5 sm:px-2 rounded-full text-[10px] sm:text-xs" [ngClass]="{
+          @if (applicationCount > 0) {
+<span class="px-1.5 py-0.5 sm:px-2 rounded-full text-[10px] sm:text-xs" [ngClass]="{
             'bg-white/20 text-white': activeTab() === 'applications', 
             'bg-purple-200 text-purple-800': activeTab() !== 'applications'
           }">{{ applicationCount }}</span>
+          }
         </button>
       </div>
     </div>
 
     <!-- Notifications List Mejorada -->
-    <div *ngIf="filteredNotifications().length > 0; else noNotifications" class="space-y-3 sm:space-y-4">
-      <div *ngFor="let notification of filteredNotifications()" 
-           (click)="markAsRead(notification)"
-           [ngClass]="{'border-l-4 border-blue-500': !notification.isRead}"
-           class="relative bg-white/50 backdrop-blur-lg rounded-lg shadow-sm sm:shadow-md p-3 sm:p-4 flex items-start space-x-3 sm:space-x-4 transition-all duration-300 hover:bg-white/70 cursor-pointer">
-        
-        <!-- Avatar Mejorado -->
-        <img class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover" [src]="notification.sender?.avatar" [alt]="notification.sender?.name">
-
-        <!-- Content Mejorado -->
-        <div class="flex-1 min-w-0">
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between sm:mr-4">
-            <h3 class="text-sm sm:text-lg font-semibold text-blue-900 flex items-center mb-1 sm:mb-0 truncate">
-              {{ notification.title }}
-              <span *ngIf="!notification.isRead" class="ml-1 sm:ml-2 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-blue-500 rounded-full"></span>
-            </h3>
-            <div class="flex items-center space-x-1 sm:space-x-2 mt-1 sm:mt-0">
-              <span [ngClass]="getBadgeClass(notification.type)" class="px-1.5 py-0.5 sm:px-2 sm:py-1 text-[10px] sm:text-xs font-bold text-white rounded-full whitespace-nowrap">
-                {{ getBadgeText(notification.type) }}
-              </span>
-              <span class="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap">{{ notification.createdAt?.toDate() | date:'short' }}</span>
+    @if (filteredNotifications().length > 0) {
+      <div class="space-y-3 sm:space-y-4">
+        @for (notification of filteredNotifications(); track notification) {
+          <div
+            (click)="markAsRead(notification)"
+            [ngClass]="{'border-l-4 border-blue-500': !notification.isRead}"
+            class="relative bg-white/50 backdrop-blur-lg rounded-lg shadow-sm sm:shadow-md p-3 sm:p-4 flex items-start space-x-3 sm:space-x-4 transition-all duration-300 hover:bg-white/70 cursor-pointer">
+            <!-- Avatar Mejorado -->
+            <img class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover" [src]="notification.sender?.avatar" [alt]="notification.sender?.name">
+            <!-- Content Mejorado -->
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between sm:mr-4">
+                <h3 class="text-sm sm:text-lg font-semibold text-blue-900 flex items-center mb-1 sm:mb-0 truncate">
+                  {{ notification.title }}
+                  @if (!notification.isRead) {
+                    <span class="ml-1 sm:ml-2 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-blue-500 rounded-full"></span>
+                  }
+                </h3>
+                <div class="flex items-center space-x-1 sm:space-x-2 mt-1 sm:mt-0">
+                  <span [ngClass]="getBadgeClass(notification.type)" class="px-1.5 py-0.5 sm:px-2 sm:py-1 text-[10px] sm:text-xs font-bold text-white rounded-full whitespace-nowrap">
+                    {{ getBadgeText(notification.type) }}
+                  </span>
+                  <span class="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap">{{ notification.createdAt?.toDate() | date:'short' }}</span>
+                </div>
+              </div>
+              <p class="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2">{{ notification.description }}</p>
+              <!-- Actions Mejoradas -->
+              <div class="mt-2 sm:mt-3 flex items-center space-x-2 sm:space-x-3 flex-wrap gap-y-1">
+                @if (notification.type === 'message') {
+                  <button class="px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition whitespace-nowrap">
+                    Responder
+                  </button>
+                }
+                @if (notification.type === 'application') {
+                  <button class="px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white bg-purple-500 rounded-md hover:bg-purple-600 transition whitespace-nowrap">
+                    Ver Postulaciones
+                  </button>
+                }
+                @if (notification.type === 'approved' || notification.type === 'rejected') {
+                  <button class="px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 transition whitespace-nowrap">
+                    Ver Trabajos
+                  </button>
+                }
+              </div>
             </div>
-          </div>
-          <p class="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2">{{ notification.description }}</p>
-          
-          <!-- Actions Mejoradas -->
-          <div class="mt-2 sm:mt-3 flex items-center space-x-2 sm:space-x-3 flex-wrap gap-y-1">
-            <button *ngIf="notification.type === 'message'" class="px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition whitespace-nowrap">
-              Responder
-            </button>
-            <button *ngIf="notification.type === 'application'" class="px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white bg-purple-500 rounded-md hover:bg-purple-600 transition whitespace-nowrap">
-              Ver Postulaciones
-            </button>
-            <button *ngIf="notification.type === 'approved' || notification.type === 'rejected'" class="px-3 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white bg-gray-500 rounded-md hover:bg-gray-600 transition whitespace-nowrap">
-              Ver Trabajos
+            <!-- Delete Button Mejorado -->
+            <button (click)="deleteNotification(notification.id); $event.stopPropagation()" class="absolute top-1 right-1 sm:top-2 sm:right-2 p-0.5 sm:p-1 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
             </button>
           </div>
-        </div>
-
-        <!-- Delete Button Mejorado -->
-        <button (click)="deleteNotification(notification.id); $event.stopPropagation()" class="absolute top-1 right-1 sm:top-2 sm:right-2 p-0.5 sm:p-1 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600 transition">
-          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
+        }
       </div>
-    </div>
-
-    <!-- No Notifications Template Mejorado -->
-    <ng-template #noNotifications>
+    } @else {
       <div class="text-center py-10 sm:py-16">
         <div class="inline-block bg-white/60 backdrop-blur-lg p-6 sm:p-8 rounded-full">
           <svg class="w-12 h-12 sm:w-16 sm:h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -137,6 +152,8 @@
         <h2 class="mt-4 sm:mt-6 text-xl sm:text-2xl font-bold text-blue-900">No hay notificaciones</h2>
         <p class="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-500">No tienes notificaciones en este momento.</p>
       </div>
-    </ng-template>
+    }
+
+    <!-- No Notifications Template Mejorado -->
   </main>
 </div>

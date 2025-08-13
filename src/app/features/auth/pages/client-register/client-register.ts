@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService } from 'src/core/services/auth.service';
@@ -20,7 +20,7 @@ export function passwordMatchValidator(control: AbstractControl): ValidationErro
 @Component({
   selector: 'app-client-register',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  imports: [RouterModule, ReactiveFormsModule],
   templateUrl: './client-register.html',
   styleUrls: ['./client-register.scss']
 })

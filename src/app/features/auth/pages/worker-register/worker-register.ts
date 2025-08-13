@@ -1,6 +1,6 @@
 import { lastValueFrom, tap } from 'rxjs';
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, FormArray } from '@angular/forms';
 import { AuthService } from 'src/core/services/auth.service';
@@ -22,7 +22,7 @@ export function passwordMatchValidator(control: AbstractControl): ValidationErro
 @Component({
   selector: 'app-worker-register',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, HttpClientModule],
+  imports: [RouterModule, ReactiveFormsModule, HttpClientModule],
   templateUrl: './worker-register.html',
   styleUrls: ['./worker-register.scss']
 })

@@ -1,6 +1,8 @@
 <div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 text-gray-800 font-sans">
   <!-- Overlay for mobile -->
-  <div *ngIf="isSidebarOpen" (click)="toggleSidebar()" class="fixed inset-0 bg-black/30 z-10 md:hidden"></div>
+  @if (isSidebarOpen) {
+    <div (click)="toggleSidebar()" class="fixed inset-0 bg-black/30 z-10 md:hidden"></div>
+  }
 
   <!-- Sidebar -->
   <aside
@@ -60,17 +62,19 @@
     <div class="space-y-3">
       <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Mis Especialidades</h3>
       <ul class="space-y-1">
-        <li *ngFor="let specialty of specialties">
-          <a href="#" (click)="setActiveSpecialty(specialty.id); $event.preventDefault()"
-            class="flex justify-between items-center px-4 py-2 rounded-lg transition-colors duration-200"
-            [ngClass]="{'bg-blue-500 text-white shadow-md': activeSpecialty === specialty.id, 'text-gray-700 hover:bg-gray-200/50': activeSpecialty !== specialty.id}">
-            <span class="font-medium">{{ specialty.name }}</span>
-            <span class="text-xs font-semibold px-2 py-0.5 rounded-full"
-              [ngClass]="{'bg-white/20': activeSpecialty === specialty.id, 'bg-gray-200': activeSpecialty !== specialty.id}">
-              {{ specialty.jobCount }}
-            </span>
-          </a>
-        </li>
+        @for (specialty of specialties; track specialty) {
+          <li>
+            <a href="#" (click)="setActiveSpecialty(specialty.id); $event.preventDefault()"
+              class="flex justify-between items-center px-4 py-2 rounded-lg transition-colors duration-200"
+              [ngClass]="{'bg-blue-500 text-white shadow-md': activeSpecialty === specialty.id, 'text-gray-700 hover:bg-gray-200/50': activeSpecialty !== specialty.id}">
+              <span class="font-medium">{{ specialty.name }}</span>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded-full"
+                [ngClass]="{'bg-white/20': activeSpecialty === specialty.id, 'bg-gray-200': activeSpecialty !== specialty.id}">
+                {{ specialty.jobCount }}
+              </span>
+            </a>
+          </li>
+        }
       </ul>
     </div>
   </aside>
@@ -94,9 +98,9 @@
           <div class="relative w-full">
             <input type="search" placeholder="Buscar ofertas de trabajo..."
               class="w-full pl-12 pr-4 py-2.5 bg-white/50 border border-gray-200/80 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300">
-            <svg xmlns="http://www.w3.org/2000/svg"
-              class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg"
+                class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z" />
             </svg>
           </div>
@@ -114,13 +118,12 @@
           </button>
           <div class="relative">
             <a routerLink="/profile" class="block">
-              <ng-container *ngIf="user$ | async as user; else loadingUser">
+              @if (user$ | async; as user) {
                 <img [src]="user?.photoURL || 'https://randomuser.me/api/portraits/men/32.jpg'" alt="User Profile"
-                class="h-10 w-10 rounded-full border-2 border-transparent hover:border-blue-500 cursor-pointer transition-all duration-200">
-              </ng-container>
-              <ng-template #loadingUser>
+                  class="h-10 w-10 rounded-full border-2 border-transparent hover:border-blue-500 cursor-pointer transition-all duration-200">
+              } @else {
                 <div class="h-10 w-10 rounded-full bg-gray-300 animate-pulse"></div>
-              </ng-template>
+              }
             </a>
           </div>
           <button (click)="onLogout()"
@@ -140,17 +143,18 @@
     <main class="p-8">
       <!-- Welcome Card -->
       <div class="bg-white/50 backdrop-blur-lg rounded-2xl shadow-sm p-8 mb-8 flex sm:flex-row flex-col justify-between items-center">
-        <div *ngIf="user$ | async as user; else loadingWelcome">
-          <h1 class="text-3xl font-bold text-blue-900">👷 Hola de nuevo, <span class="text-blue-700">{{ user?.displayName || 'Usuario' }}!</span></h1>
-          <p class="text-gray-800 text-lg sm:mt-2 mt-4 font-semibold">Estas son las últimas ofertas de trabajo para ti.</p>
-          <p class="text-gray-600 sm:mt-1 mt-4">Estas registrado como <span class="text-blue-700 text-lg">trabajador</span>.</p>
-        </div>
-        <ng-template #loadingWelcome>
-            <div class="space-y-2">
-                <div class="h-8 bg-gray-300 rounded-md w-64 animate-pulse"></div>
-                <div class="h-4 bg-gray-300 rounded-md w-80 animate-pulse"></div>
-            </div>
-        </ng-template>
+        @if (user$ | async; as user) {
+          <div>
+            <h1 class="text-3xl font-bold text-blue-900">👷 Hola de nuevo, <span class="text-blue-700">{{ user?.displayName || 'Usuario' }}!</span></h1>
+            <p class="text-gray-800 text-lg sm:mt-2 mt-4 font-semibold">Estas son las últimas ofertas de trabajo para ti.</p>
+            <p class="text-gray-600 sm:mt-1 mt-4">Estas registrado como <span class="text-blue-700 text-lg">trabajador</span>.</p>
+          </div>
+        } @else {
+          <div class="space-y-2">
+            <div class="h-8 bg-gray-300 rounded-md w-64 animate-pulse"></div>
+            <div class="h-4 bg-gray-300 rounded-md w-80 animate-pulse"></div>
+          </div>
+        }
         <div class="text-center sm:mt-0 mt-6">
           <p class="text-4xl font-bold text-blue-700">12</p>
           <p class="text-sm font-medium text-gray-700 sm:mt-0 mt-2">Postulaciones Activas</p>
@@ -160,43 +164,52 @@
       <!-- Job Offers Section -->
       <div>
         <h2 class="text-2xl font-bold text-blue-900 mb-6">Nuevas Ofertas de Trabajo</h2>
-        <ng-container *ngIf="(filteredJobOffers$ | async) as jobs; else noJobs">
-          <div *ngIf="jobs.length > 0; else noJobs" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Job Offer Card -->
-            <div *ngFor="let job of jobs"
-              [routerLink]="['/job-detail', job.id]"
-              class="bg-white rounded-2xl shadow-lg overflow-hidden group transform hover:scale-105 transition-transform duration-300 ease-in-out cursor-pointer">
-              <div class="relative h-40">
-                <img [src]="job.images[0]" alt="Cover Image" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                <div class="absolute bottom-4 left-4 flex items-center space-x-3">
-                  <div>
-                    <h4 class="text-white font-semibold">{{ job.clientName }}</h4>
-                    <p class="text-white/80 text-sm">{{ job.location }}</p>
+        @if ((filteredJobOffers$ | async); as jobs) {
+          @if (jobs.length > 0) {
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <!-- Job Offer Card -->
+              @for (job of jobs; track job) {
+                <div
+                  [routerLink]="['/job-detail', job.id]"
+                  class="bg-white rounded-2xl shadow-lg overflow-hidden group transform hover:scale-105 transition-transform duration-300 ease-in-out cursor-pointer">
+                  <div class="relative h-40">
+                    <img [src]="job.images[0]" alt="Cover Image" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div class="absolute bottom-4 left-4 flex items-center space-x-3">
+                      <div>
+                        <h4 class="text-white font-semibold">{{ job.clientName }}</h4>
+                        <p class="text-white/80 text-sm">{{ job.location }}</p>
+                      </div>
+                    </div>
+                    @if (job.timeline.urgency === 'urgent') {
+                      <span
+                      class="absolute top-4 right-4 text-xs bg-red-500 text-white font-bold px-2 py-1 rounded-full">URGENTE</span>
+                    }
+                  </div>
+                  <div class="p-6">
+                    <p class="text-sm text-gray-800 font-medium mb-2">{{ job.category }}</p>
+                    <h3 class="text-lg font-bold text-gray-800 mb-3 truncate">{{ job.title }}</h3>
+                    <div class="flex justify-between items-center">
+                      <p class="text-xl font-semibold text-blue-600">${{ job.budget.min | number }} - ${{ job.budget.max | number }}</p>
+                      <button
+                        class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">
+                        Ver Detalles
+                      </button>
+                    </div>
                   </div>
                 </div>
-                <span *ngIf="job.timeline.urgency === 'urgent'"
-                  class="absolute top-4 right-4 text-xs bg-red-500 text-white font-bold px-2 py-1 rounded-full">URGENTE</span>
-              </div>
-              <div class="p-6">
-                <p class="text-sm text-gray-800 font-medium mb-2">{{ job.category }}</p>
-                <h3 class="text-lg font-bold text-gray-800 mb-3 truncate">{{ job.title }}</h3>
-                <div class="flex justify-between items-center">
-                  <p class="text-xl font-semibold text-blue-600">${{ job.budget.min | number }} - ${{ job.budget.max | number }}</p>
-                  <button
-                    class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">
-                    Ver Detalles
-                  </button>
-                </div>
-              </div>
+              }
             </div>
-          </div>
-        </ng-container>
-        <ng-template #noJobs>
+          } @else {
+            <div class="text-center py-12">
+              <p class="text-gray-500">No hay ofertas de trabajo para tu especialidad en este momento.</p>
+            </div>
+          }
+        } @else {
           <div class="text-center py-12">
             <p class="text-gray-500">No hay ofertas de trabajo para tu especialidad en este momento.</p>
           </div>
-        </ng-template>
+        }
       </div>
     </main>
   </div>
