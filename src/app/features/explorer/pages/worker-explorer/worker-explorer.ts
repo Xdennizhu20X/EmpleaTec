@@ -1,191 +1,221 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { CommonModule, formatDate } from '@angular/common';
+import { UserService } from '../../../../core/services/user.service';
+import { User } from '../../../../core/models/user.model';
+import { Observable, combineLatest, Subscription } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 import { Router, RouterModule } from '@angular/router';
-import { Firestore, collection, getDocs, query, where } from '@angular/fire/firestore';
-
-interface Worker {
-  id: string;
-  name: string;
-  age: number;
-  specialty: string;
-  rating: number;
-  price: number;
-  tagline: string;
-  avatar: string;
-  distance: string;
-  isOnline: boolean;
-  isVerified: boolean;
-}
-
-interface Category {
-  id: string;
-  name: string;
-  icon: string;
-}
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Auth } from '@angular/fire/auth';
+import { Firestore, doc, setDoc, getDocs, collection, deleteDoc } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-worker-explorer',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule],
   templateUrl: './worker-explorer.html',
   styleUrls: ['./worker-explorer.scss']
 })
-export class WorkerExplorerComponent implements OnInit {
-  private firestore: Firestore = inject(Firestore);
-  private router: Router = inject(Router);
+export class WorkerExplorerComponent implements OnInit, OnDestroy {
+  private userService = inject(UserService);
+  private router = inject(Router);
+  private auth = inject(Auth);
+  private firestore = inject(Firestore);
+  private workersSubscription!: Subscription;
 
-  workers: Worker[] = [];
+  // Filter-related properties
+  private workers$!: Observable<User[]>;
+  categories$!: Observable<any[]>;
+  categoryFilter = new FormControl('todos');
+
+  // UI state
+  workers: User[] = [];
+  likedWorkers: User[] = [];
   currentIndex = 0;
   totalWorkers = 0;
-  selectedCategory = 'todos';
-
-  categories: Category[] = [
-    { id: 'todos', name: 'Todos', icon: '🔍' },
-    { id: 'plomeria', name: 'Plomería', icon: '🔧' },
-    { id: 'electricidad', name: 'Electricidad', icon: '⚡' },
-    { id: 'carpinteria', name: 'Carpintería', icon: '🔨' },
-    { id: 'albanileria', name: 'Albañilería', icon: '🧱' },
-    { id: 'pintura', name: 'Pintura', icon: '🎨' },
-    { id: 'jardineria', name: 'Jardinería', icon: '🌳' },
-    { id: 'limpieza', name: 'Limpieza', icon: '🧹' },
-  ];
-
-  // Animation state
   animationState: 'idle' | 'like' | 'dislike' = 'idle';
-
-  // Swipe interaction state
   isDragging = false;
   startX = 0;
   translateX = 0;
   overlayOpacity = 0;
   feedbackColor = '';
 
-  async ngOnInit() {
-    await this.fetchWorkers();
-  }
-
-  async fetchWorkers(category: string = 'todos') {
-    this.selectedCategory = category;
-    const usersCollection = collection(this.firestore, 'users');
-    let q = query(usersCollection, where('userType', '==', 'worker'));
-
-    if (category !== 'todos') {
-      q = query(q, where('oficios', 'array-contains', category));
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (this.animationState !== 'idle' || this.currentIndex >= this.totalWorkers) return;
+    if (event.key === 'ArrowLeft') {
+      this.triggerAction('dislike');
     }
-
-    const querySnapshot = await getDocs(q);
-    this.workers = querySnapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        name: data['displayName'] || 'Nombre no disponible',
-        age: data['age'] || 28, // Mock age
-        specialty: (data['oficios'] && data['oficios'][0]) || 'Especialidad no definida',
-        rating: data['rating'] || 4.8, // Mock rating
-        price: data['price'] || 400, // Mock price
-        tagline: data['tagline'] || 'Comprometido con la calidad y el servicio.',
-        avatar: data['photoURL'] || 'https://randomuser.me/api/portraits/men/1.jpg',
-        distance: '3.5 km', // Mock distance
-        isOnline: data['isOnline'] || true, // Mock status
-        isVerified: data['isVerified'] || true, // Mock status
-      };
-    });
-    this.totalWorkers = this.workers.length;
-    this.currentIndex = 0;
+    if (event.key === 'ArrowRight') {
+      this.triggerAction('like');
+    }
   }
 
-  selectCategory(categoryId: string) {
-    this.fetchWorkers(categoryId);
+  ngOnInit(): void {
+    this.loadLikedWorkers();
+    this.workers$ = this.userService.getWorkers();
+
+    this.categories$ = this.workers$.pipe(
+      map(workers => {
+        const allOficios = workers.flatMap(worker => worker.oficios || []);
+        const uniqueOficios = [...new Set(allOficios)];
+        const categories = uniqueOficios.map(oficio => ({
+          id: oficio,
+          name: oficio,
+          icon: this.getIconForOficio(oficio)
+        }));
+        categories.unshift({ id: 'todos', name: 'Todos', icon: '🔍' });
+        return categories;
+      })
+    );
+
+    const filteredWorkers$ = combineLatest([
+      this.workers$,
+      this.categoryFilter.valueChanges.pipe(startWith('todos'))
+    ]).pipe(
+      map(([workers, selectedCategory]) => {
+        if (selectedCategory === 'todos' || !selectedCategory) return workers;
+        return workers.filter(worker => worker.oficios?.includes(selectedCategory));
+      })
+    );
+
+    this.workersSubscription = filteredWorkers$.subscribe(workers => {
+      this.workers = workers;
+      this.totalWorkers = this.workers.length;
+      this.currentIndex = 0;
+      this.resetCardPosition();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.workersSubscription?.unsubscribe();
+  }
+
+  async loadLikedWorkers() {
+    const currentUser = this.auth.currentUser;
+    if (!currentUser) return;
+
+    const likesCollectionRef = collection(this.firestore, `clients/${currentUser.uid}/likes`);
+    const likesSnapshot = await getDocs(likesCollectionRef);
+    const likedWorkerIds = likesSnapshot.docs.map(doc => doc.id);
+
+    if (likedWorkerIds.length > 0) {
+      // Assuming userService has a method to get multiple workers by their UIDs
+      const likedWorkersInfo = await this.userService.getWorkersByIds(likedWorkerIds);
+      this.likedWorkers = likedWorkersInfo;
+    }
+  }
+
+  setActiveCategory(categoryId: string): void {
+    this.categoryFilter.setValue(categoryId);
+  }
+
+  getIconForOficio(oficio: string): string {
+    const iconMap: { [key: string]: string } = {
+      'plomería': '🪠',
+      'cerrajería': '🔑',
+      'soldadura': '🧲',
+      'electricidad': '⚡',
+      'carpintería': '🪚',
+      'albanileria': '🧱',
+      'pintor': '🎨',
+      'jardinería': '🌳',
+      'limpieza': '🧹',
+      'reparación de electrodomésticos': '🔧',
+    };
+    return iconMap[oficio.toLowerCase()] || '🧱';
   }
 
   triggerAction(action: 'like' | 'dislike') {
-    this.animationState = action;
-    console.log(`Worker ${this.workers[this.currentIndex].id}: ${action}`);
+    if (this.animationState !== 'idle' || this.currentIndex >= this.totalWorkers) return;
 
-    // Wait for the animation to finish, then load the next worker
-    setTimeout(() => {
-      if (this.currentIndex < this.totalWorkers - 1) {
-        this.currentIndex++;
-      } else {
-        console.log('No más trabajadores');
+    if (action === 'like') {
+      const worker = this.workers[this.currentIndex];
+      if (!this.likedWorkers.some(w => w.uid === worker.uid)) {
+        this.likedWorkers.push(worker);
+        this.persistLike(worker.uid);
       }
-      // Reset animation state for the new card
+    }
+
+    this.animationState = action;
+    setTimeout(() => {
+      this.currentIndex++;
       this.animationState = 'idle';
       this.resetCardPosition();
-    }, 500); // 500ms matches the animation duration
+    }, 500);
   }
 
-  viewProfile() {
-    if (this.workers.length > 0) {
-      this.router.navigate(['/worker', this.workers[this.currentIndex].id]);
+  async persistLike(workerUid: string) {
+    const currentUser = this.auth.currentUser;
+    if (!currentUser) return;
+    const likeDocRef = doc(this.firestore, `clients/${currentUser.uid}/likes/${workerUid}`);
+    await setDoc(likeDocRef, { likedAt: new Date() });
+  }
+
+  viewProfile(workerUid?: string) {
+    const uid = workerUid || this.workers[this.currentIndex]?.uid;
+    if (uid) {
+      this.router.navigate(['/worker', uid]);
     }
   }
 
-  goBack() {
-    this.router.navigate(['/dashboard-client']);
-  }
+  goBack() { this.router.navigate(['/dashboard-client']); }
 
-  // --- Dragging Logic ---
   onDragStart(event: MouseEvent | TouchEvent) {
+    if (this.animationState !== 'idle' || this.currentIndex >= this.totalWorkers) return;
     this.isDragging = true;
     this.startX = 'touches' in event ? event.touches[0].clientX : event.clientX;
-    event.preventDefault(); // Prevent default behavior like image dragging
+    event.preventDefault();
   }
 
   onDragMove(event: MouseEvent | TouchEvent) {
     if (!this.isDragging) return;
-
     const currentX = 'touches' in event ? event.touches[0].clientX : event.clientX;
     this.translateX = currentX - this.startX;
-
     const threshold = 120;
-    const percentage = Math.min(Math.abs(this.translateX) / threshold, 1);
-    this.overlayOpacity = percentage * 0.8;
-
-    if (this.translateX > 0) {
-      this.feedbackColor = 'rgba(74, 222, 128, 1)'; // Green for like
-    } else {
-      this.feedbackColor = 'rgba(239, 68, 68, 1)'; // Red for dislike
-    }
+    this.overlayOpacity = Math.min(Math.abs(this.translateX) / threshold, 1) * 0.8;
+    this.feedbackColor = this.translateX > 0 ? 'rgba(22, 163, 74, 1)' : 'rgba(220, 38, 38, 1)';
   }
 
   onDragEnd() {
     if (!this.isDragging) return;
     this.isDragging = false;
-
     const threshold = 120;
     if (Math.abs(this.translateX) > threshold) {
-      if (this.translateX > 0) {
-        this.triggerAction('like');
-      } else {
-        this.triggerAction('dislike');
-      }
+      this.triggerAction(this.translateX > 0 ? 'like' : 'dislike');
     } else {
       this.resetCardPosition();
     }
   }
 
-  resetCardPosition() {
-    this.translateX = 0;
-    this.overlayOpacity = 0;
-  }
+  resetCardPosition() { this.translateX = 0; this.overlayOpacity = 0; }
 
   getCardStyle() {
-    if (this.animationState !== 'idle') {
-      return {}; // Let CSS handle the animation
-    }
+    if (this.animationState !== 'idle') return {};
     const rotation = this.translateX / 20;
-    return {
-      transform: `translateX(${this.translateX}px) rotate(${rotation}deg)`,
-      transition: this.isDragging ? 'none' : 'transform 0.3s ease-out'
-    };
+    return { transform: `translateX(${this.translateX}px) rotate(${rotation}deg)`, transition: this.isDragging ? 'none' : 'transform 0.3s ease-out' };
   }
 
   getOverlayStyle() {
-    return {
-      backgroundColor: this.feedbackColor,
-      opacity: this.overlayOpacity,
-      transition: 'opacity 0.3s ease-out'
-    };
+    return { backgroundColor: this.feedbackColor, opacity: this.overlayOpacity, transition: 'opacity 0.3s ease-out' };
+  }
+
+  formatDate(date: any): string {
+    if (!date) return '';
+    const jsDate = date.toDate ? date.toDate() : date;
+    return formatDate(jsDate, 'dd/MM/yyyy', 'en-US');
+  }
+
+  async removeLikedWorker(workerUid: string, event: Event) {
+    event.stopPropagation();
+    this.likedWorkers = this.likedWorkers.filter(w => w.uid !== workerUid);
+    await this.unpersistLike(workerUid);
+  }
+
+  async unpersistLike(workerUid: string) {
+    const currentUser = this.auth.currentUser;
+    if (!currentUser) return;
+    const likeDocRef = doc(this.firestore, `clients/${currentUser.uid}/likes/${workerUid}`);
+    await deleteDoc(likeDocRef);
   }
 }

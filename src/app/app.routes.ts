@@ -7,6 +7,9 @@ import { WorkerRegisterComponent } from './features/auth/pages/worker-register/w
 import { clientGuard } from './core/guards/client.guard';
 import { workerGuard } from './core/guards/worker.guard';
 import { authGuard } from './core/guards/auth.guard';
+import { ContactoComponent } from './features/info/pages/contacto/contacto';
+import { NosotrosComponent } from './features/info/pages/nosotros/nosotros';
+import { SobreElSitioComponent } from './features/info/pages/sobre-el-sitio/sobre-el-sitio';
 
 export const routes: Routes = [
   {
@@ -28,6 +31,18 @@ export const routes: Routes = [
   {
     path: 'register-worker',
     component: WorkerRegisterComponent
+  },
+  {
+    path: 'contacto',
+    component: ContactoComponent
+  },
+  {
+    path: 'nosotros',
+    component: NosotrosComponent
+  },
+  {
+    path: 'sobre-sitio',
+    component: SobreElSitioComponent
   },
   {
     path: 'create-job',

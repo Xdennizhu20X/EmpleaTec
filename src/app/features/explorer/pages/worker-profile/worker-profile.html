@@ -1,372 +1,126 @@
-<!-- Main Container -->
-<div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 font-sans text-gray-800">
-  @if (worker(); as w) {
-    <!-- Header -->
-    <header class="sticky top-0 z-40 bg-white/30 backdrop-blur-lg border-b border-white/20">
-      <div class="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-3">
-        <!-- Back Button -->
-        <button (click)="onBack()"
-          class="flex items-center gap-2 text-sm font-semibold text-blue-900 p-2 rounded-lg hover:bg-white/50 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-          </svg>
-          Volver
-        </button>
-        <!-- Action Icons -->
-        <div class="flex items-center gap-2">
-          <button (click)="toggleFavorite()" class="p-2 rounded-full hover:bg-white/50 transition-colors">
-            <svg class="w-6 h-6" [ngClass]="isFavorited() ? 'text-red-500' : 'text-blue-800'" fill="currentColor"
-              viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z">
-              </path>
-            </svg>
-          </button>
-          <button class="p-2 rounded-full text-blue-600 hover:bg-white/50 transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6.002l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.368a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z">
-              </path>
-            </svg>
-          </button>
-        </div>
+<div class="min-h-screen bg-gray-100 font-sans">
+  @if(worker(); as worker) {
+    <!-- Header Section -->
+    <header class="relative h-60 md:h-80">
+      <button (click)="onBack()" class="absolute top-4 left-4 z-10 p-2 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <img [src]="worker.coverURL || 'https://images.unsplash.com/photo-1557682250-33bd709cbe85'" alt="Cover Photo" class="w-full h-full object-cover">
+      <div class="absolute inset-0 bg-black/50"></div>
+      <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2">
+        <img [src]="worker.photoURL || 'https://via.placeholder.com/150'" alt="Worker Avatar" class="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover">
       </div>
     </header>
-    <!-- Profile Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      <!-- Glass Card -->
-      <div class="bg-white/10 backdrop-blur-lg rounded-2xl shadow-lg overflow-hidden border border-white/20">
-        <!-- Cover Image -->
-        <div class="relative h-48 sm:h-64 bg-cover bg-center"
-          [style.background-image]="'url(' + (w.coverURL || 'https://static.vecteezy.com/system/resources/thumbnails/051/541/150/small_2x/colorful-space-galaxy-cloud-nebula-stary-night-cosmos-universe-science-astronomy-supernova-background-wallpaper-photo.jpg') + ')'">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-          @if (w.isOnline) {
-            <div
-              class="absolute top-4 right-4 flex items-center gap-2 bg-black/50 text-white text-xs font-semibold px-3 py-1 rounded-full">
-              <span class="relative flex h-2 w-2">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-              </span>
-              En línea
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-4 pt-20 md:p-8 md:pt-24">
+      <div class="max-w-5xl mx-auto">
+        <!-- Name and Actions -->
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center text-center sm:text-left gap-4 mb-8">
+          <div>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">{{ worker.displayName }}</h1>
+            <div class="flex items-center justify-center sm:justify-start gap-4 mt-2 text-gray-600">
+              <div class="flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                <span class="font-semibold">{{ worker.stats?.averageRating || 'Nuevo' }}</span>
+              </div>
+              <span class="text-gray-300">•</span>
+              <div class="flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /></svg>
+                <span>{{ worker.city || 'Ubicación no definida' }}</span>
+              </div>
             </div>
-          }
+          </div>
+          <div class="flex gap-2 sm:gap-4 flex-shrink-0">
+            <button (click)="contactWorker(worker)" class="px-4 py-2 md:px-6 md:py-3 rounded-full bg-blue-100 text-blue-700 font-semibold hover:bg-blue-200 transition-colors">Enviar Mensaje</button>
+            <button class="px-4 py-2 md:px-6 md:py-3 rounded-full bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors">Contratar</button>
+          </div>
         </div>
-        <!-- Profile Header -->
-        <div class="relative px-6">
-          <div class="flex flex-col sm:flex-row gap-6 -mt-16 sm:-mt-20">
-            <!-- Avatar -->
-            <div class="relative shrink-0 mx-auto sm:mx-0">
-              <img [src]="w.photoURL || 'https://via.placeholder.com/150'" [alt]="w.displayName"
-                class="h-32 w-32 sm:h-40 sm:w-40 rounded-full object-cover border-4 border-white shadow-lg">
-                @if (w.isVerified) {
-                  <div class="absolute -bottom-1 -right-1 bg-white rounded-full p-1">
-                    <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg">
-                      <path fill-rule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clip-rule="evenodd"></path>
-                    </svg>
-                  </div>
+
+        <!-- Main layout grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- Left Column (About, Skills, Portfolio) -->
+          <div class="lg:col-span-2 space-y-8">
+            <!-- About Me -->
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+              <h2 class="text-xl font-bold text-gray-800 mb-4">Acerca de mí</h2>
+              <p class="text-gray-600 leading-relaxed">{{ worker.description || 'No hay una descripción disponible.' }}</p>
+            </div>
+
+            <!-- Skills -->
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+              <h2 class="text-xl font-bold text-gray-800 mb-4">Oficios</h2>
+              <div class="flex flex-wrap gap-2">
+                @for(oficio of worker.oficios; track oficio) {
+                  <span class="bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1 rounded-full">{{ oficio }}</span>
                 }
               </div>
-              <!-- Info & Actions -->
-              <div class="flex-grow flex flex-col sm:flex-row justify-between items-center pt-4 sm:pt-24 pb-4">
-                <!-- Worker Info -->
-                <div class="text-center sm:text-left">
-                  <h1 class="text-3xl font-bold text-blue-900">{{ w.displayName }}</h1>
-                  @if (w.specialty) {
-                    <p class="text-md font-semibold text-blue-700">{{ w.specialty }}</p>
-                  }
-                  <!-- Oficios -->
-                  @if (w.oficios && w.oficios.length > 0) {
-                    <div
-                      class="flex flex-wrap justify-center sm:justify-start gap-2 mt-3">
-                      @for (oficio of w.oficios; track oficio) {
-                        <span
-                          class="flex items-center gap-1.5 bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">
-                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            [attr.d]="getOficioIcon(oficio)"></path>
-                          </svg>
-                          {{ oficio }}
-                        </span>
-                      }
-                    </div>
-                  }
-                  <!-- Stats -->
-                  <div
-                    class="flex flex-wrap justify-center sm:justify-start items-center gap-x-10 gap-y-3 text-sm text-gray-600 mt-6">
-                    <div class="flex items-center gap-1">
-                      <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
-                        </path>
-                      </svg>
-                      <span class="font-bold">4.2</span>
-                    </div>
-                    <div class="flex items-center gap-1">
-                      <span class="font-bold">✅ 23</span> trabajos completados.
-                    </div>
-                    @if (w.experience) {
-                      <div class="flex items-center gap-1">
-                        <span class="font-bold">🕒 {{ w.experience }}</span> de experiencia.
-                      </div>
-                    }
-                  </div>
-                  <div
-                    class="flex flex-wrap justify-center sm:justify-start items-center gap-x-10 gap-y-2 text-sm text-gray-600 mt-4">
-                    @if (w.city) {
-                      <div class="flex items-center gap-1 font-bold">
-                        <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                        {{ w.city }} - ECUADOR.
-                      </div>
-                    }
-                    <div class="flex items-center gap-1">
-                      <span class="font-bold">💲 120/dia.</span>
-                    </div>
-                  </div>
-                </div>
-                <!-- Action Buttons -->
-                <div class="flex items-center gap-3 mt-4 sm:mt-0 shrink-0">
-                  <button (click)="contactWorker(w)"
-                    class="px-5 py-2.5 flex items-center gap-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition-all">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
-                      </path>
-                    </svg>
-                    Contactar Ahora
-                  </button>
-                  @if (w.phone) {
-                    <button
-                      class="px-3 py-2.5 bg-white/20 text-blue-800 font-semibold rounded-lg hover:bg-white/40 transition-colors">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
-                        </path>
-                      </svg>
-                    </button>
-                  }
-                </div>
-              </div>
             </div>
-          </div>
-          <!-- Tabs -->
-          <div class="px-6 pt-4">
-            <div class="border-b border-white/20">
-              <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                <button (click)="selectTab('portafolio')"
-                  [ngClass]="activeTab() === 'portafolio' ? 'border-blue-500 text-blue-800' : 'border-transparent text-black hover:text-gray-700 hover:border-gray-300'"
-                  class="whitespace-nowrap py-4 px-1 border-b-2 font-semibold">
-                  Portafolio
-                </button>
-                <button (click)="selectTab('acerca')"
-                  [ngClass]="activeTab() === 'acerca' ? 'border-blue-500 text-blue-800' : 'border-transparent text-black hover:text-gray-700 hover:border-gray-300'"
-                  class="whitespace-nowrap py-4 px-1 border-b-2 font-semibold">
-                  Acerca de
-                </button>
-                <button (click)="selectTab('reseñas')"
-                  [ngClass]="activeTab() === 'reseñas' ? 'border-blue-500 text-blue-800' : 'border-transparent text-black hover:text-gray-800 hover:border-gray-400'"
-                  class="whitespace-nowrap py-4 px-1 border-b-2 font-semibold">
-                  Reseñas
-                </button>
-              </nav>
-            </div>
-          </div>
-          <!-- Tab Content -->
-          <div class="px-6 py-8">
-            <!-- Portafolio -->
-            @if (activeTab() === 'portafolio') {
-              <div>
-                @if (w.portfolio && w.portfolio.length > 0) {
-                  <div
-                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @for (item of w.portfolio; track item) {
-                      <div (click)="openModal(item.imageUrl)"
-                        class="group relative rounded-lg overflow-hidden cursor-pointer shadow-md">
-                        <img [src]="item.imageUrl" alt="Trabajo realizado"
-                          class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300">
-                          <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                          <div class="absolute bottom-0 left-0 p-4 text-white">
-                            <h4 class="font-bold">{{ item.title || 'Proyecto' }}</h4>
-                            <p class="text-xs">{{ item.description || 'Descripción no disponible' }}</p>
-                          </div>
-                        </div>
-                      }
-                    </div>
-                  } @else {
-                    <h4 class="font-bold text-lg text-blue-900 mb-4">Galería de Trabajos</h4>
-                    <div class="text-center py-12 text-gray-500">
-                      <p>Este profesional aún no ha subido trabajos a su portafolio.</p>
-                    </div>
-                  }
-                </div>
-              }
-              <!-- Acerca de -->
-              @if (activeTab() === 'acerca') {
-                <div>
-                  <h4 class="font-bold text-lg text-blue-900 mb-4">Información Personal</h4>
-                  <div class="prose prose-sm max-w-none">
-                    <p class="text-gray-900">{{ w.description || 'No hay una descripción disponible para este profesional.' }}
-                    </p>
-                    <div class="mt-4 ml-10 space-y-2 text-gray-700">
-                      <p>📱 {{ w.phone }}</p>
-                      <p>🏠 {{ w.address }}</p>
-                      <p>🪪 {{ w.cedula }}</p>
-                      <p>📧 {{ w.email }}</p>
-                      <p>⏳ Miembro desde {{ formatDate(w.createdAt) }}</p>
-                    </div>
-                    <div class="mt-8">
-                      <h4 class="font-bold text-lg text-blue-900">Certificaciones</h4>
-                      <ul class="list-none space-y-3 mt-4">
-                        <li class="flex items-center gap-3">
-                          <div class="flex flex-row bg-green-200 items-center py-3 px-4 rounded-xl space-x-3">
-                            <p>🟢</p>
-                            <div class="flex flex-col ">
-                              <p class="font-medium text-lg">Certificación CONALEP</p>
-                              <p class="text-sm">Carpintería Avanzada - 2019</p>
-                            </div>
-                          </div>
-                        </li>
-                      </ul>
-                    </div>
-                    <div class="mt-8">
-                      <h4 class="font-bold text-lg text-blue-900">Verificaciones</h4>
-                      <ul class="list-none space-y-3 mt-4">
-                        <li class="flex items-center gap-3">
-                          <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            clip-rule="evenodd"></path>
-                          </svg>
-                          <span>Identidad Verificada</span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                          <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            clip-rule="evenodd"></path>
-                          </svg>
-                          <span>Antecedentes Revisados</span>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              }
-              <!-- Reseñas -->
-              @if (activeTab() === 'reseñas') {
-                <div>
-                  <!-- <app-user-reviews [userId]="w.uid"></app-user-reviews> -->
-                  <h4 class="font-bold text-lg text-blue-900 mb-4">Comentarios sobre este trabajador</h4>
-                  <div class="bg-[#f2f8ff] shadow-md rounded-lg p-4 w-full border border-gray-200">
-                    <!-- Header -->
-                    <div class="flex items-center justify-between">
-                      <div class="flex items-center space-x-3">
-                        <!-- Avatar -->
-                        <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
-                          M
-                        </div>
-                        <!-- Nombre -->
-                        <span class="font-semibold text-lg text-gray-800">Maria Torres</span>
-                      </div>
-                      <!-- Estrellas -->
-                      <div class="flex space-x-1 text-yellow-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 fill-current" viewBox="0 0 20 20">
-                          <path
-                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.174c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.176 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.05 9.393c-.783-.57-.38-1.81.588-1.81h4.174a1 1 0 00.95-.69l1.287-3.966z" />
-                          </svg>
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 fill-current" viewBox="0 0 20 20">
-                            <path
-                              d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.174c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.176 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.05 9.393c-.783-.57-.38-1.81.588-1.81h4.174a1 1 0 00.95-.69l1.287-3.966z" />
-                            </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 fill-current" viewBox="0 0 20 20">
-                              <path
-                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.174c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.176 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.05 9.393c-.783-.57-.38-1.81.588-1.81h4.174a1 1 0 00.95-.69l1.287-3.966z" />
-                              </svg>
-                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 fill-current" viewBox="0 0 20 20">
-                                <path
-                                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.174c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.176 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.05 9.393c-.783-.57-.38-1.81.588-1.81h4.174a1 1 0 00.95-.69l1.287-3.966z" />
-                                </svg>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-300 fill-current"
-                                  viewBox="0 0 20 20">
-                                  <path
-                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.174c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.176 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.05 9.393c-.783-.57-.38-1.81.588-1.81h4.174a1 1 0 00.95-.69l1.287-3.966z" />
-                                  </svg>
-                                </div>
-                              </div>
-                              <!-- Comentario -->
-                              <p class="text-gray-800 mt-3">
-                                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Aliquam quod, aperiam eius sit unde autem
-                                neque reprehenderit exercitationem explicabo repudiandae architecto, repellendus voluptatem provident
-                                ducimus. Possimus aperiam corporis unde nesciunt!
-                              </p>
-                              <!-- Footer -->
-                              <div class="flex justify-between items-center mt-4 text-sm text-gray-700">
-                                <span>Feb 13, 2025</span>
-                                <div class="flex items-center">
-                                  <span>¿Te resultó útil esta opinión?</span>
-                                  <!-- Like -->
-                                  <a class="flex items-center ml-6 cursor-pointer group">
-                                    <svg
-                                      class="w-3 h-3 fill-current text-gray-500 transition-colors duration-200 group-hover:text-blue-500"
-                                      xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                      <path
-                                        d="M11 0h1v3l3 7v8a2 2 0 0 1-2 2H5c-1.1 0-2.31-.84-2.7-1.88L0 12v-2a2 2 0 0 1 2-2h7V2a2 2 0 0 1 2-2zm6 10h3v10h-3V10z" />
-                                      </svg>
-                                      <span class="ml-2 text-gray-500 transition-colors duration-200 group-hover:text-blue-500">56</span>
-                                    </a>
-                                    <!-- Dislike -->
-                                    <a class="flex items-center ml-4 cursor-pointer group">
-                                      <svg
-                                        class="w-3 h-3 fill-current text-gray-500 transition-colors duration-200 group-hover:text-red-500"
-                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                        <path
-                                          d="M11 20a2 2 0 0 1-2-2v-6H2a2 2 0 0 1-2-2V8l2.3-6.12A3.11 3.11 0 0 1 5 0h8a2 2 0 0 1 2 2v8l-3 7v3h-1zm6-10V0h3v10h-3z" />
-                                        </svg>
-                                        <span class="ml-2 text-gray-500 transition-colors duration-200 group-hover:text-red-500">10</span>
-                                      </a>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            }
-                          </div>
-                        </div>
-                      </main>
-                      <!-- Image Modal -->
-                      @if (isModalOpen()) {
-                        <div (click)="closeModal()"
-                          class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 transition-opacity duration-300">
-                          <img [src]="selectedImage()" alt="Vista ampliada" class="max-w-full max-h-full rounded-lg shadow-2xl"
-                            (click)="$event.stopPropagation()">
-                          </div>
-                        }
-                      } @else {
-                        <div class="min-h-screen flex items-center justify-center">
-                          <div class="text-center">
-                            <svg class="mx-auto h-12 w-12 text-blue-800 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none"
-                              viewBox="0 0 24 24">
-                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                              <path class="opacity-75" fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                              </path>
-                            </svg>
-                            <p class="text-lg font-medium text-blue-900/80 mt-4">Cargando perfil...</p>
-                          </div>
-                        </div>
-                      }
 
-                      <!-- Loading Template -->
-                    </div>
+            <!-- Portfolio -->
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+              <h2 class="text-xl font-bold text-gray-800 mb-4">Portafolio</h2>
+              @if(worker.portfolio && worker.portfolio.length > 0) {
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  @for(item of worker.portfolio; track item.imageUrl) {
+                    <img [src]="item.imageUrl" alt="Portfolio item" class="w-full h-48 object-cover rounded-lg shadow-md cursor-pointer" (click)="openModal(item.imageUrl)">
+                  }
+                </div>
+              } @else {
+                <p class="text-gray-500">Aún no hay imágenes en el portafolio.</p>
+              }
+            </div>
+          </div>
+
+          <!-- Right Column (Verification, Stats) -->
+          <div class="lg:col-span-1 space-y-6">
+            <!-- Verification -->
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+              <h3 class="text-lg font-bold text-gray-800 mb-4">Verificación</h3>
+              <ul class="space-y-3">
+                <li class="flex items-center gap-3">
+                  <span class="w-8 h-8 rounded-full flex items-center justify-center" [ngClass]="worker.isVerified ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm3.733 8.088a.75.75 0 001.06-1.06l-3.5-3.5a.75.75 0 00-1.06 0l-1.5 1.5a.75.75 0 101.06 1.06l.97-.97 3.03 3.03z" clip-rule="evenodd" /></svg>
+                  </span>
+                  <span class="font-medium text-gray-700">Perfil Verificado</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Stats -->
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+              <h3 class="text-lg font-bold text-gray-800 mb-4">Estadísticas</h3>
+              <ul class="space-y-4">
+                <li class="flex justify-between items-center">
+                  <span class="font-medium text-gray-600">Trabajos completados</span>
+                  <span class="font-bold text-gray-800">{{ worker.stats?.totalJobs || 0 }}</span>
+                </li>
+                <li class="flex justify-between items-center">
+                  <span class="font-medium text-gray-600">Años de experiencia</span>
+                  <span class="font-bold text-gray-800">{{ worker.experience || 0 }}</span>
+                </li>
+                <li class="flex justify-between items-center">
+                  <span class="font-medium text-gray-600">Miembro desde</span>
+                  <span class="font-bold text-gray-800">{{ formatDate(worker.createdAt) }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  } @else {
+    <div class="flex items-center justify-center min-h-screen">
+      <p class="text-gray-500">Cargando perfil del trabajador...</p>
+    </div>
+  }
+
+  <!-- Image Modal -->
+  @if(isModalOpen()) {
+    <div class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center" (click)="closeModal()">
+      <img [src]="selectedImage()" alt="Portfolio Image" class="max-w-4xl max-h-[90vh] rounded-lg shadow-2xl" (click)="$event.stopPropagation()">
+    </div>
+  }
+</div>

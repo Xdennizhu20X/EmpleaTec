@@ -1,50 +1,56 @@
 <div
   class="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-blue-100 to-purple-100 custom-background">
   <!-- Header -->
-  <header class=" p-6 flex flex-col sm:flex-row w-screen justify-center sm:justify-between items-center z-10">
+  <header class=" pb-4 pt-6 flex flex-col sm:flex-row w-screen justify-center sm:justify-between items-center px-12">
     <div class="flex items-center space-x-2">
-      <svg class="w-8 h-8 text-blue-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-        <path fill-rule="evenodd"
-          d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V8z"
-          clip-rule="evenodd"></path>
-      </svg>
-      <span class="sm:text-2xl text-4xl font-sans sm:font-semibold font-bold text-blue-700">EmpleaTec</span>
+      <img class="w-14 h-14 text-blue-700" src="LogoSinFondo.png" alt="">
+      <span class="sm:text-3xl text-4xl font-sans sm:font-bold font-semibold text-blue-700">EmpleaTec</span>
     </div>
-    <nav class="sm:space-x-4 space-x-2 flex sm:flex-col flex-row justify-center sm:gap-2 sm:pt-2 pt-6 sm:pt-0 sm:flex-row ">
-      <a routerLink="/nosotros"
-        class="px-4 sm:py-2 py-5 rounded-full bg-white shadow-md text-center text-blue-800 hover:bg-white/50 transition-all duration-300">Nosotros</a>
-      <a routerLink="/como-funciona"
-        class="px-4 sm:py-2 py-1 rounded-full bg-white shadow-md text-center text-blue-800 hover:bg-white/50 transition-all duration-300">Como Funciona</a>
+    <nav
+      class="sm:space-x-4 space-x-4 sm:space-y-0 space-y-4 flex sm:flex-col flex-wrap justify-center sm:gap-2 sm:pt-2 pt-6 sm:pt-0 sm:flex-row ">
       <a routerLink="/contacto"
-        class="px-4 sm:py-2 py-5 rounded-full bg-white shadow-md text-center text-blue-800 hover:bg-white/50 transition-all duration-300">Contacto</a>
+        class="px-4 py-2  rounded-full bg-white shadow-sm shadow-blue-300 text-center text-blue-800 hover:bg-white/50 transition-all duration-300">Contacto</a>
+      <a routerLink="/nosotros"
+        class="px-4 py-2  rounded-full bg-white shadow-sm shadow-blue-300 text-center text-blue-800 hover:bg-white/50 transition-all duration-300">Nosotros</a>
+      <a routerLink="/sobre-sitio"
+        class="px-4 py-2  rounded-full bg-white shadow-sm shadow-blue-300 text-center text-blue-800 hover:bg-white/50 transition-all duration-300">Sobre el Sitio</a>
     </nav>
   </header>
 
   <!-- Main Content Container -->
   <div
-    class="relative z-0 max-w-4xl w-full mx-auto my-auto p-8 bg-white rounded-2xl shadow-xl flex flex-col items-center text-center space-y-6">
+    class="relative z-0 max-w-4xl w-full mx-auto my-auto p-8 bg-white rounded-2xl shadow-xl flex flex-col items-center text-center">
     <!-- Title -->
-    <h1 class="sm:text-5xl text-4xl font-extrabold tracking-tight text-gray-800">
+    <h1 class="sm:text-5xl text-4xl font-extrabold tracking-tight text-gray-800 mt-4">
       Conecta con Profesionales
       <br>
       <span class="text-blue-700">de Oficios Tradicionales</span>
     </h1>
 
     <!-- Subtitle/Description -->
-    <p class="sm:text-lg text-md text-blue-800/70 leading-relaxed max-w-2xl">
+    <p class="sm:text-lg text-md text-blue-700 leading-relaxed max-w-2xl mt-4">
       La plataforma que une a trabajadores expertos con clientes que necesitan servicios de calidad en carpintería,
       plomería, electricidad y más.
     </p>
 
-    <button routerLink="/login-client"
-      class="px-6 py-3 rounded-full bg-blue-700 text-white font-medium hover:bg-blue-800 transition-colors duration-300 shadow-md">
-      Iniciar Sesión
-    </button>
-
+    <div class="space-y-2 flex flex-col justify-center">
+      <p class="text-blue-800/70 mt-6">¿Listo para volver?</p>
+      <svg class="w-8 h-8 text-blue-600 mb-2 mx-auto" fill="currentColor" viewBox="0 0 20 20"
+        xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7a1 1 0 011.414-1.414L9 14.586V3a1 1 0 112 0v11.586l4.293-4.293a1 1 0 011.414 0z"
+          clip-rule="evenodd" fill-rule="evenodd"></path>
+      </svg>
+      <button routerLink="/login-client"
+        class="px-6 py-3 rounded-full bg-blue-700 text-white font-medium hover:bg-blue-800 transition-colors duration-300 shadow-md mb-4">
+        Iniciar Sesión
+      </button>
+    </div>
+    
     <!-- Role Selection Section -->
     <div class="flex flex-col md:flex-row gap-x-8 gap-y-6 justify-center items-start w-full pt-4">
       <!-- Card 1: Cliente -->
-      <div class="flex flex-col items-center p-8 bg-white rounded-xl shadow-lg w-full md:w-1/2 max-w-sm">
+      <div class="flex flex-col items-center p-8 bg-white rounded-xl shadow-sm shadow-blue-300 w-full md:w-1/2 max-w-sm">
         <svg class="w-16 h-16 text-blue-600 mb-4" fill="currentColor" viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg">
           <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
@@ -60,12 +66,10 @@
       </div>
 
       <!-- Card 2: Trabajador -->
-      <div class="flex flex-col items-center p-8 bg-white rounded-xl shadow-lg w-full md:w-1/2 max-w-sm">
-        <svg class="w-16 h-16 text-blue-600 mb-4" fill="currentColor" viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7a1 1 0 011.414-1.414L9 14.586V3a1 1 0 112 0v11.586l4.293-4.293a1 1 0 011.414 0z"
-            clip-rule="evenodd" fill-rule="evenodd"></path>
+      <div class="flex flex-col items-center p-8 bg-white rounded-xl shadow-sm shadow-blue-300 w-full md:w-1/2 max-w-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-blue-600 mb-4" viewBox="0 0 24 24">
+          <path fill="currentColor"
+            d="m13.78 15.3l6 6l2.11-2.16l-6-6zm3.72-5.2c-.39 0-.81-.05-1.14-.19L4.97 21.25l-2.11-2.11l7.41-7.4L8.5 9.96l-.72.7l-1.45-1.41v2.86l-.7.7l-3.52-3.56l.7-.7h2.81l-1.4-1.41l3.56-3.56a2.976 2.976 0 0 1 4.22 0L9.89 5.74l1.41 1.4l-.71.71l1.79 1.78l1.82-1.88c-.14-.33-.2-.75-.2-1.12a3.49 3.49 0 0 1 3.5-3.52c.59 0 1.11.14 1.58.42L16.41 6.2l1.5 1.5l2.67-2.67c.28.47.42.97.42 1.6c0 1.92-1.55 3.47-3.5 3.47" />
         </svg>
         <h3 class="font-semibold text-xl text-blue-800 mb-2">Soy Trabajador</h3>
         <p class="text-sm text-blue-700/70 text-center mb-6">

@@ -16,11 +16,8 @@
     </button>
     <!-- Logo & Close Button -->
     <div class="flex items-center justify-between">
-      <div class="flex items-center space-x-3 text-2xl font-bold text-blue-900">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
-          <path
-            d="M12 2L1 9l4 12h14l4-12L12 2zm0 2.236L17.916 9H6.084L12 4.236zM4.928 11h14.144l-2.352 7H7.28L4.928 11z" />
-        </svg>
+      <div class="flex items-center space-x-1 text-2xl font-bold text-blue-900">
+        <img class="w-10 h-9 text-blue-700" src="LogoSinFondo.png" alt="">
         <span>EmpleaTec</span>
       </div>
     </div>
@@ -147,7 +144,7 @@
           <div>
             <h1 class="text-3xl font-bold text-blue-900">👷 Hola de nuevo, <span class="text-blue-700">{{ user?.displayName || 'Usuario' }}!</span></h1>
             <p class="text-gray-800 text-lg sm:mt-2 mt-4 font-semibold">Estas son las últimas ofertas de trabajo para ti.</p>
-            <p class="text-gray-600 sm:mt-1 mt-4">Estas registrado como <span class="text-blue-700 text-lg">trabajador</span>.</p>
+            <p class="text-gray-600 sm:mt-1 mt-4">Estas registrado como <span class="text-blue-700">trabajador</span>.</p>
           </div>
         } @else {
           <div class="space-y-2">
@@ -156,7 +153,7 @@
           </div>
         }
         <div class="text-center sm:mt-0 mt-6">
-          <p class="text-4xl font-bold text-blue-700">12</p>
+          <p class="text-xl font-bold text-blue-700">Encuentra Nuevas</p>
           <p class="text-sm font-medium text-gray-700 sm:mt-0 mt-2">Postulaciones Activas</p>
         </div>
       </div>
@@ -171,14 +168,14 @@
               @for (job of jobs; track job) {
                 <div
                   [routerLink]="['/job-detail', job.id]"
-                  class="bg-white rounded-2xl shadow-lg overflow-hidden group transform hover:scale-105 transition-transform duration-300 ease-in-out cursor-pointer">
+                  class="bg-white rounded-2xl overflow-hidden group transform hover:scale-105 transition-transform duration-300 ease-in-out cursor-pointer shadow-md shadow-blue-300">
                   <div class="relative h-40">
                     <img [src]="job.images[0]" alt="Cover Image" class="w-full h-full object-cover">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                     <div class="absolute bottom-4 left-4 flex items-center space-x-3">
                       <div>
-                        <h4 class="text-white font-semibold">{{ job.clientName }}</h4>
-                        <p class="text-white/80 text-sm">{{ job.location }}</p>
+                        <h4 class="px-2 py-1 rounded-md shadow-sm shadow-blue-300 text-white font-semibold mb-2">{{ job.clientName }}</h4>
+                        <p class="text-white text-sm">📍 {{ job.location }} - EC</p>
                       </div>
                     </div>
                     @if (job.timeline.urgency === 'urgent') {
@@ -187,10 +184,10 @@
                     }
                   </div>
                   <div class="p-6">
-                    <p class="text-sm text-gray-800 font-medium mb-2">{{ job.category }}</p>
-                    <h3 class="text-lg font-bold text-gray-800 mb-3 truncate">{{ job.title }}</h3>
+                    <p class="bg-blue-200 px-3 py-1 rounded-full text-sm inline-block">{{ job.category }}</p>
+                    <h3 class="text-2xl font-bold text-gray-800 truncate my-8">🛠️ {{ job.title }}</h3>
                     <div class="flex justify-between items-center">
-                      <p class="text-xl font-semibold text-blue-600">${{ job.budget.min | number }} - ${{ job.budget.max | number }}</p>
+                      <p class="text-lg font-semibold text-gray-800">💲{{ job.budget.min | number }} - 💲{{ job.budget.max | number }}</p>
                       <button
                         class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">
                         Ver Detalles

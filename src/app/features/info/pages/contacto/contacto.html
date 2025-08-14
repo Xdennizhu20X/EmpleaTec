@@ -1,0 +1,52 @@
+<div
+  class="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-blue-100 to-purple-200 p-4">
+  <div class="absolute top-8 left-8 flex items-center">
+    <button routerLink="/"
+      class="flex items-center bg-blue-900 gap-2 text-white p-2 px-4 rounded-lg hover:bg-blue-800 transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+      Volver
+    </button>
+  </div>
+  <div class="w-full max-w-2xl mx-auto sm:mt-0 mt-10">
+    <div class="bg-white/50 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+      <div class="p-8 sm:p-12">
+        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-blue-900 mb-4 text-center">
+          Contáctanos
+        </h1>
+        <p class="text-lg text-blue-800/80 leading-relaxed max-w-2xl mb-8 text-center">
+          ¿Tienes alguna pregunta o sugerencia? Nos encantaría saber de ti. Completa el formulario y te responderemos lo
+          antes posible.
+        </p>
+
+        <form class="space-y-6">
+          <div>
+            <label for="name" class="block text-sm font-medium text-blue-800">Nombre</label>
+            <input type="text" id="name"
+              class="mt-1 block w-full px-4 py-3 bg-white/70 border border-blue-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+          </div>
+
+          <div>
+            <label for="email" class="block text-sm font-medium text-blue-800">Correo Electrónico</label>
+            <input type="email" id="email"
+              class="mt-1 block w-full px-4 py-3 bg-white/70 border border-blue-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+          </div>
+
+          <div>
+            <label for="message" class="block text-sm font-medium text-blue-800">Mensaje</label>
+            <textarea id="message" rows="4"
+              class="mt-1 block w-full px-4 py-3 bg-white/70 border border-blue-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"></textarea>
+          </div>
+
+          <div class="text-center pt-4">
+            <button type="submit"
+              class="w-full sm:w-auto px-8 py-3 rounded-xl bg-blue-900 text-white font-bold text-lg hover:bg-blue-800 transition-colors duration-300 shadow-lg transform hover:scale-105 cursor-pointer">
+              Enviar Mensaje
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

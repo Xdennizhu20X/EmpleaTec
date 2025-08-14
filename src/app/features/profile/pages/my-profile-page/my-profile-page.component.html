@@ -37,10 +37,11 @@
           <!-- Display Mode -->
           @if (!isEditing()) {
             <div class="flex-grow text-center sm:text-left">
-              <div class="flex flex-row justify-between">
+              <div class="flex sm:flex-row flex-col justify-between">
                 <h1 class="text-3xl font-bold text-blue-900 ">{{ user.displayName }}</h1>
+
                 <button (click)="toggleEdit(user)"
-                  class="glass-button flex items-center gap-2 text-sm font-semibold bg-blue-100 p-2 rounded-lg hover:bg-blue-200 cursor-pointer">
+                  class="glass-button flex items-center gap-2 text-sm font-semibold bg-blue-100 p-2 rounded-lg hover:bg-blue-200 cursor-pointer sm:my-0 my-4 justify-center">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z">
@@ -48,10 +49,11 @@
                   </svg>
                   {{ isEditing() ? 'Cancelar' : 'Editar Perfil' }}
                 </button>
+
               </div>
-              <div class="flex flex-row space-x-8 mt-3">
+              <div class="flex sm:flex-row flex-col space-x-8 mt-3">
                 @if (user.city) {
-                  <p class="text-gray-800">🏙️ {{ user.city }} - EC</p>
+                  <p class="text-gray-800 sm:mb-0 mb-2">🏙️ {{ user.city }} - EC</p>
                 }
                 <p class="text-blue-700">📧 {{ user.email }}</p>
               </div>
@@ -61,7 +63,7 @@
           <!-- Edit Mode -->
           @if (isEditing()) {
             <form [formGroup]="profileForm" (ngSubmit)="saveProfile()"
-              class="bg-white/60 backdrop-blur-lg rounded-2xl shadow-xl p-6 sm:p-8 border border-[#e3efff] ">
+              class="bg-white/60 backdrop-blur-lg rounded-2xl shadow-xl p-4 sm:p-8 border border-[#e3efff] ">
               <h2 class="text-3xl font-bold text-blue-900 mb-8">Editando Perfil</h2>
               <div class="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-6">
                 <!-- Columna de Foto -->
@@ -157,19 +159,22 @@
                       </div>
                     </div>
                   }
-                  <div class="flex flex-row space-x-4 mt-8 border-t border-white/50 pt-6">
+                  <div class="flex sm:flex-row flex-col sm:space-x-4 sm:mt-8 border-t border-white/50 ">
+
                     <button (click)="toggleEdit(user)"
-                      class="glass-button flex items-center gap-2 text-sm font-semibold bg-blue-100 px-8 py-3 rounded-lg hover:bg-blue-200 cursor-pointer transition-all transform hover:scale-105">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      class="glass-button flex items-center text-sm font-semibold bg-blue-100 px-8 py-3 rounded-lg hover:bg-blue-200 cursor-pointer transition-all transform hover:scale-105 sm:mb-0 mb-2">
+                      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z">
                         </path>
                       </svg>
                       {{ isEditing() ? 'Cancelar' : 'Editar Perfil' }}
                     </button>
+
                     <button type="submit" [disabled]="!profileForm.valid || isUploading()"
-                      class="px-8 py-3 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105">Guardar
-                    Cambios</button>
+                      class="px-8 py-3 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105">Guardar Cambios
+                    </button>
+                    
                   </div>
                 </div>
               </div>

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Auth, authState } from '@angular/fire/auth';
-import { collection, collectionData, doc, docData, Firestore, query, where, getCountFromServer, updateDoc } from '@angular/fire/firestore';
+import { collection, collectionData, doc, docData, Firestore, query, where, getCountFromServer, updateDoc, getDocs, documentId, QueryDocumentSnapshot } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { User } from '../models/user.model';
@@ -34,6 +34,16 @@ export class UserService {
     const usersRef = collection(this.firestore, 'users');
     const q = query(usersRef, where('userType', '==', 'worker'), where('isActive', '==', true));
     return collectionData(q, { idField: 'uid' }) as Observable<User[]>;
+  }
+
+  async getWorkersByIds(ids: string[]): Promise<User[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+    const usersRef = collection(this.firestore, 'users');
+    const q = query(usersRef, where(documentId(), 'in', ids));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((doc: QueryDocumentSnapshot) => doc.data() as User);
   }
 
   async getActiveWorkersCount(): Promise<number> {

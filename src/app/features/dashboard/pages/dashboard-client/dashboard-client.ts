@@ -37,6 +37,20 @@ export class DashboardClient implements OnInit {
   categories$!: Observable<Category[]>;
   categoryFilter = new FormControl('todos');
 
+  backgroundImages: string[] = [
+    'https://i.pinimg.com/736x/28/4a/a8/284aa87260ad17790d2ccf14305063e1.jpg',
+    'https://images.ctfassets.net/hrltx12pl8hq/2RwJp3f9UiCnfWBEunwxOQ/f11257994853124d7b1a6a935e678c13/0_hero.webp?fit=fill&w=600&h=400',
+    'https://img.freepik.com/free-vector/dark-hexagonal-background-with-gradient-color_79603-1409.jpg?semt=ais_hybrid&w=740&q=80',
+    'https://psdboom.com/wp-content/uploads/2014/07/dfgh.jpg',
+    'https://www.svgbackgrounds.com/wp-content/uploads/2021/06/ribbon-weave-shiny-repeating-pattern.jpg',
+    'https://www.svgbackgrounds.com/wp-content/uploads/2021/05/dual-ripples-vector-background.jpg',
+    'https://wallpapers.com/images/hd/high-resolution-blue-background-1920-x-1080-9ievy5j853ofx6e1.jpg',
+    'https://media.istockphoto.com/id/2193410425/photo/grunge-paper-texture-or-background.jpg?b=1&s=612x612&w=0&k=20&c=tCbuRGodJxHQSLgHkA31l3uDKgzcYaH9N0u1B3A3Nwg=',
+    'https://t4.ftcdn.net/jpg/05/18/41/91/360_F_518419158_yXXBww2r5Z3XoutBxRX8KHNZOpPjhC03.jpg',
+    'https://thumbs.dreamstime.com/b/vintage-colorful-nature-background-grunge-retro-texture-hd-paper-42811045.jpg',
+    'https://img.freepik.com/free-vector/abstract-dark-blue-polygonal-background_1035-9700.jpg'
+  ];
+
   ngOnInit(): void {
     this.user$ = this.userService.currentUserProfile$;
     this.loadActiveWorkersCount();
@@ -53,13 +67,13 @@ export class DashboardClient implements OnInit {
         }, {} as { [key: string]: number });
 
         const categories: Category[] = uniqueOficios.map(oficio => ({
-          id: oficio, // ID is the oficio name itself
-          name: `🔎 ${oficio}`,
+          id: oficio,
+          name: `${this.getIconForOficio(oficio)} ${oficio}`,
           count: categoryCounts[oficio]
         }));
 
         const totalCount = workers.length;
-        categories.unshift({ id: 'todos', name: 'Todos', count: totalCount });
+        categories.unshift({ id: 'todos', name: '🔍 Todos', count: totalCount });
 
         return categories;
       })
@@ -71,10 +85,15 @@ export class DashboardClient implements OnInit {
     ]).pipe(
       map(([workers, selectedCategory]) => {
         this.allWorkers = workers;
-        if (selectedCategory === 'todos' || !selectedCategory) {
-          return workers;
+        let filtered = workers;
+        if (selectedCategory !== 'todos' && selectedCategory) {
+          filtered = workers.filter(worker => worker.oficios?.includes(selectedCategory));
         }
-        return workers.filter(worker => worker.oficios?.includes(selectedCategory));
+        // Assign a cover image to each worker
+        return filtered.map((worker, index) => ({
+          ...worker,
+          coverURL: this.backgroundImages[index % this.backgroundImages.length]
+        }));
       })
     );
   }
@@ -131,5 +150,21 @@ export class DashboardClient implements OnInit {
       const docRef = await addDoc(chatsCollection, newChat);
       this.router.navigate(['/chat', docRef.id]);
     }
+  }
+
+  getIconForOficio(oficio: string): string {
+    const iconMap: { [key: string]: string } = {
+      'plomería': '🪠',
+      'cerrajería': '🔑',
+      'soldadura': '🧲',
+      'electricidad': '⚡',
+      'carpintería': '🪚',
+      'albanileria': '🧱',
+      'pintor': '🎨',
+      'jardinería': '🌳',
+      'limpieza': '🧹',
+      'reparación de electrodomésticos': '🔧',
+    };
+    return iconMap[oficio.toLowerCase()] || '🧱';
   }
 }

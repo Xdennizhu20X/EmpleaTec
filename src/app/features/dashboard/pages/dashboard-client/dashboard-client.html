@@ -16,11 +16,8 @@
         </svg>
       </button>
       <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-3 text-2xl font-bold text-blue-900">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
-            <path
-              d="M12 2L1 9l4 12h14l4-12L12 2zm0 2.236L17.916 9H6.084L12 4.236zM4.928 11h14.144l-2.352 7H7.28L4.928 11z" />
-          </svg>
+        <div class="flex items-center space-x-1 text-2xl font-bold text-blue-900">
+          <img class="w-10 h-9 text-blue-700" src="LogoSinFondo.png" alt="">
           <span>EmpleaTec</span>
         </div>
       </div>
@@ -159,9 +156,6 @@
         <div>
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-blue-900">Profesionales Destacados</h2>
-            @if (filteredWorkers$ | async; as workers) {
-              <p class="text-gray-600 font-medium">{{ workers.length }} encontrados</p>
-            }
           </div>
           @if (filteredWorkers$ | async; as workers) {
             @if (workers.length > 0) {
@@ -170,16 +164,16 @@
                 <!-- Worker Card -->
                 @for (worker of workers; track worker) {
                   <a [routerLink]="['/worker', worker.uid]"
-                    class="block bg-white rounded-2xl shadow-lg overflow-hidden group transform hover:scale-105 transition-transform duration-300 ease-in-out">
+                    class="block bg-white rounded-2xl overflow-hidden group transform hover:scale-105 transition-transform duration-300 ease-in-out shadow-md shadow-blue-300">
                     <div
-                      class="relative h-40 bg-[url('https://i.pinimg.com/736x/6f/c1/22/6fc122d686ed4a9acc6b37090d81f00f.jpg')]">
+                      class="relative h-40" [style.background-image]="'url(' + worker.coverURL + ')'">
                       <!-- Placeholder for cover image -->
                       <img [src]="worker.photoURL || 'https://via.placeholder.com/150'" alt="Avatar"
                         class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 h-24 w-24 rounded-full border-4 border-white shadow-md object-cover">
                       </div>
                       <div class="pt-16 pb-6 px-6 text-center">
-                        <h3 class="text-xl font-bold text-gray-800">{{ worker.displayName }}</h3>
-                        <p class="text-sm text-gray-500 font-medium">{{ worker.city || 'Ubicación no especificada' }}</p>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">{{ worker.displayName }}</h3>
+                        <p class="text-sm text-gray-500 font-medium">🌆 {{ worker.city || 'Ubicación no especificada' }} - EC</p>
                         <!-- Oficios Badges -->
                         <div class="flex flex-wrap justify-center gap-2 my-4">
                           @for (oficio of worker.oficios; track oficio) {
@@ -190,25 +184,16 @@
                         </div>
                         <div class="flex justify-center items-center gap-4 my-4">
                           <div class="flex items-center gap-1 text-gray-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                              <path fill-rule="evenodd"
-                                d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7z"
-                                clip-rule="evenodd" />
-                            </svg>
-                            <span class="text-sm">{{ worker.experience || 'N/A' }} años de exp.</span>
+                            <span class="text-sm">⌛ {{ worker.experience || 'N/A' }} años de exp.</span>
                           </div>
                           <div class="flex items-center gap-1 text-gray-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                              <path
-                                d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.518.759a1.037 1.037 0 00-.54 1.06l.74 4.435a1 1 0 01.986.836H3a1 1 0 01-1-1V3zM14.39 3.836a1 1 0 01.54 1.06l-.74 4.435a1 1 0 01-1.518.759l-1.518-.759a1.037 1.037 0 00-1.06.54l-.74 4.435a1 1 0 01-.986.836H17a1 1 0 011 1v-2.153a1 1 0 01-.836-.986l-4.435-.74a1 1 0 01-1.06.54l-.759 1.518a1.037 1.037 0 00-.54 1.06l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2.153a1 1 0 01-.986-.836l-.74-4.435a1 1 0 01.54-1.06l1.518-.759a1.037 1.037 0 00.54-1.06l-.74-4.435a1 1 0 01-.986-.836H14a1 1 0 01.39-.836z" />
-                            </svg>
-                            <span class="text-sm">{{ worker.phone || 'No disponible' }}</span>
+                            <span class="text-sm">📱 {{ worker.phone || 'No disponible' }}</span>
                           </div>
                         </div>
                         <div (click)="contactWorker(worker); $event.stopPropagation(); $event.preventDefault()"
                           class="flex justify-center">
                           <button class="bg-blue-600 px-6 py-2 rounded-lg text-white font-semibold hover:bg-blue-400">
-                            Contactar
+                            📝 Contactar
                           </button>
                         </div>
                       </div>
