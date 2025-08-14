@@ -50,8 +50,15 @@
                 </div>
                 <div class="mt-6">
                   <h3 class="text-xl font-semibold text-blue-900 mb-2">Presupuesto</h3>
-                  <p class="text-2xl font-bold text-blue-700">${{ job.budget.min | number }} - ${{ job.budget.max | number }}
-                  </p>
+                  @if (job.budget.type === 'fixed') {
+                    <p class="text-2xl font-bold text-blue-700">
+                      ${{ job.budget.min | number }} min - ${{ job.budget.max | number }} max (Presupuesto en lo que dure el proyecto)
+                    </p>
+                  } @else if (job.budget.type === 'hourly') {
+                    <p class="text-2xl font-bold text-blue-700">
+                      ${{ job.budget.min | number }} min - ${{ job.budget.max | number }} max (Presupuesto por horas)
+                    </p>
+                  }
                 </div>
                 <div class="mt-6">
                   <h3 class="text-xl font-semibold text-blue-900 mb-2">Cronograma</h3>

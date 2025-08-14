@@ -83,15 +83,17 @@ export class MyProjectsComponent implements OnInit {
   getStatusInfo(status: string) {
     switch (status) {
       case 'open':
-        return { text: 'Abierto', color: 'bg-blue-100 text-blue-800' };
+        return { text: 'Abierto', color: 'bg-green-100 text-green-800 p-2' };
       case 'in_progress':
-        return { text: 'En Progreso', color: 'bg-yellow-100 text-yellow-800' };
+        return { text: 'En Progreso', color: 'bg-yellow-100 text-yellow-800 p-2' };
       case 'completed':
-        return { text: 'Completado', color: 'bg-green-100 text-green-800' };
+        return { text: 'Completado', color: 'bg-green-100 text-green-800 p-2' };
       case 'cancelled':
-        return { text: 'Cancelado', color: 'bg-red-100 text-red-800' };
+        return { text: 'Cancelado', color: 'bg-red-100 text-red-800 p-2' };
+      case 'closed':
+        return { text: 'Cerrado', color: 'bg-yellow-100 text-yellow-800 p-2' };
       default:
-        return { text: 'Desconocido', color: 'bg-gray-100 text-gray-800' };
+        return { text: 'Desconocido', color: 'bg-gray-100 text-gray-800 p-2' };
     }
   }
 

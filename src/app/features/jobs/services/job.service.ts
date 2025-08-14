@@ -48,6 +48,11 @@ export class JobService {
     return collectionData(q, { idField: 'id' as keyof Job }) as Observable<Job[]>;
   }
 
+  updateJobStatus(jobId: string, status: 'closed' | 'completed'): Promise<void> {
+    const jobDocRef = doc(this.firestore, `jobs/${jobId}`);
+    return updateDoc(jobDocRef, { status });
+  }
+
   async updateApplicantStatus(jobId: string, applicantId: string, status: 'accepted' | 'rejected'): Promise<void> {
     const jobDocRef = doc(this.firestore, `jobs/${jobId}`);
     const jobDoc = await getDoc(jobDocRef);
