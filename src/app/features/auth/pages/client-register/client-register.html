@@ -1,5 +1,4 @@
-<div
-  class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100 custom-background">
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100 custom-background">
   <div class="relative sm:w-full w-[90%] max-w-md p-6 bg-white rounded-2xl shadow-lg">
     <!-- Header with Back Button and Logo -->
     <div class="flex justify-between items-center mb-6">
@@ -25,6 +24,39 @@
     <h1 class="text-3xl font-bold text-blue-800 text-center mb-2">Crear Cuenta</h1>
     <p class="text-sm text-blue-500 text-center mb-8">Como Cliente</p>
 
+    <!-- Loading State -->
+    @if (isLoading) {
+      <div class="mb-6 p-4 bg-blue-50 rounded-lg text-center">
+        <div class="flex justify-center">
+          <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </div>
+        <p class="mt-2 text-blue-700">Procesando registro...</p>
+        @if (uploadProgress) {
+          <div class="w-full bg-gray-200 rounded-full h-2.5 mt-3">
+            <div class="bg-blue-600 h-2.5 rounded-full" [style.width.%]="uploadProgress"></div>
+          </div>
+          <p class="text-xs text-blue-600 mt-1">{{ uploadProgress }}% completado</p>
+        }
+      </div>
+    }
+
+    <!-- Error Message -->
+    @if (errorMessage) {
+      <div class="mb-6 p-4 bg-red-50 text-red-700 rounded-lg text-center">
+        {{ errorMessage }}
+      </div>
+    }
+
+    <!-- Success Message -->
+    @if (successMessage) {
+      <div class="mb-6 p-4 bg-green-50 text-green-700 rounded-lg text-center">
+        {{ successMessage }}
+      </div>
+    }
+
     <!-- Form -->
     <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="space-y-6">
       <div>
@@ -32,101 +64,114 @@
         <input type="text" id="fullName" formControlName="fullName" placeholder="Tu nombre completo"
           class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-black">
           @if (registerForm.get('fullName')?.invalid && registerForm.get('fullName')?.touched) {
-            <div
-              class="text-red-500 text-xs mt-1">
+            <div class="text-red-500 text-xs mt-1">
               @if (registerForm.get('fullName')?.errors?.['required']) {
                 <span>El nombre completo es requerido.</span>
               }
             </div>
           }
-        </div>
-        <div>
-          <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Correo electrónico</label>
-          <input type="email" id="email" formControlName="email" placeholder="tu@email.com"
-            class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-black">
-            @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
-              <div
-                class="text-red-500 text-xs mt-1">
-                @if (registerForm.get('email')?.errors?.['required']) {
-                  <span>El correo electrónico es requerido.</span>
-                }
-                @if (registerForm.get('email')?.errors?.['email']) {
-                  <span>El formato del correo electrónico no es
-                  válido.</span>
-                }
-              </div>
-            }
-          </div>
-          <div>
-            <label for="profilePicture" class="block text-sm font-semibold text-gray-700 mb-2">
-              Foto de perfil
-            </label>
-
-            <div class="flex items-center gap-4">
-              <!-- Imagen de previsualización opcional -->
-              @if (selectedImage) {
-                <img [src]="selectedImage" alt="Vista previa"
-                  class="w-16 h-16 rounded-full object-cover border border-gray-300" />
+      </div>
+      
+      <div>
+        <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Correo electrónico</label>
+        <input type="email" id="email" formControlName="email" placeholder="tu@email.com"
+          class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-black">
+          @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+            <div class="text-red-500 text-xs mt-1">
+              @if (registerForm.get('email')?.errors?.['required']) {
+                <span>El correo electrónico es requerido.</span>
               }
-
-              <label for="profilePicture"
-                class="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg shadow-sm cursor-pointer hover:bg-blue-600 transition duration-200">
-                Seleccionar imagen
-              </label>
-            </div>
-
-            <input type="file" id="profilePicture" (change)="onFileSelected($event)" accept="image/*" class="hidden" />
-
-            <p class="mt-1 text-xs text-gray-500">
-              Formatos permitidos: JPG, PNG. Tamaño máximo: 2MB.
-            </p>
-          </div>
-          <div>
-            <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Contraseña</label>
-            <input type="password" id="password" formControlName="password" placeholder="********"
-              class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-black">
-              @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
-                <div
-                  class="text-red-500 text-xs mt-1">
-                  @if (registerForm.get('password')?.errors?.['required']) {
-                    <span>La contraseña es requerida.</span>
-                  }
-                  @if (registerForm.get('password')?.errors?.['minlength']) {
-                    <span>La contraseña debe tener al menos 6
-                    caracteres.</span>
-                  }
-                </div>
+              @if (registerForm.get('email')?.errors?.['email']) {
+                <span>El formato del correo electrónico no es válido.</span>
               }
             </div>
-            <div>
-              <label for="confirmPassword" class="block text-sm font-semibold text-gray-700 mb-2">Confirmar contraseña</label>
-              <input type="password" id="confirmPassword" formControlName="confirmPassword" placeholder="********"
-                class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-black">
-                @if (registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched) {
-                  <div
-                    class="text-red-500 text-xs mt-1">
-                    @if (registerForm.get('confirmPassword')?.errors?.['required']) {
-                      <span>La confirmación de contraseña es
-                      requerida.</span>
-                    }
-                  </div>
-                }
-                @if (registerForm.errors?.['passwordMismatch'] && registerForm.get('confirmPassword')?.touched) {
-                  <div
-                    class="text-red-500 text-xs mt-1">
-                    <span>Las contraseñas no coinciden.</span>
-                  </div>
-                }
-              </div>
-              <button type="submit" [disabled]="registerForm.invalid"
-                class="w-full py-3 rounded-md bg-blue-700 text-white font-semibold hover:bg-blue-800 transition-colors duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
-                Continuar
-              </button>
-            </form>
+          }
+      </div>
+      
+      <div>
+        <label for="profilePicture" class="block text-sm font-semibold text-gray-700 mb-2">
+          Foto de perfil
+        </label>
 
-            <!-- Link to Login -->
-            <p class="text-sm text-blue-600 text-center mt-6">
-              ¿Ya tienes cuenta? <a routerLink="/login-client" class="hover:underline">Inicia sesión</a>
-            </p>
-          </div>
+        <div class="flex items-center gap-4">
+          <!-- Imagen de previsualización -->
+          @if (selectedImage) {
+            <img [src]="selectedImage" alt="Vista previa"
+              class="w-16 h-16 rounded-full object-cover border border-gray-300" />
+          } @else {
+            <div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+              <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+            </div>
+          }
+
+          <label for="profilePicture"
+            class="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg shadow-sm cursor-pointer hover:bg-blue-600 transition duration-200">
+            {{ selectedFile ? 'Cambiar imagen' : 'Seleccionar imagen' }}
+          </label>
         </div>
+
+        <input type="file" id="profilePicture" (change)="onFileSelected($event)" accept="image/*" class="hidden" />
+
+        @if (errorMessage && errorMessage.includes('imagen')) {
+          <p class="mt-1 text-xs text-red-500">{{ errorMessage }}</p>
+        } @else {
+          <p class="mt-1 text-xs text-gray-500">
+            Formatos permitidos: JPG, PNG. Tamaño máximo: 5MB.
+          </p>
+        }
+      </div>
+      
+      <div>
+        <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Contraseña</label>
+        <input type="password" id="password" formControlName="password" placeholder="********"
+          class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-black">
+          @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+            <div class="text-red-500 text-xs mt-1">
+              @if (registerForm.get('password')?.errors?.['required']) {
+                <span>La contraseña es requerida.</span>
+              }
+              @if (registerForm.get('password')?.errors?.['minlength']) {
+                <span>La contraseña debe tener al menos 6 caracteres.</span>
+              }
+            </div>
+          }
+      </div>
+      
+      <div>
+        <label for="confirmPassword" class="block text-sm font-semibold text-gray-700 mb-2">Confirmar contraseña</label>
+        <input type="password" id="confirmPassword" formControlName="confirmPassword" placeholder="********"
+          class="w-full px-4 py-2 rounded-md shadow-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-black">
+          @if (registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched) {
+            <div class="text-red-500 text-xs mt-1">
+              @if (registerForm.get('confirmPassword')?.errors?.['required']) {
+                <span>La confirmación de contraseña es requerida.</span>
+              }
+            </div>
+          }
+          @if (registerForm.errors?.['passwordMismatch'] && registerForm.get('confirmPassword')?.touched) {
+            <div class="text-red-500 text-xs mt-1">
+              <span>Las contraseñas no coinciden.</span>
+            </div>
+          }
+      </div>
+      
+      <button type="submit" [disabled]="registerForm.invalid || isLoading"
+        class="w-full py-3 rounded-md bg-blue-700 text-white font-semibold hover:bg-blue-800 transition-colors duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center">
+        @if (isLoading) {
+          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        }
+        {{ isLoading ? 'Procesando...' : 'Registrarse' }}
+      </button>
+    </form>
+
+    <!-- Link to Login -->
+    <p class="text-sm text-blue-600 text-center mt-6">
+      ¿Ya tienes cuenta? <a routerLink="/login-client" class="hover:underline">Inicia sesión</a>
+    </p>
+  </div>
+</div>
